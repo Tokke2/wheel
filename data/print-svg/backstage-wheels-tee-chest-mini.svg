@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" width="90mm" height="90mm">
+  <title>Backstage Wheels – T-shirt Bröstmini "Blixt + BW" (Redigerbar Vektor-SVG)</title>
+  <desc>Diskret vänsterbröst-tryck: liten guld-blixt över BW-monogram med tunn ram. Klassisk mini-emblem-placering för t-shirt, skjorta och workwear. Skalbar vektor med separata lager.</desc>
+
+  <g id="lager-ram">
+    <circle cx="160" cy="160" r="138" fill="#0B0C10" stroke="#F97316" stroke-width="10"/>
+    <circle cx="160" cy="160" r="118" fill="none" stroke="#FACC15" stroke-width="4"/>
+  </g>
+
+  <g id="lager-blixt">
+    <polygon points="178,52 118,182 154,182 128,268 212,150 174,150 208,52" fill="#FACC15"/>
+  </g>
+
+  <g id="lager-bw-text">
+    <text x="160" y="212" text-anchor="middle" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="56" font-weight="800" letter-spacing="4" fill="#FFFFFF">BW</text>
+    <text x="160" y="248" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" letter-spacing="3" fill="#F97316">VIP ROCK LIMO</text>
+  </g>
+</svg>

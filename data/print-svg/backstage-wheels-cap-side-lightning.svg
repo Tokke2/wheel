@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" width="60mm" height="38mm">
+  <title>Backstage Wheels – Keps Sidobrodyr "Blixt + BW" (Redigerbar Vektor-SVG)</title>
+  <desc>Liten sidoplacerad brodyr/dekal till kepsens sida: guld-blixt följt av BW-text i kraftig kontur. Anpassad för flatbrodyr och skuren vinyl. Skalbar vektor med separata lager.</desc>
+
+  <g id="lager-blixt-sida">
+    <polygon points="86,30 40,120 68,120 48,172 118,96 88,96 108,30" fill="#FACC15" stroke="#B91C1C" stroke-width="6"/>
+  </g>
+
+  <g id="lager-bw-text-sida">
+    <text x="200" y="118" text-anchor="middle" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="84" font-weight="800" letter-spacing="6" fill="#FFFFFF" stroke="#0B0C10" stroke-width="4">BW</text>
+    <text x="200" y="158" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700" letter-spacing="4" fill="#F97316">VIP ROCK LIMO</text>
+  </g>
+</svg>

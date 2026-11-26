@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1150" width="320mm" height="409mm">
+  <title>Backstage Wheels – T-shirt Ryggmonogram "BW + Blixt" (Redigerbar Vektor-SVG)</title>
+  <desc>Stort skulder-till-skulder ryggtryck: gigantiskt BW-monogram med tvillingblixtar, VIP ROCK LIMO-banderoll och stadslinje. Skalbar vektor med separata lager för screenprint och DTG.</desc>
+
+  <g id="lager-ram">
+    <rect x="50" y="50" width="800" height="1050" rx="24" fill="none" stroke="#B91C1C" stroke-width="14"/>
+  </g>
+
+  <g id="lager-bw-monogram">
+    <text x="450" y="430" text-anchor="middle" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="330" font-weight="800" letter-spacing="8" fill="#FFFFFF">BW</text>
+  </g>
+
+  <g id="lager-tvillingblixtar">
+    <polygon points="205,180 130,420 190,420 140,640 290,380 225,380 280,180" fill="#FACC15"/>
+    <polygon points="695,180 770,420 710,420 760,640 610,380 675,380 620,180" fill="#FACC15"/>
+  </g>
+
+  <g id="lager-banderoll">
+    <polygon points="150,560 750,560 720,690 180,690" fill="#B91C1C" stroke="#FACC15" stroke-width="6"/>
+    <text x="450" y="640" text-anchor="middle" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="52" font-weight="800" letter-spacing="8" fill="#FFFFFF">VIP ROCK LIMO</text>
+  </g>
+
+  <g id="lager-underrubrik">
+    <text x="450" y="790" text-anchor="middle" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="60" font-weight="800" letter-spacing="14" fill="#F97316">10 M HUMMER H2</text>
+  </g>
+
+  <g id="lager-stader">
+    <text x="450" y="880" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" letter-spacing="6" fill="#FFFFFF">DALARNA · STOCKHOLM · UPPSALA</text>
+    <text x="450" y="930" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" letter-spacing="6" fill="#FFFFFF">VÄSTERÅS · ÖREBRO · GÄVLE</text>
+  </g>
+
+  <g id="lager-bottenlinje">
+    <rect x="250" y="990" width="400" height="8" fill="#FACC15"/>
+    <text x="450" y="1050" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" letter-spacing="10" fill="#F97316">BACKSTAGEWHEELS.SE</text>
+  </g>
+</svg>
