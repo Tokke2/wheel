@@ -1,6 +1,6 @@
 {
   "name": "backstage-wheels",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "private": true,
   "description": "Backstage Wheels – Hummer H2 Limousine hemsida & gömd kontrollpanel",
   "main": "server.js",

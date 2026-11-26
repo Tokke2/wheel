@@ -255,29 +255,90 @@
 
   const DEFAULT_PRINT_SVGS = [
     {
+      filename: "backstage-wheels-crest-v2.svg",
+      title: "Sköld-emblem v2 \"Legends of Rock\" (Snittig & Rockig)",
+      usage: "Huvudlogo/tryck: T-shirt, hoodie, keps, dekal, kvitto, affisch",
+      dimensions: "300 × 330 mm (100% skalbar vektor)",
+      updatedAt: "2026-11-26 11:53",
+      svgContent: `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1100" width="300mm" height="330mm">
+  <title>Backstage Wheels – Sköld-emblem v2 "Legends of Rock" (Redigerbar Vektor-SVG)</title>
+  <desc>Snittig, rockig andra version av sköld-emblemet: vinklad sköld med skarpa vingfjädrar, tvillingblixtar, tung typografi och banderoll. Skalbar vektor med separata lager för tryckeri, screentryck, DTG och dekalskärning.</desc>
+
+  <g id="lager-kicker">
+    <text x="500" y="120" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" letter-spacing="10" fill="#FFFFFF">SVERIGES MÄKTIGASTE LIMMO</text>
+  </g>
+
+  <g id="lager-vingar">
+    <polygon points="195,230 55,170 150,290" fill="#B91C1C"/>
+    <polygon points="190,300 35,270 155,370" fill="#F97316"/>
+    <polygon points="185,370 55,400 160,450" fill="#FACC15"/>
+    <polygon points="180,440 90,520 165,520" fill="#B91C1C"/>
+    <polygon points="805,230 945,170 850,290" fill="#B91C1C"/>
+    <polygon points="810,300 965,270 845,370" fill="#F97316"/>
+    <polygon points="815,370 945,400 840,450" fill="#FACC15"/>
+    <polygon points="820,440 910,520 835,520" fill="#B91C1C"/>
+  </g>
+
+  <g id="lager-skold">
+    <polygon points="200,190 800,190 870,330 500,930 130,330" fill="#0B0C10" stroke="#B91C1C" stroke-width="18"/>
+    <polygon points="230,225 770,225 830,340 500,880 170,340" fill="none" stroke="#F97316" stroke-width="6"/>
+  </g>
+
+  <g id="lager-tvillingblixtar">
+    <polygon points="330,230 255,430 310,430 250,640 385,400 320,400 375,230" fill="#FACC15"/>
+    <polygon points="670,230 745,430 690,430 750,640 615,400 680,400 625,230" fill="#FACC15"/>
+  </g>
+
+  <g id="lager-typografi">
+    <text x="500" y="360" text-anchor="middle" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="105" font-weight="800" letter-spacing="6" fill="#FFFFFF">BACKSTAGE</text>
+    <text x="500" y="470" text-anchor="middle" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="105" font-weight="800" letter-spacing="14" fill="#F97316">WHEELS</text>
+  </g>
+
+  <g id="lager-banderoll">
+    <polygon points="180,690 820,690 790,805 210,805" fill="#B91C1C" stroke="#FACC15" stroke-width="6"/>
+    <text x="500" y="765" text-anchor="middle" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="54" font-weight="800" letter-spacing="8" fill="#FFFFFF">LEGENDS OF ROCK</text>
+  </g>
+
+  <g id="lager-bottentext">
+    <text x="500" y="860" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="27" font-weight="700" letter-spacing="4" fill="#FACC15">VIP ROCK LIMO · 10 M HUMMER H2</text>
+  </g>
+</svg>`
+    },
+    {
       filename: "backstage-wheels-front-crest.svg",
-      title: "Bröst- & Frontemblem (Sköld, Vingar & Blixt)",
-      usage: "T-shirt bröst, Hoodie fram, Tygmärke / Transfer",
+      title: "Bröst- & Frontemblem (Sköld + Vingar + Blixt)",
+      usage: "T-shirt bröst/mage, Hoodie front, Jackmärke",
       dimensions: "300 × 300 mm (100% skalbar vektor)",
-      updatedAt: "2026-11-26 07:09",
+      updatedAt: "2026-11-26 11:53",
       svgContent: `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" width="300mm" height="300mm">
   <title>Backstage Wheels – Bröst-/Fronttryck (Redigerbar Vektor-SVG)</title>
+  <desc>Tryckoriginal i skalbar vektor med separata lager för screenprint, DTG, transfer och brodyr.</desc>
+
+  <!-- LAGER 1: YTTRE SKÖLD & VINGAR -->
   <g id="lager-ram-och-vingar" fill="none" stroke="#F59E0B" stroke-width="14" stroke-linejoin="round">
     <polygon points="500,70 860,210 810,690 500,920 190,690 140,210" fill="#11131B" stroke="#F97316" stroke-width="18"/>
     <polygon points="500,105 822,232 778,668 500,880 222,668 178,232" fill="none" stroke="#F59E0B" stroke-width="6"/>
+    <!-- Vänster vinge -->
     <path d="M140,290 L35,250 L75,340 L25,355 L85,425 L48,450 L158,495" fill="#F97316" stroke="#DC2626" stroke-width="8"/>
+    <!-- Höger vinge -->
     <path d="M860,290 L965,250 L925,340 L975,355 L915,425 L952,450 L842,495" fill="#F97316" stroke="#DC2626" stroke-width="8"/>
   </g>
+
+  <!-- LAGER 2: CENTRUMBLIXT & HJUL -->
   <g id="lager-blixt-och-hjul">
     <circle cx="500" cy="430" r="165" fill="none" stroke="#38BDF8" stroke-width="12" stroke-dasharray="28 14"/>
     <circle cx="500" cy="430" r="132" fill="#181B26" stroke="#F8FAFC" stroke-width="8"/>
     <polygon points="535,235 395,445 495,445 462,635 615,405 512,405" fill="#FACC15" stroke="#DC2626" stroke-width="10" stroke-linejoin="round"/>
   </g>
+
+  <!-- LAGER 3: BANDEROLL & REDIGERBAR TEXT -->
   <g id="lager-huvudtext">
     <rect x="110" y="610" width="780" height="118" rx="14" fill="#DC2626" stroke="#FACC15" stroke-width="10"/>
     <text x="500" y="692" text-anchor="middle" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="78" font-weight="800" letter-spacing="5" fill="#FFFFFF">BACKSTAGE WHEELS</text>
   </g>
+
   <g id="lager-undertext">
     <text x="500" y="790" text-anchor="middle" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="42" font-weight="700" letter-spacing="8" fill="#FACC15">LEGENDS OF ROCK · VIP LIMO</text>
     <text x="500" y="842" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="26" font-weight="700" letter-spacing="6" fill="#E2E8F0">10 METER HUMMER H2 · SWEDEN</text>
@@ -286,34 +347,47 @@
     },
     {
       filename: "backstage-wheels-back-tour-print.svg",
-      title: "Stort Ryggtryck – 10m Hummer H2 & Städer",
-      usage: "T-shirt rygg, Heavy Hoodie rygg, Poster / Rollup",
+      title: "Stort Ryggtryck – 10M Limo & Turnéstäder",
+      usage: "T-shirt helrygg, Zip-Hoodie rygg, Poster",
       dimensions: "320 × 373 mm (100% skalbar vektor)",
-      updatedAt: "2026-11-26 07:09",
+      updatedAt: "2026-11-26 11:53",
       svgContent: `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1400" width="320mm" height="373mm">
   <title>Backstage Wheels – Stort Ryggtryck T-shirt &amp; Hoodie (Redigerbar Vektor-SVG)</title>
+  <desc>Vektoriserat ryggtryck med 10-meters limousin-silhuett, blixtar och redigerbara rubriker.</desc>
+
+  <!-- LAGER 1: DEKORBLIXTAR -->
   <g id="lager-blixtar" fill="#F97316" stroke="#FACC15" stroke-width="6">
     <polygon points="230,110 130,300 215,300 165,470 320,255 228,255"/>
     <polygon points="970,110 870,300 955,300 905,470 1060,255 968,255"/>
   </g>
+
+  <!-- LAGER 2: TOPPRUBRIK -->
   <g id="lager-topprubrik">
     <text x="600" y="215" text-anchor="middle" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="112" font-weight="800" letter-spacing="8" fill="#FFFFFF" stroke="#DC2626" stroke-width="4">BACKSTAGE</text>
     <text x="600" y="335" text-anchor="middle" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="118" font-weight="800" letter-spacing="12" fill="#F97316">WHEELS</text>
     <text x="600" y="405" text-anchor="middle" font-family="Oswald, Impact, sans-serif" font-size="40" font-weight="700" letter-spacing="10" fill="#38BDF8">10 METER REN HÅRDROCK PÅ VÄGEN</text>
   </g>
+
+  <!-- LAGER 3: VEKTORSILHUETT 10M HUMMER H2 STRETCH LIMO -->
   <g id="lager-limo-vektor" transform="translate(80, 490)">
     <rect x="0" y="185" width="1040" height="12" rx="6" fill="#DC2626"/>
+    <!-- Kaross -->
     <path d="M45,155 L45,95 L165,90 L225,35 L865,35 L915,85 L995,92 L995,155 Z" fill="#141722" stroke="#F8FAFC" stroke-width="10" stroke-linejoin="round"/>
+    <!-- Tonade VIP-rutor -->
     <rect x="245" y="52" width="175" height="42" rx="4" fill="#38BDF8" opacity="0.85"/>
     <rect x="438" y="52" width="195" height="42" rx="4" fill="#38BDF8" opacity="0.85"/>
     <rect x="651" y="52" width="195" height="42" rx="4" fill="#38BDF8" opacity="0.85"/>
+    <!-- Eldlinje längs sidan -->
     <path d="M110,122 Q320,96 540,122 T955,118" fill="none" stroke="#F97316" stroke-width="10"/>
+    <!-- Hjul -->
     <circle cx="155" cy="160" r="44" fill="#0B0D13" stroke="#FACC15" stroke-width="10"/>
     <circle cx="155" cy="160" r="18" fill="#F97316"/>
     <circle cx="885" cy="160" r="44" fill="#0B0D13" stroke="#FACC15" stroke-width="10"/>
     <circle cx="885" cy="160" r="18" fill="#F97316"/>
   </g>
+
+  <!-- LAGER 4: TURNÉ / STÄDER / BUDKSAP (REDIGERBAR TEXT) -->
   <g id="lager-turnetext">
     <line x1="180" y1="760" x2="1020" y2="760" stroke="#F59E0B" stroke-width="6"/>
     <text x="600" y="845" text-anchor="middle" font-family="Oswald, Impact, sans-serif" font-size="62" font-weight="700" letter-spacing="6" fill="#FACC15">LEGENDS OF ROCK EDITION</text>
@@ -327,21 +401,25 @@
     },
     {
       filename: "backstage-wheels-cap-embroidery.svg",
-      title: "Keps- & Brodyremblem (3D-Brodyr & Skuren Vinyl)",
-      usage: "Snapback-keps, Beanie-mössa, Dekalskärning",
-      dimensions: "140 × 73.5 mm (100% skalbar vektor)",
-      updatedAt: "2026-11-26 07:09",
+      title: "Keps- & Brodyremblem (Kraftiga linjer)",
+      usage: "Truckerkeps, Beanie-mössa, Skuren vinyldekal",
+      dimensions: "140 × 73,5 mm (100% skalbar vektor)",
+      updatedAt: "2026-11-26 11:53",
       svgContent: `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 420" width="140mm" height="73.5mm">
   <title>Backstage Wheels – Kepsbrodyr &amp; Vinylskärning (Ren Vektor-SVG)</title>
+  <desc>Förenklad distinkt vektor med kraftiga konturer anpassad för 3D-puffbrodyr på keps, mössa och skuren vinyl.</desc>
+
   <g id="lager-brodyr-ram">
     <rect x="24" y="24" width="752" height="372" rx="44" fill="none" stroke="#FACC15" stroke-width="18"/>
     <rect x="48" y="48" width="704" height="324" rx="30" fill="none" stroke="#F97316" stroke-width="6"/>
   </g>
+
   <g id="lager-brodyr-blixt">
     <polygon points="155,78 88,215 148,215 122,342 222,188 158,188" fill="#F97316"/>
     <polygon points="645,78 578,215 638,215 612,342 712,188 648,188" fill="#F97316"/>
   </g>
+
   <g id="lager-brodyr-text">
     <text x="400" y="205" text-anchor="middle" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="86" font-weight="800" letter-spacing="4" fill="#FFFFFF">BACKSTAGE</text>
     <text x="400" y="295" text-anchor="middle" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="76" font-weight="800" letter-spacing="10" fill="#FACC15">WHEELS</text>
@@ -351,29 +429,369 @@
     },
     {
       filename: "backstage-wheels-qr-seat-sign.svg",
-      title: "Baksätes-QR Skyltoriginal (För Baren i Limousinen)",
-      usage: "Akrylskylt / Klisterdekal i baksätet med QR-ruta",
+      title: "Baksätes-QR Skyltoriginal",
+      usage: "Akrylskylt eller dekal vid baren i limousinen",
       dimensions: "140 × 180 mm (100% skalbar vektor)",
-      updatedAt: "2026-11-26 07:09",
+      updatedAt: "2026-11-26 11:53",
       svgContent: `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 900" width="140mm" height="180mm">
   <title>Backstage Wheels – Baksätes-QR Skylt / Dekal (Redigerbar Vektor-SVG)</title>
+  <desc>Tryckfärdig vektorskylt för limousinens baksäte/bar. Placera QR-koden i rutan i mitten.</desc>
+
   <g id="lager-skylt-bakgrund">
     <rect x="20" y="20" width="660" height="860" rx="36" fill="#0D0F17" stroke="#F97316" stroke-width="14"/>
     <rect x="42" y="42" width="616" height="816" rx="24" fill="none" stroke="#FACC15" stroke-width="4"/>
   </g>
+
   <g id="lager-skylt-rubrik">
     <text x="350" y="130" text-anchor="middle" font-family="Oswald, Impact, sans-serif" font-size="58" font-weight="800" letter-spacing="4" fill="#FFFFFF">BACKSTAGE WHEELS</text>
     <text x="350" y="182" text-anchor="middle" font-family="Oswald, Impact, sans-serif" font-size="30" font-weight="700" letter-spacing="6" fill="#FACC15">TAGGA KVÄLLENS ÅK!</text>
   </g>
+
   <g id="lager-qr-ram">
     <rect x="150" y="225" width="400" height="400" rx="22" fill="#FFFFFF" stroke="#F97316" stroke-width="8"/>
     <text x="350" y="435" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#0D0F17">[ PLACERA QR-KOD HÄR ]</text>
   </g>
+
   <g id="lager-skylt-fot">
     <text x="350" y="705" text-anchor="middle" font-family="Oswald, Impact, sans-serif" font-size="42" font-weight="700" letter-spacing="3" fill="#38BDF8">@BACKSTAGEWHEELS</text>
     <text x="350" y="758" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#E2E8F0">Skanna med mobilkameran för Instagram,</text>
     <text x="350" y="794" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#E2E8F0">kommande Merch &amp; nya VIP-bokningar!</text>
+  </g>
+</svg>`
+    },
+    {
+      filename: "backstage-wheels-legends-tour-tee.svg",
+      title: "\"Legends Tour\" T-Shirt Print (Turnéaffisch-stil)",
+      usage: "Legends Tour T-shirt front/mage, Poster, Rollup",
+      dimensions: "300 × 383 mm (100% skalbar vektor)",
+      updatedAt: "2026-11-26 11:53",
+      svgContent: `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1150" width="300mm" height="383mm">
+  <title>Backstage Wheels – "Legends Tour" T-Shirt Print (Redigerbar Vektor-SVG)</title>
+  <desc>Tryckoriginal för "Legends Tour" T-shirten: turnéaffisch-stil med sköld, blixtar, Hummer-siluett och turnéstäder. Skalbar vektor med separata lager för screenprint och DTG.</desc>
+
+  <g id="lager-bakgrund-tourbord">
+    <rect x="60" y="60" width="780" height="1030" rx="28" fill="none" stroke="#B91C1C" stroke-width="16"/>
+    <rect x="88" y="88" width="724" height="974" rx="16" fill="none" stroke="#F97316" stroke-width="5"/>
+  </g>
+
+  <g id="lager-titel-bage">
+    <text x="450" y="215" text-anchor="middle" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="96" font-weight="800" letter-spacing="6" fill="#FFFFFF">BACKSTAGE</text>
+    <text x="450" y="315" text-anchor="middle" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="88" font-weight="800" letter-spacing="16" fill="#F97316">WHEELS</text>
+    <rect x="250" y="345" width="400" height="8" fill="#FACC15"/>
+  </g>
+
+  <g id="lager-legends-tour">
+    <text x="450" y="475" text-anchor="middle" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="118" font-weight="800" letter-spacing="10" fill="#FACC15">LEGENDS</text>
+    <text x="450" y="590" text-anchor="middle" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="118" font-weight="800" letter-spacing="24" fill="#FFFFFF">TOUR</text>
+  </g>
+
+  <g id="lager-hummer-siluett">
+    <g fill="#FFFFFF" stroke="none">
+      <rect x="205" y="700" width="490" height="118" rx="20"/>
+      <rect x="235" y="668" width="150" height="48" rx="10"/>
+      <rect x="430" y="668" width="150" height="48" rx="10"/>
+      <rect x="205" y="660" width="490" height="26" rx="10"/>
+    </g>
+    <g fill="#0B0C10">
+      <rect x="255" y="712" width="90" height="46" rx="8"/>
+      <rect x="375" y="712" width="90" height="46" rx="8"/>
+      <rect x="495" y="712" width="90" height="46" rx="8"/>
+      <rect x="615" y="712" width="56" height="46" rx="8"/>
+    </g>
+    <g fill="#0B0C10">
+      <circle cx="300" cy="822" r="34"/>
+      <circle cx="600" cy="822" r="34"/>
+    </g>
+    <g fill="#F97316">
+      <rect x="205" y="782" width="34" height="14" rx="7"/>
+      <rect x="661" y="782" width="34" height="14" rx="7"/>
+    </g>
+  </g>
+
+  <g id="lager-turnestader">
+    <rect x="150" y="900" width="600" height="64" rx="12" fill="#B91C1C"/>
+    <text x="450" y="942" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" letter-spacing="4" fill="#FFFFFF">DALARNA · STOCKHOLM · UPPSALA</text>
+    <text x="450" y="1010" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="26" font-weight="700" letter-spacing="6" fill="#F97316">VÄSTERÅS · ÖREBRO · GÄVLE · HELA SVERIGE</text>
+  </g>
+
+  <g id="lager-blixtar-footer">
+    <polygon points="180,1040 150,1096 178,1096 160,1132 216,1076 188,1076" fill="#FACC15"/>
+    <polygon points="720,1040 690,1096 718,1096 700,1132 756,1076 728,1076" fill="#FACC15"/>
+    <text x="450" y="1080" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" letter-spacing="8" fill="#FFFFFF">VIP ROCK LIMO · 10 M HUMMER H2</text>
+  </g>
+</svg>`
+    },
+    {
+      filename: "backstage-wheels-vip-hoodie-print.svg",
+      title: "\"VIP Heavy\" Hoodie Print (Staplad VIP-typografi)",
+      usage: "VIP Heavy Hoodie front/rygg, Zip-hoodie, Pellon-transfer",
+      dimensions: "300 × 367 mm (100% skalbar vektor)",
+      updatedAt: "2026-11-26 11:53",
+      svgContent: `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1100" width="300mm" height="367mm">
+  <title>Backstage Wheels – "VIP Heavy" Hoodie Print (Redigerbar Vektor-SVG)</title>
+  <desc>Tryckoriginal för "VIP Heavy Hoodie": tungt staplad VIP-typografi med blixtar, vip-bar-motiv och passagerarinfo. Skalbar vektor med separata lager för screenprint, puff och DTG.</desc>
+
+  <g id="lager-vip-heavy-stapel">
+    <rect x="90" y="120" width="720" height="240" rx="24" fill="#B91C1C"/>
+    <text x="450" y="285" text-anchor="middle" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="170" font-weight="800" letter-spacing="14" fill="#FFFFFF">VIP</text>
+    <rect x="150" y="392" width="600" height="150" rx="20" fill="#0B0C10" stroke="#F97316" stroke-width="10"/>
+    <text x="450" y="510" text-anchor="middle" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="118" font-weight="800" letter-spacing="18" fill="#FACC15">HEAVY</text>
+  </g>
+
+  <g id="lager-blixtar-bas">
+    <polygon points="250,560 170,700 240,700 200,810 330,660 260,660" fill="#F97316"/>
+    <polygon points="650,560 570,700 640,700 600,810 730,660 660,660" fill="#F97316"/>
+  </g>
+
+  <g id="lager-vip-bar-motiv">
+    <rect x="170" y="840" width="560" height="90" rx="18" fill="none" stroke="#FFFFFF" stroke-width="8"/>
+    <circle cx="245" cy="885" r="24" fill="#FACC15"/>
+    <circle cx="330" cy="885" r="24" fill="#F97316"/>
+    <circle cx="415" cy="885" r="24" fill="#FACC15"/>
+    <text x="490" y="897" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="44" font-weight="800" letter-spacing="8" fill="#FFFFFF">VIP-BAR</text>
+  </g>
+
+  <g id="lager-info-rader">
+    <text x="450" y="995" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" letter-spacing="6" fill="#FFFFFF">10 M HUMMER H2 · UPP TILL 16 PASSAGERARE</text>
+    <text x="450" y="1045" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" letter-spacing="10" fill="#F97316">BACKSTAGEWHEELS.SE</text>
+  </g>
+</svg>`
+    },
+    {
+      filename: "backstage-wheels-trucker-cap-3d.svg",
+      title: "\"Trucker-Keps\" 3D-Puff Patch (BW-monogram)",
+      usage: "3D-Broderad Trucker-Keps frontpatch, beanie, dekal",
+      dimensions: "120 × 82 mm (100% skalbar vektor)",
+      updatedAt: "2026-11-26 11:53",
+      svgContent: `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 480" width="120mm" height="82mm">
+  <title>Backstage Wheels – "3D-Broderad Trucker-Keps" Patch (Redigerbar Vektor-SVG)</title>
+  <desc>Tryck/brodyroriginal för trucker-kepsens frontpatch: rundad sköld med BW-monogram, blixt och tung 3D-puff-typografi. Kraftiga linjer och färger anpassade för 3D-puffbrodyr och skuren vinyl.</desc>
+
+  <g id="lager-patch-skold">
+    <path d="M 60 70 Q 60 30 110 30 L 590 30 Q 640 30 640 70 L 640 330 Q 640 450 350 450 Q 60 450 60 330 Z" fill="#0B0C10" stroke="#F97316" stroke-width="14"/>
+    <path d="M 92 92 Q 92 62 122 62 L 578 62 Q 608 62 608 92 L 608 320 Q 608 418 350 418 Q 92 418 92 320 Z" fill="none" stroke="#FACC15" stroke-width="7"/>
+  </g>
+
+  <g id="lager-bw-monogram">
+    <rect x="150" y="110" width="400" height="150" rx="26" fill="#B91C1C"/>
+    <text x="350" y="245" text-anchor="middle" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="130" font-weight="800" letter-spacing="10" fill="#FFFFFF">BW</text>
+    <polygon points="520,80 470,170 508,170 484,240 566,140 526,140" fill="#FACC15"/>
+  </g>
+
+  <g id="lager-puff-text">
+    <text x="350" y="345" text-anchor="middle" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="62" font-weight="800" letter-spacing="6" fill="#FFFFFF">BACKSTAGE</text>
+    <text x="350" y="405" text-anchor="middle" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="54" font-weight="800" letter-spacing="14" fill="#F97316">WHEELS</text>
+  </g>
+</svg>`
+    },
+    {
+      filename: "backstage-wheels-event-poster-a2.svg",
+      title: "Eventaffisch \"TONIGHT\" (A2-poster, redigerbart eventnamn & datum)",
+      usage: "Entréaffisch: bröllop, bal, studentutskott, företagsevent — skriv ut A2/A3",
+      dimensions: "420 × 594 mm (A2, 100% skalbar vektor)",
+      updatedAt: "2026-11-26 11:53",
+      svgContent: `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1414" width="420mm" height="594mm">
+  <title>Backstage Wheels – Eventaffisch "TONIGHT" A2 (Redigerbar Vektor-SVG)</title>
+  <desc>Konsertaffisch i A2 för bröllop, bal, studentutskott och företagsevent: redigerbart eventnamn, datum, plats och värdtext. Skalbar vektor med separata lager för tryckeri och digitalskyltning.</desc>
+
+  <g id="lager-ram">
+    <rect x="40" y="40" width="920" height="1334" rx="20" fill="none" stroke="#B91C1C" stroke-width="14"/>
+    <rect x="66" y="66" width="868" height="1282" rx="10" fill="none" stroke="#F97316" stroke-width="4"/>
+  </g>
+
+  <g id="lager-presented-by">
+    <text x="500" y="150" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="32" font-weight="700" letter-spacing="12" fill="#F97316">BACKSTAGE WHEELS PRESENTAR</text>
+  </g>
+
+  <g id="lager-tonight">
+    <text x="500" y="300" text-anchor="middle" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="150" font-weight="800" letter-spacing="10" fill="#FACC15">TONIGHT:</text>
+  </g>
+
+  <!-- REDIGERA EVENTNAMNET PÅ NÄSTA RAD (t ex "MAGGANS 40-ÅRSFIRANDE") -->
+  <g id="lager-eventnamn">
+    <text x="500" y="450" text-anchor="middle" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="92" font-weight="800" letter-spacing="6" fill="#FFFFFF">LEGENDS TOUR</text>
+  </g>
+
+  <g id="lager-delare-blixtar">
+    <line x1="200" y1="520" x2="800" y2="520" stroke="#B91C1C" stroke-width="8"/>
+    <polygon points="500,492 476,532 494,532 470,570 522,518 502,518 524,492" fill="#FACC15"/>
+    <polygon points="330,496 314,526 328,526 312,556 350,518 336,518 352,496" fill="#F97316"/>
+    <polygon points="670,496 654,526 668,526 652,556 690,518 676,518 692,496" fill="#F97316"/>
+  </g>
+
+  <!-- REDIGERA DATUM & TID PÅ NÄSTA RAD -->
+  <g id="lager-datum-tid">
+    <text x="500" y="610" text-anchor="middle" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="56" font-weight="800" letter-spacing="4" fill="#FACC15">LÖRDAG 19 DECEMBER 2026 · KL 20:00</text>
+  </g>
+
+  <!-- REDIGERA PLATS/ADRESS PÅ NÄSTA RAD -->
+  <g id="lager-plats">
+    <text x="500" y="675" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700" letter-spacing="4" fill="#FFFFFF">UPPHÄMTNING: HÄR SKRIVER DU ADRESSEN</text>
+  </g>
+
+  <g id="lager-hummer-siluett">
+    <g fill="#FFFFFF">
+      <rect x="240" y="810" width="520" height="118" rx="20"/>
+      <rect x="270" y="778" width="150" height="48" rx="10"/>
+      <rect x="455" y="778" width="150" height="48" rx="10"/>
+      <rect x="240" y="770" width="520" height="26" rx="10"/>
+    </g>
+    <g fill="#0B0C10">
+      <rect x="288" y="822" width="88" height="46" rx="8"/>
+      <rect x="404" y="822" width="88" height="46" rx="8"/>
+      <rect x="520" y="822" width="88" height="46" rx="8"/>
+      <rect x="636" y="822" width="52" height="46" rx="8"/>
+    </g>
+    <g fill="#0B0C10">
+      <circle cx="335" cy="932" r="34"/>
+      <circle cx="665" cy="932" r="34"/>
+    </g>
+    <g fill="#F97316">
+      <rect x="240" y="892" width="34" height="14" rx="7"/>
+      <rect x="726" y="892" width="34" height="14" rx="7"/>
+    </g>
+    <polygon points="805,770 745,880 788,880 760,965 870,850 826,850 855,770" fill="#FACC15"/>
+    <polygon points="195,770 255,880 212,880 240,965 130,850 174,850 145,770" fill="#FACC15"/>
+  </g>
+
+  <g id="lager-funktioner">
+    <text x="500" y="1060" text-anchor="middle" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="44" font-weight="800" letter-spacing="6" fill="#F97316">10 M HUMMER H2 · VIP-BAR · UPP TILL 16 PASSAGERARE</text>
+    <text x="500" y="1125" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" letter-spacing="6" fill="#FFFFFF">CHAUFFÖR INGÅR · HÅRDROCK I HÖGTALARNA · RED MATTA-ENTRÉ</text>
+  </g>
+
+  <g id="lager-cta-band">
+    <rect x="160" y="1190" width="680" height="110" rx="16" fill="#B91C1C"/>
+    <text x="500" y="1245" text-anchor="middle" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="48" font-weight="800" letter-spacing="4" fill="#FFFFFF">BOKA DIN KVÄLL:</text>
+    <text x="500" y="1288" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" letter-spacing="6" fill="#FACC15">BACKSTAGEWHEELS.SE</text>
+  </g>
+
+  <g id="lager-botten">
+    <text x="500" y="1360" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="26" font-weight="700" letter-spacing="8" fill="#F97316">DALARNA · STOCKHOLM · UPPSALA · VÄSTERÅS · ÖREBRO · GÄVLE</text>
+  </g>
+</svg>`
+    },
+    {
+      filename: "backstage-wheels-tee-back-monogram.svg",
+      title: "T-shirt Ryggmonogram \"BW + Blixt\" (skulder-till-skulder)",
+      usage: "T-shirt storrygg, zip-hoodie rygg, tank top",
+      dimensions: "320 × 409 mm (100% skalbar vektor)",
+      updatedAt: "2026-11-26 11:53",
+      svgContent: `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1150" width="320mm" height="409mm">
+  <title>Backstage Wheels – T-shirt Ryggmonogram "BW + Blixt" (Redigerbar Vektor-SVG)</title>
+  <desc>Stort skulder-till-skulder ryggtryck: gigantiskt BW-monogram med tvillingblixtar, VIP ROCK LIMO-banderoll och stadslinje. Skalbar vektor med separata lager för screenprint och DTG.</desc>
+
+  <g id="lager-ram">
+    <rect x="50" y="50" width="800" height="1050" rx="24" fill="none" stroke="#B91C1C" stroke-width="14"/>
+  </g>
+
+  <g id="lager-bw-monogram">
+    <text x="450" y="430" text-anchor="middle" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="330" font-weight="800" letter-spacing="8" fill="#FFFFFF">BW</text>
+  </g>
+
+  <g id="lager-tvillingblixtar">
+    <polygon points="205,180 130,420 190,420 140,640 290,380 225,380 280,180" fill="#FACC15"/>
+    <polygon points="695,180 770,420 710,420 760,640 610,380 675,380 620,180" fill="#FACC15"/>
+  </g>
+
+  <g id="lager-banderoll">
+    <polygon points="150,560 750,560 720,690 180,690" fill="#B91C1C" stroke="#FACC15" stroke-width="6"/>
+    <text x="450" y="640" text-anchor="middle" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="52" font-weight="800" letter-spacing="8" fill="#FFFFFF">VIP ROCK LIMO</text>
+  </g>
+
+  <g id="lager-underrubrik">
+    <text x="450" y="790" text-anchor="middle" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="60" font-weight="800" letter-spacing="14" fill="#F97316">10 M HUMMER H2</text>
+  </g>
+
+  <g id="lager-stader">
+    <text x="450" y="880" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" letter-spacing="6" fill="#FFFFFF">DALARNA · STOCKHOLM · UPPSALA</text>
+    <text x="450" y="930" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" letter-spacing="6" fill="#FFFFFF">VÄSTERÅS · ÖREBRO · GÄVLE</text>
+  </g>
+
+  <g id="lager-bottenlinje">
+    <rect x="250" y="990" width="400" height="8" fill="#FACC15"/>
+    <text x="450" y="1050" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" letter-spacing="10" fill="#F97316">BACKSTAGEWHEELS.SE</text>
+  </g>
+</svg>`
+    },
+    {
+      filename: "backstage-wheels-tee-chest-mini.svg",
+      title: "T-shirt Bröstmini \"Blixt + BW\" (vänster bröst)",
+      usage: "T-shirt vänsterbröst, skjorta, workwear, keps bak",
+      dimensions: "90 × 90 mm (100% skalbar vektor)",
+      updatedAt: "2026-11-26 11:53",
+      svgContent: `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" width="90mm" height="90mm">
+  <title>Backstage Wheels – T-shirt Bröstmini "Blixt + BW" (Redigerbar Vektor-SVG)</title>
+  <desc>Diskret vänsterbröst-tryck: liten guld-blixt över BW-monogram med tunn ram. Klassisk mini-emblem-placering för t-shirt, skjorta och workwear. Skalbar vektor med separata lager.</desc>
+
+  <g id="lager-ram">
+    <circle cx="160" cy="160" r="138" fill="#0B0C10" stroke="#F97316" stroke-width="10"/>
+    <circle cx="160" cy="160" r="118" fill="none" stroke="#FACC15" stroke-width="4"/>
+  </g>
+
+  <g id="lager-blixt">
+    <polygon points="178,52 118,182 154,182 128,268 212,150 174,150 208,52" fill="#FACC15"/>
+  </g>
+
+  <g id="lager-bw-text">
+    <text x="160" y="212" text-anchor="middle" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="56" font-weight="800" letter-spacing="4" fill="#FFFFFF">BW</text>
+    <text x="160" y="248" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" letter-spacing="3" fill="#F97316">VIP ROCK LIMO</text>
+  </g>
+</svg>`
+    },
+    {
+      filename: "backstage-wheels-cap-side-lightning.svg",
+      title: "Keps Sidobrodyr \"Blixt + BW\" (sida)",
+      usage: "Keps sida, mössa, dekal på koppar/flaskor",
+      dimensions: "60 × 38 mm (100% skalbar vektor)",
+      updatedAt: "2026-11-26 11:53",
+      svgContent: `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" width="60mm" height="38mm">
+  <title>Backstage Wheels – Keps Sidobrodyr "Blixt + BW" (Redigerbar Vektor-SVG)</title>
+  <desc>Liten sidoplacerad brodyr/dekal till kepsens sida: guld-blixt följt av BW-text i kraftig kontur. Anpassad för flatbrodyr och skuren vinyl. Skalbar vektor med separata lager.</desc>
+
+  <g id="lager-blixt-sida">
+    <polygon points="86,30 40,120 68,120 48,172 118,96 88,96 108,30" fill="#FACC15" stroke="#B91C1C" stroke-width="6"/>
+  </g>
+
+  <g id="lager-bw-text-sida">
+    <text x="200" y="118" text-anchor="middle" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="84" font-weight="800" letter-spacing="6" fill="#FFFFFF" stroke="#0B0C10" stroke-width="4">BW</text>
+    <text x="200" y="158" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700" letter-spacing="4" fill="#F97316">VIP ROCK LIMO</text>
+  </g>
+</svg>`
+    },
+    {
+      filename: "backstage-wheels-cap-front-band.svg",
+      title: "Keps Front \"Band-remsa\" (alternativ front)",
+      usage: "Keps front (skuren vinyl/puff), snapback, visor",
+      dimensions: "110 × 57 mm (100% skalbar vektor)",
+      updatedAt: "2026-11-26 11:53",
+      svgContent: `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 240" width="110mm" height="57mm">
+  <title>Backstage Wheels – Keps Front "Band-remsa" Alternativ (Redigerbar Vektor-SVG)</title>
+  <desc>Alternativt fronttryck till keps: vågig band-remsa med BACKSTAGE WHEELS-typografi och blixt, i skuren vinyl/puffbrodyr-stil. Komplement till 3D-puff-patchen. Skalbar vektor med separata lager.</desc>
+
+  <g id="lager-band-remsa">
+    <path d="M 30 90 Q 230 40 430 90 L 430 170 Q 230 130 30 170 Z" fill="#0B0C10" stroke="#B91C1C" stroke-width="10"/>
+    <path d="M 48 100 Q 230 56 412 100" fill="none" stroke="#FACC15" stroke-width="5"/>
+  </g>
+
+  <g id="lager-band-typografi">
+    <text x="230" y="145" text-anchor="middle" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="58" font-weight="800" letter-spacing="4" fill="#FFFFFF">BACKSTAGE WHEELS</text>
+  </g>
+
+  <g id="lager-blixt-fram">
+    <polygon points="230,168 208,214 224,214 210,240 248,196 230,196 244,168" fill="#FACC15"/>
+  </g>
+
+  <g id="lager-underlinje">
+    <text x="230" y="228" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" letter-spacing="6" fill="#F97316">VIP ROCK LIMO</text>
   </g>
 </svg>`
     }
