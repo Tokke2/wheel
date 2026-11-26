@@ -2690,6 +2690,21 @@
       </div>
 
       <div class="bsw-form-card" style="margin-bottom:28px;">
+        <span class="bsw-kicker">BW BOT · EGEN AVISERING · 100% GRATIS · INGEN EXTERN TJÄNST</span>
+        <h2 style="margin:0 0 10px;font-family:var(--font-display);text-transform:uppercase;">🤖 BW Bot — bevakar bokningar åt dig</h2>
+        <p id="bot-status-line" style="color:var(--text-soft);">
+          Bevakar bokningar, nya offerter &amp; gästfoton så länge panelen är öppen. Pollar var 60:e sekund när fliken visas (energisnålt).
+        </p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button type="button" id="bot-enable-btn" class="bsw-btn bsw-btn-ghost">🔔 Aktivera webbläsar-notiser</button>
+          <button type="button" id="bot-test-btn" class="bsw-icon-action-btn">✅ Testa bot nu</button>
+        </div>
+        <small style="display:block;margin-top:8px;color:var(--text-muted);">
+          Boten är din standardkanal (gratis, innebyggd i panelen). SMS (46elks) och Telegram är valfria extra kanaler som når telefonen även när panelen är stängd.
+        </small>
+      </div>
+
+      <div class="bsw-form-card" style="margin-bottom:28px;">
         <span class="bsw-kicker">LÖSENORD &amp; 20-DAGARSREGEL</span>
         <h2 style="margin:0 0 10px;font-family:var(--font-display);text-transform:uppercase;">Lösenordsstatus &amp; Byte</h2>
         <p style="color:var(--text-soft);">
@@ -2744,6 +2759,124 @@
   // --------------------------------------------------------------------------
   // HUVUDRENDERING AV KONTROLLPANELEN (TOPPBAR + SIDOMENY + ÖVERSIKT)
   // --------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+  // BW BOT — EGEN GRATIS AVISERING I WEBBLÄSAREN (ingen extern tjänst, ingen avgift)
+  // --------------------------------------------------------------------------
+  const BOT_SHOWN_KEY = "bsw_bot_shown_v1";
+  const BOT_STATE = { timer: null, running: false, lastCheck: null, shownCount: 0 };
+
+  function botSeenSet() {
+    const out = new Set();
+    try {
+      const arr = JSON.parse(localStorage.getItem(BOT_SHOWN_KEY) || "[]");
+      const cutoff = Date.now() - 3 * 24 * 3600 * 1000;
+      (Array.isArray(arr) ? arr : []).forEach((x) => {
+        if (x && x.k && x.ts && x.ts > cutoff) out.add(x.k);
+      });
+    } catch (_e) {}
+    return out;
+  }
+
+  function botMarkShown(key) {
+    try {
+      const arr = JSON.parse(localStorage.getItem(BOT_SHOWN_KEY) || "[]");
+      const cutoff = Date.now() - 3 * 24 * 3600 * 1000;
+      const kept = (Array.isArray(arr) ? arr : []).filter((x) => x && x.k && x.ts && x.ts > cutoff);
+      kept.push({ k: key, ts: Date.now() });
+      if (kept.length > 300) kept.splice(0, kept.length - 300);
+      localStorage.setItem(BOT_SHOWN_KEY, JSON.stringify(kept));
+    } catch (_e) {}
+  }
+
+  function botBeep() {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(880, ctx.currentTime);
+      osc.frequency.setValueAtTime(1320, ctx.currentTime + 0.12);
+      gain.gain.setValueAtTime(0.12, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.36);
+      setTimeout(() => ctx.close(), 600);
+    } catch (_e) {}
+  }
+
+  function botNotify(title, body, tag) {
+    botBeep();
+    try {
+      if ("Notification" in window && Notification.permission === "granted") {
+        const n = new Notification(title, { body, tag: tag || "bw-bot", icon: "bilder/app-icon-192.png" });
+        n.onclick = () => {
+          try {
+            window.focus();
+            n.close();
+          } catch (_e) {}
+        };
+      }
+    } catch (_e) {}
+    showToast(`🤖 ${title} — ${body}`);
+  }
+
+  async function botPoll() {
+    if (document.hidden || !state.authenticated || !state.token) return;
+    try {
+      const ep = await detectBackend();
+      if (ep === "__LOCAL_STATIC_ENGINE__") return;
+      const res = await fetch(`${ep}?action=bot_feed&token=${encodeURIComponent(state.token || "")}`, {
+        headers: { "X-Admin-Token": state.token, "X-Requested-With": "BSW-Admin" },
+        cache: "no-store"
+      });
+      if (!res.ok) return;
+      const d = await res.json();
+      if (!d || !d.ok) return;
+      BOT_STATE.lastCheck = new Date();
+      const seen = botSeenSet();
+      let newCount = 0;
+      for (const rem of Array.isArray(d.dueReminders) ? d.dueReminders : []) {
+        if (!rem || !rem.key || seen.has(rem.key)) continue;
+        botMarkShown(rem.key);
+        newCount += 1;
+        botNotify(
+          `Bokning om ${rem.minutesUntil} min`,
+          `${rem.title} · ${rem.date} kl ${rem.time}`,
+          rem.key
+        );
+      }
+      BOT_STATE.shownCount += newCount;
+      updateBotCard();
+    } catch (_e) {}
+  }
+
+  function ensureBotRunning() {
+    if (BOT_STATE.running) return;
+    BOT_STATE.running = true;
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) botPoll(); // energisnålt: pollar bara när panelen faktiskt visas
+    });
+    BOT_STATE.timer = setInterval(botPoll, 60 * 1000);
+    setTimeout(botPoll, 4000);
+  }
+
+  function updateBotCard() {
+    const el = document.getElementById("bot-status-line");
+    if (!el) return;
+    const perm =
+      "Notification" in window
+        ? Notification.permission === "granted"
+          ? "✅ Notiser på"
+          : Notification.permission === "denied"
+            ? "⛔ Blockerade"
+            : "⚠️ Ej aktiverade"
+        : "ℹ️ Inget notis-stöd (toast används)";
+    el.innerHTML = `Bevakar bokningar, nya offerter &amp; gästfoton så länge panelen är öppen. ${perm} · Senaste kontroll: ${
+      BOT_STATE.lastCheck ? BOT_STATE.lastCheck.toLocaleTimeString("sv-SE") : "–"
+    } · Visade händelser: ${BOT_STATE.shownCount}`;
+  }
+
   function render() {
     const root = document.getElementById("bsw-admin-root");
     if (!root) return;
@@ -2856,6 +2989,7 @@
       </div>`;
 
     bindEvents();
+    ensureBotRunning(); // BW Bot: startar bevakningen så fort panelen är inloggad
   }
 
   function bindEvents() {
@@ -3728,6 +3862,34 @@
         if (navigator.clipboard) {
           navigator.clipboard.writeText(url).then(() => showToast("Länken kopierad!"));
         }
+      });
+    }
+
+    // --- BW BOT ---
+    const botEnableBtn = document.getElementById("bot-enable-btn");
+    if (botEnableBtn) {
+      botEnableBtn.addEventListener("click", async () => {
+        if (!("Notification" in window)) {
+          showToast("Webbläsaren saknar notis-stöd — boten visar ändå toasts inuti panelen.", true);
+          return;
+        }
+        const p = await Notification.requestPermission();
+        if (p === "granted") {
+          showToast("Notiser aktiverade – BW Bot beepar nu! 🔔");
+          botNotify("BW Bot är aktiv", "Du får notis när bokningar närmar sig.", "bot-activated");
+        } else if (p === "denied") {
+          showToast("Notiser blockerades i webbläsaren — toasts används i stället.", true);
+        } else {
+          showToast("Ingen ändring av notisbehörighet.");
+        }
+        updateBotCard();
+      });
+    }
+    const botTestBtn = document.getElementById("bot-test-btn");
+    if (botTestBtn) {
+      botTestBtn.addEventListener("click", () => {
+        botNotify("✅ BW Bot-test", "Om du ser detta fungerar din egen gratis-bot!", "bot-test");
+        botPoll();
       });
     }
 

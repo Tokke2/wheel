@@ -800,6 +800,33 @@ function sendSmsViaProvider(toNumber, message) {
   return Promise.resolve({ ok: false, error: "Ingen SMS-leverantör är konfigurerad (fyll i API-nyckel i kontrollpanelen)." });
 }
 
+// Beräknar bokningar inom påminnelsefönstret (delas av SMS/Telegram-loopen och BW Bot-feeden)
+function getDueReminders(nowMs) {
+  const now = Number.isFinite(nowMs) ? nowMs : Date.now();
+  const sms = smsConfig();
+  const windowMs = Math.max(1, sms.hoursBefore) * 3600 * 1000;
+  const items = loadJson(CALENDAR_FILE, []);
+  const out = [];
+  for (const it of Array.isArray(items) ? items : []) {
+    if (!it || !it.date) continue;
+    const slotTime = String(it.timeSlot || "").match(/(\d{1,2}:\d{2})/);
+    const startMs = Date.parse(`${it.date}T${slotTime ? slotTime[1] : "20:00"}:00`);
+    if (!Number.isFinite(startMs)) continue;
+    const untilStart = startMs - now;
+    if (untilStart <= 0 || untilStart > windowMs) continue;
+    const key = `rem-${it.id || `${it.date}_${slotTime ? slotTime[1] : ""}_${String(it.publicTitle || it.adminTitle || "").slice(0, 40)}`}`;
+    out.push({
+      key,
+      date: it.date,
+      time: slotTime ? slotTime[1] : "20:00",
+      title: String(it.publicTitle || it.adminTitle || "Bokning").slice(0, 80),
+      minutesUntil: Math.max(0, Math.round(untilStart / 60000))
+    });
+  }
+  out.sort((a, b) => a.minutesUntil - b.minutesUntil);
+  return out;
+}
+
 // Skannar kalendern varje timme och skickar SMS-påminnelser för kommande bokningar.
 let smsReminderTimer = null;
 function startSmsReminderLoop() {
@@ -811,33 +838,23 @@ function startSmsReminderLoop() {
         (sms.enabled && sms.apiUser && sms.apiPassword && sms.notifyNumber) ||
         (sms.telegramBotToken && sms.telegramChatId);
       if (!hasChannel) return;
-      const items = loadJson(CALENDAR_FILE, []);
-      if (!Array.isArray(items) || !items.length) return;
       const state = loadJson(SMS_STATE_FILE, { sent: {} });
       const now = Date.now();
-      const windowMs = Math.max(1, sms.hoursBefore) * 3600 * 1000;
-      for (const it of items) {
-        if (!it || !it.date) continue;
-        const slotTime = String(it.timeSlot || "").match(/(\d{1,2}:\d{2})/);
-        const startMs = Date.parse(`${it.date}T${slotTime ? slotTime[1] : "20:00"}:00`);
-        if (!Number.isFinite(startMs)) continue;
-        const untilStart = startMs - now;
-        if (untilStart <= 0 || untilStart > windowMs) continue;
-        const key = `sms-${it.id || `${it.date}_${slotTime ? slotTime[1] : ""}_${String(it.publicTitle || it.adminTitle || "").slice(0, 40)}`}`;
-        if (state.sent[key]) continue;
-        const msg = `Påminnelse Backstage Wheels: bokning ${it.date}${slotTime ? " kl " + slotTime[1] : ""} – ${String(it.publicTitle || it.adminTitle || "Bokning").slice(0, 80)}`;
+      for (const rem of getDueReminders(now)) {
+        if (state.sent[rem.key]) continue;
+        const msg = `Påminnelse Backstage Wheels: bokning ${rem.date} kl ${rem.time} – ${rem.title}`;
         const result = await sendAdminAlert(msg);
         if (result.ok) {
-          state.sent[key] = { sentAt: new Date().toISOString(), channel: result.provider || "sms" };
+          state.sent[rem.key] = { sentAt: new Date().toISOString(), channel: result.provider || "sms" };
           saveJson(SMS_STATE_FILE, state);
-          writeDebugLog("INFO", "ALERT_REMINDER", `Påminnelse skickad via ${result.provider || "sms"} för ${it.date} ${slotTime ? slotTime[1] : ""}`);
+          writeDebugLog("INFO", "ALERT_REMINDER", `Påminnelse skickad via ${result.provider || "sms"} för ${rem.date} ${rem.time}`);
         } else {
           writeDebugLog("ERROR", "ALERT_REMINDER", `Kunde inte skicka påminnelse: ${result.error || result.status || "?"}`);
           break; // Sluta nota API:t nar konfig saknas
         }
       }
     } catch (e) {
-      writeDebugLog("ERROR", "SMS_REMINDER", `SMS-loopfel: ${e.message}`);
+      writeDebugLog("ERROR", "ALERT_REMINDER", `Aviseringsloopfel: ${e.message}`);
     }
   };
   smsReminderTimer = setInterval(runCheck, 60 * 60 * 1000);
@@ -1881,6 +1898,38 @@ const server = http.createServer(async (req, res) => {
           logs: loadJson(DEBUG_LOG_FILE, []),
           health: collectSystemHealth(),
           icsSubscribeUrl: `${siteOrigin}/api/calendar.ics`
+        },
+        true
+      );
+      return;
+    }
+
+    // BW BOT-FEED (#4: egen gratis avisering i webbläsaren) — förfallande bokningar + räknare
+    if (req.method === "GET" && action === "bot_feed") {
+      if (!isTokenAuthenticated(req, urlObj.searchParams.get("token") || "")) {
+        sendJson(res, 401, { ok: false, error: "Ej inloggad i Admin." }, true);
+        return;
+      }
+      const now = Date.now();
+      const quotes = loadJson(QUOTES_FILE, []);
+      const newQuotes24h = quotes.filter((q) => {
+        const t = Date.parse(String(q.receivedAtIso || q.receivedAt || "").replace(" ", "T"));
+        return Number.isFinite(t) && now - t < 24 * 3600 * 1000;
+      }).length;
+      const pendingGastfoto = guestMetaList().filter((m) => m.status === "pending").length;
+      const upcoming7days = (Array.isArray(loadJson(CALENDAR_FILE, [])) ? loadJson(CALENDAR_FILE, []) : []).filter((it) => {
+        if (!it || !it.date) return false;
+        const t = Date.parse(`${it.date}T23:59:59`);
+        return Number.isFinite(t) && t >= now && t - now <= 7 * 24 * 3600 * 1000;
+      }).length;
+      sendJson(
+        res,
+        200,
+        {
+          ok: true,
+          dueReminders: getDueReminders(now),
+          stats: { newQuotes24h, pendingGastfoto, upcoming7days },
+          serverTime: new Date().toISOString()
         },
         true
       );
