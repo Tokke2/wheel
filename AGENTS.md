@@ -19,12 +19,14 @@
 - Slå aldrig ihop branches (`merge`, `squash`, `rebase`-merge) och öppna aldrig pull requests.
 - Allt levereras direkt som commits + push på arbetsbranchen.
 
-### R3 — Release alltid uppdaterad + Latest (REQ-K4)
-- **Varje kodförändring** i appen ska direkt resultera i:
-  1. Uppdaterad **release** på GitHub, **märkt som `Latest`**.
-  2. Appens versions-/uppdateringsmarkör bumpas så att appen **jämför filer** via updater och hämtar det nya (i Backstage Wheels: `CACHE_NAME` i `sw.js`, t.ex. `v12 → v13`) samt `version` i `package.json`.
+### R3 — GitHub Pages alltid uppdaterad (REQ-K4) — endast Pages, inga Releases
+- Distribution sker **endast via GitHub Pages** (bygger från arbetsbranchen). **Inga GitHub Releases skapas** — samtliga releaser togs bort 2026-11-26 per användarens beslut (regeln "release + Latest" är ersatt av denna).
+- **Varje kodförändring** i appen ska direkt innebära:
+  1. Push till arbetsbranchen → Pages byggs om **automatiskt** och publicerar det nya.
+  2. Appens versions-/uppdateringsmarkör bumpas så att appen **jämför filer** via updater och hämtar det nya (i Backstage Wheels: `CACHE_NAME` i `sw.js`, t.ex. `v24 → v25`) samt `version` i `package.json`.
 - Updater förändrar **aldrig** filer blint: den **jämför filer** (hash/innehåll) före utbyte.
 - Req-ID för detta krav är **REQ-K4** (definition i §5).
+- OBS: Pages är statisk — Node-/PHP-endpoints (`/api/*`) körs ej där; panelen hanterar detta via reservläget (lokal motor). Full backend-funktion kräver webbhotell/VPS (valfritt).
 
 ### R4 — 10-meddelanderegeln
 - Efter varje **10:e chattmeddelande** skrivs en **ny förslagslista i chatten**: **10 nya förslag**, aldrig återbrukade från tidigare listor.
@@ -105,7 +107,7 @@
 1. Läs denna fil först — den gäller före antaganden.
 2. Allt arbete sker på **arbetsbranchen** (R1–R2).
 3. Ändra kod → kontrollera R7 (inga tysta brott) → kör R8 (tester).
-4. Bumpa `sw.js` + `package.json` → commit på arbetsbranchen → push → **GitHub Release märkt `Latest`** (R3/REQ-K4).
+4. Bumpa `sw.js` + `package.json` → commit på arbetsbranchen → push → **Pages byggs om automatiskt** (R3/REQ-K4). Inga Releases.
 5. Ny regel från användaren (`- hård regel` / `regel`) → in i denna fil direkt (R6).
 6. Var 10:e meddelande: 10 nya förslag i chatten (R4). Förslag skrivs alltid i chatten (R5).
 
@@ -120,7 +122,7 @@
 | Regel | Anpassning i denna app |
 |---|---|
 | R1/R2 En branch, ingen merge/PR | Gäller fullt ut. Arbetsbranch = aktiv sessionsbranch. `main` är frusen baseline. |
-| R3/REQ-K4 Release + Latest + filjämförelse | `CACHE_NAME` i `sw.js` bumpas vid varje kodändring (t.ex. `v12 → v13`) → PWA-clients jämför och hämtar nya filer. `package.json` `version` bumpas. GitHub Release skapas/ersätts märkt `Latest` på arbetsbranchen. |
+| R3/REQ-K4 Pages + filjämförelse | `CACHE_NAME` i `sw.js` bumpas vid varje kodändring (t.ex. `v24 → v25`) → PWA-clients jämför och hämtar nya filer. `package.json` `version` bumpas. Pages bygger från arbetsbranchen vid varje push — **inga GitHub Releases**. |
 | R9 Updater-säkerhet | PWA-uppdatering: ny cache byggs parallellt, gammal cache raderas först efter lyckad `activate`; data under `data/*.json` backas upp före skrivning och backup tas bort vid lyckad spar. Arkiverade loggar rensas efter 7 dagar. |
 | R10 Loggar | `js/logger.js` (ring-buffer, max 200 lokala poster — ändra inte nedåt) + serverlogg via `api/admin.php?action=log_event`. Dela i **fellog** (bara aktiva fel; åtgärdat fel försvinner; manuell rensning av åtgärdade) och **applog**; gårdagens arkiveras, arkiv raderas efter 7 dagar. |
 | R11 Inget terminalfönster | Webb/PWA: inga terminalfönster finns naturligt. Vid Node-server/VPS och framtida Capacitor-/desktop-byggen: starta utan synlig konsol (t.ex. `nodew`/`start /min` på Windows) och kör loggning/skanning i bakgrunden, alltid minimerat. |
@@ -137,10 +139,10 @@
 
 ## 5. REQ-K4 — definition
 
-**REQ-K4 (Release- & uppdateringskrav):**
-Varje kodförändring ska omedelbart ge en uppdaterad release märkt `Latest`, appens updater ska **jämföra filer** före utbyte (aldrig blint skriva över), och versionsmarkören (`sw.js` `CACHE_NAME` + `package.json` `version`) bumpas i samma ändring.
+**REQ-K4 (Publicerings- & uppdateringskrav):**
+Varje kodförändring ska omedelbart publiceras via **GitHub Pages** (bygg från arbetsbranchen — auto vid push; **inga Releases**), appens updater ska **jämföra filer** före utbyte (aldrig blint skriva över), och versionsmarkören (`sw.js` `CACHE_NAME` + `package.json` `version`) bumpas i samma ändring.
 
-> Utökar användaren REQ-K4 senare uppdateras denna sektion (och R3) enligt R6.
+> Ändrat 2026-11-26: release-kravet ersattes av Pages-kravet på användarens begäran. Utökar användaren REQ-K4 senare uppdateras denna sektion (och R3) enligt R6.
 
 ---
 
@@ -149,3 +151,4 @@ Varje kodförändring ska omedelbart ge en uppdaterad release märkt `Latest`, a
 | Datum | Händelse |
 |---|---|
 | 2026-11-26 | Samtliga hårda regler och kvalitetsregler (R1–R12, K1–K6, REQ-K4) insamlade från användarens chatt och kodifierade i denna fil. |
+| 2026-11-26 | Användarbeslut: **endast GitHub Pages** som distribution — samtliga GitHub Releases borttagna; R3/REQ-K4 skrivits om till Pages-krav. |

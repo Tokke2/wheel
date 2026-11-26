@@ -28,16 +28,8 @@ Kontrollera att PHP har skrivrättigheter (`chmod 755` eller `775`) på:
 - **Bilar & Paketpriser:** Uppdatera bilfakta och tim-/paketpriser (Vardag `5 500 kr/h`, Helg `7 500 kr/h`, Heldag 12 h `25 000 kr`, Sponsorevent `från 50 000 kr/dag + lunch och hotell`).
 - **Kontakt, Logotyp & QR-skylt:** Uppdatera telefonnummer, e-post, logotyp och QR-kod (t.ex. för baksätes-QR i limousinen).
 
-## 4. Automatisk utrullning från GitHub (#1, v1.0.9)
+## 4. Distribution — endast GitHub Pages (v1.0.14)
 
-Panelen kan nu rulla ut filerna åt dig vid varje ändring:
+GitHub Releases är borttagna. Publik & panel distribueras via GitHub Pages (https://tokke2.github.io/wheel/), som byggs från arbetsbranchen vid varje push. Ställ in en gång: repo → Settings → Pages → Source: "Deploy from a branch" → Branch: arbetsbranchen → Save.
 
-**Webbhotell (FTP):**
-1. GitHub → repo → Settings → Secrets and variables → Actions → *New repository secret*: `FTP_HOST`, `FTP_USER`, `FTP_PASS` (valfritt `FTP_REMOTE_DIR`, t ex `/public_html`).
-2. Variables-fliken → *New repository variable*: `DEPLOY_TARGET` = `ftp`.
-3. Actions-fliken → "Deploy webbhotell / VPS" → **Run workflow**. Klart!
-4. Vill du ha **helt automatiskt** vid varje push: redigera `.github/workflows/deploy.yml` och ta bort `#` framför `push:`-raderna.
-
-**VPS (SSH):** samma sak men secrets `SSH_HOST`, `SSH_USER`, `SSH_KEY` (+ valfritt `SSH_PORT`, `SSH_REMOTE_DIR`) och variabeln `DEPLOY_TARGET` = `ssh`. Workflowen rsyncar filerna och startar om Node-servern.
-
-**Obs:** körtidsdata (data/*.json, galleribilder) skrivs aldrig över av deployen — bara kod.
+Obs: Pages är statiskt — /api/* (Node/PHP) körs ej där; kontrollpanelen klarar det via sitt reservläge (lokal motor). Full backend kräver webbhotell/VPS.
