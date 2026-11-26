@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow, noarchive" />
+  <title>Kvitto / Faktura – utskrift | Backstage Wheels</title>
+  <meta name="theme-color" content="#070709" />
+  <link rel="icon" type="image/png" sizes="192x192" href="bilder/app-icon-192.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    /* Tryckskarp kvitto/faktura — vektorlogotyp, A4, editabelt före utskrift */
+    :root {
+      --ink: #0b0c10;
+      --ink-soft: #3b4252;
+      --line: #d8dce6;
+      --accent: #b91c1c;
+      --accent2: #f97316;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: #e8eaf0;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+    .toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      padding: 12px 18px;
+      background: #0b0c10;
+      color: #f8fafc;
+    }
+    .toolbar button {
+      font: 700 0.9rem "Inter", sans-serif;
+      letter-spacing: 0.5px;
+      padding: 10px 18px;
+      border-radius: 8px;
+      border: 1px solid #2e3448;
+      background: #141722;
+      color: #f8fafc;
+      cursor: pointer;
+    }
+    .toolbar button.primary { background: linear-gradient(135deg, #b91c1c, #f97316); border: none; color: #fff; }
+    .toolbar .hint { color: #94a3b8; font-size: 0.82rem; }
+    .sheet-wrap { padding: 26px 12px 60px; display: flex; justify-content: center; }
+    .sheet {
+      width: 210mm;
+      min-height: 287mm;
+      background: #fff;
+      box-shadow: 0 10px 40px rgba(15, 18, 30, 0.25);
+      padding: 18mm 16mm;
+      border-radius: 4px;
+    }
+    .doc-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 18px; border-bottom: 3px solid var(--ink); padding-bottom: 14px; }
+    .doc-head img.logo { width: 150px; height: auto; display: block; }
+    .doc-kind {
+      font-family: "Oswald", sans-serif;
+      font-weight: 700;
+      font-size: 30px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--ink);
+      text-align: right;
+    }
+    .doc-kind small { display: block; font-size: 12px; letter-spacing: 1px; color: var(--ink-soft); font-family: "Inter", sans-serif; font-weight: 500; }
+    .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 28px; margin: 20px 0 18px; }
+    .meta-grid h3 { margin: 0 0 6px; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); }
+    .meta-grid p { margin: 0; font-size: 13.5px; line-height: 1.55; white-space: pre-line; }
+    table.rows { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    table.rows th {
+      text-align: left;
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      border-bottom: 2px solid var(--ink);
+      padding: 8px 6px;
+    }
+    table.rows td { padding: 10px 6px; border-bottom: 1px solid var(--line); font-size: 13.5px; vertical-align: top; }
+    table.rows td.num, table.rows th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    [contenteditable="true"]:focus { outline: 2px solid var(--accent2); outline-offset: 2px; border-radius: 3px; background: #fff8ee; }
+    .totals { margin-top: 14px; margin-left: auto; width: 300px; font-size: 13.5px; }
+    .totals div { display: flex; justify-content: space-between; padding: 6px 0; }
+    .totals .grand { border-top: 2px solid var(--ink); margin-top: 6px; padding-top: 10px; font-weight: 800; font-size: 16px; }
+    .note { margin-top: 26px; font-size: 12.5px; color: var(--ink-soft); line-height: 1.6; }
+    .footer-strip {
+      margin-top: 30px;
+      border-top: 2px solid var(--ink);
+      padding-top: 12px;
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      font-size: 11.5px;
+      color: var(--ink-soft);
+      flex-wrap: wrap;
+    }
+    @media print {
+      @page { size: A4; margin: 10mm; }
+      body { background: #fff; }
+      .toolbar, .no-print { display: none !important; }
+      .sheet-wrap { padding: 0; }
+      .sheet { box-shadow: none; border-radius: 0; width: auto; min-height: auto; padding: 0; }
+      [contenteditable="true"]:focus { outline: none; background: transparent; }
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar no-print">
+    <button type="button" class="primary" id="kv-print-btn">🖨 Skriv ut / Spara som PDF</button>
+    <button type="button" id="kv-swap-btn">⇄ Växla KVITTO/FAKTURA</button>
+    <button type="button" id="kv-blank-btn">＋ Tom mall</button>
+    <span class="hint">Alla fält är redigerbara direkt på dokumentet före utskrift · belopp exkl. moms, moms 25 % beräknas automatiskt</span>
+  </div>
+
+  <div class="sheet-wrap">
+    <div class="sheet" id="kv-sheet">
+      <div class="doc-head">
+        <img class="logo" src="bilder/backstage-wheels-crest.svg" alt="Backstage Wheels" />
+        <div class="doc-kind" id="kv-kind">KVITTO<small id="kv-kind-sub">Tryckskarp utskrift · vektorlogotyp</small></div>
+      </div>
+
+      <div class="meta-grid">
+        <div>
+          <h3>Backstage Wheels</h3>
+          <p contenteditable="true" id="kv-company">Backstage Wheels AB&#10;Hummer H2 "Legends of Rock"&#10;bokning@backstagewheels.se&#10;070-123 45 67 · backstagewheels.se</p>
+        </div>
+        <div>
+          <h3>Kund</h3>
+          <p contenteditable="true" id="kv-customer">Namn / Företag&#10;E-post&#10;Telefon</p>
+        </div>
+        <div>
+          <h3>Dokument &amp; datum</h3>
+          <p contenteditable="true" id="kv-docmeta">Nr: BSW-&#10;Datum:&#10;Körning:</p>
+        </div>
+        <div>
+          <h3>Uppdrag</h3>
+          <p contenteditable="true" id="kv-event">Fordon / upplägg:&#10;Datum &amp; tid:&#10;Sträcka:&#10;Passagerare:</p>
+        </div>
+      </div>
+
+      <table class="rows">
+        <thead>
+          <tr><th>Specifikation</th><th class="num">Antal</th><th class="num">À-pris (kr)</th><th class="num">Summa (kr)</th></tr>
+        </thead>
+        <tbody id="kv-rows">
+          <tr>
+            <td contenteditable="true">Limousinekörning (exkl. moms)</td>
+            <td class="num" contenteditable="true">1</td>
+            <td class="num" contenteditable="true">0</td>
+            <td class="num" contenteditable="true">0</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="no-print" style="margin-top:10px;">
+        <button type="button" id="kv-addrow-btn" style="font:600 0.85rem Inter,sans-serif;padding:8px 14px;border-radius:7px;border:1px solid #cbd5e1;background:#fff;cursor:pointer;">＋ Lägg till rad</button>
+      </div>
+
+      <div class="totals">
+        <div><span>Summa (exkl. moms)</span><strong id="kv-sum-ex">0,00 kr</strong></div>
+        <div><span>Moms 25 %</span><strong id="kv-sum-vat">0,00 kr</strong></div>
+        <div class="grand"><span>ATT BETALA</span><span id="kv-sum-total">0,00 kr</span></div>
+      </div>
+
+      <p class="note" contenteditable="true" id="kv-note">
+        Vänligen betala inom 10 dagar. Kvitto/fakturan är genererad av Backstage Wheels kontrollpanel med tryckskarp vektorlogotyp.
+        Vid frågor, kontakta oss via bokning@backstagewheels.se. Tack för uppdraget!
+      </p>
+
+      <div class="footer-strip">
+        <span contenteditable="true">Backstage Wheels · Hummer H2 Stretch Limo 10 m · upptill 16 passagerare</span>
+        <span contenteditable="true">Org.nr / momsreg.: ____________</span>
+        <span contenteditable="true">Bankgiro / Swish: ____________</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      "use strict";
+      var SEK = new Intl.NumberFormat("sv-SE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+      function recalc() {
+        var total = 0;
+        document.querySelectorAll("#kv-rows tr").forEach(function (tr) {
+          var tds = tr.querySelectorAll("td");
+          var qty = parseFloat(String(tds[1].textContent).replace(/\s/g, "").replace(",", ".")) || 0;
+          var price = parseFloat(String(tds[2].textContent).replace(/\s/g, "").replace(",", ".")) || 0;
+          var sum = qty * price;
+          total += sum;
+          tds[3].textContent = SEK.format(sum);
+        });
+        var vat = total * 0.25;
+        document.getElementById("kv-sum-ex").textContent = SEK.format(total) + " kr";
+        document.getElementById("kv-sum-vat").textContent = SEK.format(vat) + " kr";
+        document.getElementById("kv-sum-total").textContent = SEK.format(total + vat) + " kr";
+      }
+
+      function addRow(label, qty, price) {
+        var tr = document.createElement("tr");
+        tr.innerHTML =
+          '<td contenteditable="true">' + (label || "Ny rad") + "</td>" +
+          '<td class="num" contenteditable="true">' + (qty != null ? qty : 1) + "</td>" +
+          '<td class="num" contenteditable="true">' + (price != null ? price : 0) + "</td>" +
+          '<td class="num">0</td>';
+        document.getElementById("kv-rows").appendChild(tr);
+        tr.addEventListener("input", recalc);
+        return tr;
+      }
+
+      function fillFromData(d) {
+        try {
+          if (d.kind) {
+            document.getElementById("kv-kind").childNodes[0].nodeValue = String(d.kind).toUpperCase();
+          }
+          if (d.company) document.getElementById("kv-company").textContent = d.company;
+          if (d.customer) document.getElementById("kv-customer").textContent = d.customer;
+          if (d.docmeta) document.getElementById("kv-docmeta").textContent = d.docmeta;
+          if (d.event) document.getElementById("kv-event").textContent = d.event;
+          if (d.note) document.getElementById("kv-note").textContent = d.note;
+          if (Array.isArray(d.rows)) {
+            var rowsEl = document.getElementById("kv-rows");
+            rowsEl.innerHTML = "";
+            d.rows.forEach(function (r) { addRow(r.label, r.qty, r.price); });
+          }
+        } catch (_e) {}
+        recalc();
+      }
+
+      document.addEventListener("input", recalc);
+      document.getElementById("kv-addrow-btn").addEventListener("click", function () { addRow(); });
+      document.getElementById("kv-print-btn").addEventListener("click", function () { window.print(); });
+      document.getElementById("kv-blank-btn").addEventListener("click", function () { location.hash = ""; location.reload(); });
+      document.getElementById("kv-swap-btn").addEventListener("click", function () {
+        var el = document.getElementById("kv-kind");
+        var current = String(el.childNodes[0].nodeValue || "KVITTO").toUpperCase();
+        el.childNodes[0].nodeValue = current.indexOf("FAKTURA") >= 0 ? "KVITTO" : "FAKTURA";
+      });
+
+      // Läs in data från kontrollpanelen: kvitto.html#d=<base64url JSON>
+      var m = /^#d=([A-Za-z0-9_\-=]+)$/.exec(location.hash || "");
+      if (m) {
+        try {
+          var b64 = m[1].replace(/-/g, "+").replace(/_/g, "/");
+          while (b64.length % 4) b64 += "=";
+          var json = decodeURIComponent(escape(atob(b64)));
+          fillFromData(JSON.parse(json));
+        } catch (_e) {}
+      }
+      recalc();
+    })();
+  </script>
+</body>
+</html>

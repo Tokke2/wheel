@@ -3565,3 +3565,104 @@ html[data-theme="dark"] .bsw-cal-cell.is-booked .cal-day-tag {
     width: 100%;
   }
 }
+
+/* ============================================================================
+   TILLÄGG v1.0.2 — Språkväxlare (SV/EN/DE) + Kundomdömen (Google-recensioner)
+   ============================================================================ */
+
+/* --- Språkväxlare (flytande pill, skarp & kompakt) --- */
+.bsw-lang-pill {
+  position: fixed;
+  left: 12px;
+  bottom: 12px;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  border-radius: 999px;
+  background: rgba(11, 12, 16, 0.92);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.bsw-lang-globe {
+  font-size: 0.85rem;
+  padding: 0 4px 0 8px;
+  line-height: 1;
+}
+.bsw-lang-pill button {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: #94a3b8;
+  font: 700 0.72rem/1 "Inter", system-ui, sans-serif;
+  letter-spacing: 0.6px;
+  padding: 7px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.bsw-lang-pill button:hover {
+  color: #f8fafc;
+  background: rgba(148, 163, 184, 0.18);
+}
+.bsw-lang-pill button.is-active {
+  color: #fff;
+  background: linear-gradient(135deg, #b91c1c, #f97316);
+}
+@media (max-width: 640px) {
+  .bsw-lang-pill {
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 10px;
+  }
+}
+
+/* --- Kundomdömen / recensioner --- */
+.bsw-reviews-block {
+  margin-top: 34px;
+  padding-top: 6px;
+}
+.bsw-reviews-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+}
+.bsw-review-card {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: var(--card-bg, #10131d);
+  border: 1px solid var(--border-steel, #2e3448);
+  border-radius: 12px;
+  padding: 16px 18px;
+}
+.bsw-review-card blockquote {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--text-soft, #cbd5e1);
+}
+.bsw-review-card figcaption {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: auto;
+}
+.bsw-review-stars {
+  color: #f59e0b;
+  font-size: 1.02rem;
+  letter-spacing: 2px;
+  text-shadow: 0 0 0.5px currentColor; /* skarpare stjärnor på mörk bakgrund */
+}
+.bsw-review-card figcaption strong {
+  color: var(--text, #f8fafc);
+  font-size: 0.92rem;
+}
+.bsw-review-card figcaption small {
+  color: var(--text-muted, #94a3b8);
+  font-size: 0.78rem;
+}

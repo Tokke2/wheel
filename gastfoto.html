@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="sv" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Ladda upp dina gästfoton | Backstage Wheels</title>
+  <meta name="description" content="Ladda upp dina bilder från körningen med Backstage Wheels – bilderna granskas innan de publiceras i galleriet." />
+  <meta name="theme-color" content="#070709" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" type="image/png" sizes="192x192" href="bilder/app-icon-192.png" />
+  <link rel="apple-touch-icon" href="bilder/apple-touch-icon.png" />
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem("bsw_theme");
+        var theme = saved === "light" || saved === "dark" ? saved : "dark";
+        document.documentElement.setAttribute("data-theme", theme);
+      } catch (_e) {}
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@600;700;800&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .gfp-wrap { max-width: 720px; margin: 0 auto; padding: 24px 16px 60px; }
+    .gfp-card {
+      background: var(--card-bg, #10131d);
+      border: 1px solid var(--border-steel, #2e3448);
+      border-radius: 14px;
+      padding: 22px;
+      margin-bottom: 18px;
+    }
+    .gfp-drop {
+      border: 2px dashed var(--border-steel, #2e3448);
+      border-radius: 12px;
+      padding: 26px 18px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .gfp-drop.is-over { border-color: #f97316; background: rgba(249, 115, 22, 0.06); }
+    .gfp-preview { max-width: 100%; max-height: 320px; border-radius: 10px; display: block; margin: 14px auto 0; }
+    .gfp-status { margin-top: 12px; font-weight: 600; min-height: 1.4em; }
+    .gfp-status.ok { color: #86efac; }
+    .gfp-status.err { color: #fca5a5; }
+    .gfp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+    .gfp-grid figure { margin: 0; border-radius: 10px; overflow: hidden; background: #0b0d13; border: 1px solid var(--border-steel, #2e3448); }
+    .gfp-grid img { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; display: block; }
+    .gfp-grid figcaption { font-size: 0.78rem; color: var(--text-soft, #cbd5e1); padding: 8px 10px; }
+  </style>
+</head>
+<body>
+  <header class="bsw-site-header" style="position: static;">
+    <div class="bsw-container" style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;">
+      <a href="index.html#hem" class="bsw-logo-link" aria-label="Till startsidan">
+        <img src="bilder/app-icon-192.png" alt="Backstage Wheels logotyp" width="44" height="44" style="border-radius:10px;" />
+        <span style="font-family:var(--font-display);font-weight:800;letter-spacing:1px;">BACKSTAGE WHEELS</span>
+      </a>
+      <a class="bsw-btn bsw-btn-ghost" href="index.html#galleri">Till galleriet</a>
+    </div>
+  </header>
+
+  <main class="gfp-wrap">
+    <span class="bsw-kicker">GÄSTFOTO · MODERERAT FOTOLÄGE</span>
+    <h1 style="font-family:var(--font-display);text-transform:uppercase;margin:6px 0 10px;">Dela dina bilder från körningen</h1>
+    <p style="color:var(--text-soft);margin:0 0 20px;">
+      Skicka upp dina bästa foton från limousinen. Alla bilder granskas av crewet innan de publiceras i galleriet – inga omodererade bilder syns någonsin.
+    </p>
+
+    <section class="gfp-card" aria-labelledby="gfp-upload-h">
+      <h2 id="gfp-upload-h" style="margin:0 0 14px;font-size:1.05rem;">1. Ladda upp foto</h2>
+      <form id="gfp-form" novalidate>
+        <div class="gfp-drop" id="gfp-drop" role="button" tabindex="0" aria-label="Välj eller dra in en bild">
+          <strong>📷 Tryck här eller dra in en bild</strong>
+          <p style="margin:6px 0 0;color:var(--text-muted);font-size:0.85rem;">JPG / PNG / WebP · max 8 MB (komprimeras automatiskt)</p>
+          <input type="file" id="gfp-file" accept="image/jpeg,image/png,image/webp" hidden />
+          <img id="gfp-preview" class="gfp-preview" alt="" hidden />
+        </div>
+        <div style="display:grid;gap:12px;margin-top:14px;">
+          <div>
+            <label for="gfp-name" style="display:block;margin-bottom:6px;font-weight:600;">Ditt namn / sällskap <small style="color:var(--text-muted);">(frivilligt)</small></label>
+            <input type="text" id="gfp-name" maxlength="60" placeholder="T ex: Maggans 40-årsfirande" style="width:100%;box-sizing:border-box;" />
+          </div>
+          <div>
+            <label for="gfp-caption" style="display:block;margin-bottom:6px;font-weight:600;">Bildtext <small style="color:var(--text-muted);">(frivilligt)</small></label>
+            <input type="text" id="gfp-caption" maxlength="140" placeholder="T ex: Full fart mot Sweden Rock!" style="width:100%;box-sizing:border-box;" />
+          </div>
+          <button type="submit" class="bsw-btn bsw-btn-primary" id="gfp-submit-btn" disabled>
+            <span>Skick bild för granskning</span>
+          </button>
+          <div class="gfp-status" id="gfp-status" role="status" aria-live="polite"></div>
+        </div>
+      </form>
+    </section>
+
+    <section class="gfp-card" aria-labelledby="gfp-wall-h">
+      <h2 id="gfp-wall-h" style="margin:0 0 14px;font-size:1.05rem;">2. Publicerade gästfoton</h2>
+      <div class="gfp-grid" id="gfp-wall">
+        <p style="grid-column:1/-1;color:var(--text-muted);margin:0;">Laddar godkända gästfoton…</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bsw-footer">
+    <div class="bsw-container" style="text-align:center;padding:26px 16px;">
+      <small style="color:var(--text-muted);">© <span id="gfp-year"></span> Backstage Wheels · Hummer H2 Limousine · <a href="index.html" style="color:var(--accent-gold);">Huvudsida</a></small>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      "use strict";
+      document.getElementById("gfp-year").textContent = new Date().getFullYear();
+
+      var fileInput = document.getElementById("gfp-file");
+      var drop = document.getElementById("gfp-drop");
+      var preview = document.getElementById("gfp-preview");
+      var submitBtn = document.getElementById("gfp-submit-btn");
+      var statusEl = document.getElementById("gfp-status");
+      var currentDataUrl = null;
+
+      function setStatus(msg, cls) {
+        statusEl.textContent = msg || "";
+        statusEl.className = "gfp-status " + (cls || "");
+      }
+
+      function compressImage(file, maxSide, quality) {
+        return new Promise(function (resolve, reject) {
+          if (!/^image\/(jpeg|png|webp)$/.test(file.type)) { reject(new Error("Ogiltigt format")); return; }
+          var reader = new FileReader();
+          reader.onload = function () {
+            var img = new Image();
+            img.onload = function () {
+              var scale = Math.min(1, maxSide / Math.max(img.width, img.height));
+              var w = Math.max(1, Math.round(img.width * scale));
+              var h = Math.max(1, Math.round(img.height * scale));
+              var canvas = document.createElement("canvas");
+              canvas.width = w;
+              canvas.height = h;
+              var ctx = canvas.getContext("2d");
+              ctx.imageSmoothingEnabled = true;
+              ctx.imageSmoothingQuality = "high";
+              ctx.drawImage(img, 0, 0, w, h);
+              var outType = file.type === "image/png" && file.size < 900000 ? "image/png" : "image/jpeg";
+              resolve(canvas.toDataURL(outType, outType === "image/jpeg" ? quality : undefined));
+            };
+            img.onerror = function () { reject(new Error("Kunde inte läsa bilden")); };
+            img.src = reader.result;
+          };
+          reader.onerror = function () { reject(new Error("Kunde inte läsa filen")); };
+          reader.readAsDataURL(file);
+        });
+      }
+
+      function handleFile(file) {
+        if (!file) return;
+        setStatus("");
+        compressImage(file, 1600, 0.85)
+          .then(function (dataUrl) {
+            currentDataUrl = dataUrl;
+            preview.src = dataUrl;
+            preview.hidden = false;
+            submitBtn.disabled = false;
+            setStatus("Bild klar – fyll gärna i namn/bildtext och skicka.", "ok");
+          })
+          .catch(function (err) {
+            setStatus(err.message === "Ogiltigt format" ? "Endast JPG, PNG eller WebP tillåts." : "Kunde inte läsa bilden.", "err");
+          });
+      }
+
+      drop.addEventListener("click", function () { fileInput.click(); });
+      drop.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fileInput.click(); } });
+      fileInput.addEventListener("change", function () { handleFile(fileInput.files && fileInput.files[0]); });
+      ["dragover", "dragenter"].forEach(function (ev) {
+        drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add("is-over"); });
+      });
+      ["dragleave", "drop"].forEach(function (ev) {
+        drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.remove("is-over"); });
+      });
+      drop.addEventListener("drop", function (e) {
+        handleFile(e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]);
+      });
+
+      document.getElementById("gfp-form").addEventListener("submit", async function (e) {
+        e.preventDefault();
+        if (!currentDataUrl) return;
+        submitBtn.disabled = true;
+        setStatus("Skickar…");
+        var payload = {
+          name: document.getElementById("gfp-name").value.trim(),
+          caption: document.getElementById("gfp-caption").value.trim(),
+          imageDataUrl: currentDataUrl
+        };
+        var sent = false;
+        for (var _i = 0, _ep = ["/api/gastfoto", "api/gastfoto.php"]; _i < _ep.length; _i++) {
+          try {
+            var r = await fetch(_ep[_i], {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload)
+            });
+            if (r.ok) { sent = true; break; }
+          } catch (_err) { /* testa nästa endpoint */ }
+        }
+        if (sent) {
+          setStatus("Tack! Bilden är mottagen och granskas av crewet innan publicering. 🤘", "ok");
+          preview.hidden = true;
+          currentDataUrl = null;
+          document.getElementById("gfp-form").reset();
+          loadWall();
+        } else {
+          setStatus("Något gick fel – kontrollera din uppkoppling och försök igen.", "err");
+          submitBtn.disabled = false;
+        }
+      });
+
+      async function loadWall() {
+        var wall = document.getElementById("gfp-wall");
+        var photos = [];
+        for (var _i = 0, _ep = ["/api/gastfoto", "api/gastfoto.php"]; _i < _ep.length; _i++) {
+          try {
+            var r = await fetch(_ep[_i]);
+            if (r.ok) {
+              var j = await r.json();
+              if (j && Array.isArray(j.photos)) { photos = j.photos; break; }
+            }
+          } catch (_err) { /* testa nästa endpoint */ }
+        }
+        if (!photos.length) {
+          wall.innerHTML = '<p style="grid-column:1/-1;color:var(--text-muted);margin:0;">Inga godkända gästfoton publicerade ännu – bli först!</p>';
+          return;
+        }
+        wall.innerHTML = photos
+          .map(function (p) {
+            return (
+              '<figure>' +
+              '<img loading="lazy" src="' + p.url + '" alt="' + String(p.caption || "Gästfoto").replace(/[<>&"]/g, "") + '" />' +
+              '<figcaption>' + String(p.caption || p.name || "").replace(/[<>&"]/g, "") + '</figcaption>' +
+              '</figure>'
+            );
+          })
+          .join("");
+      }
+
+      loadWall();
+    })();
+  </script>
+</body>
+</html>

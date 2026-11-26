@@ -33,6 +33,11 @@ const CALENDAR_FILE = path.join(DATA_DIR, "calendar.json");
 const FOLDERS_META_FILE = path.join(DATA_DIR, "gallery-folders.json");
 const DEBUG_LOG_FILE = path.join(DATA_DIR, "debug-logs.json");
 const QUOTES_FILE = path.join(DATA_DIR, "offert-logg.json");
+const REVIEWS_FILE = path.join(DATA_DIR, "reviews.json");
+const GASTFOTO_META_FILE = path.join(DATA_DIR, "gastfoto-meta.json");
+const GASTFOTO_PENDING_DIR = path.join(DATA_DIR, "gastfoto-pending");
+const GASTFOTO_RATE_FILE = path.join(DATA_DIR, "gastfoto-rate.json");
+const SMS_STATE_FILE = path.join(DATA_DIR, "sms-state.json");
 
 const MASTER_ADMIN_EMAIL = "rl@tadega.com";
 const PASSWORD_EXPIRY_DAYS = 20;
@@ -667,6 +672,203 @@ except Exception:
     return false;
   }
 }
+
+// Genererar en QR-PNG på godtycklig URL (samma python-fallback som Instagram-QR:n).
+function generateQrPng(targetUrl, outPath) {
+  if (!targetUrl || !outPath) return false;
+  const py = `
+try:
+    import qrcode
+    qr = qrcode.QRCode(version=3, error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=12, border=2)
+    qr.add_data(${JSON.stringify(String(targetUrl))})
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="#0b0c10", back_color="#ffffff").convert("RGB")
+    img.save(${JSON.stringify(outPath)}, "PNG", optimize=True)
+    print("OK")
+except Exception:
+    print("SKIP")
+`;
+  try {
+    fs.mkdirSync(path.dirname(outPath), { recursive: true });
+    return execFileSync("python3", ["-c", py], { timeout: 10000 }).toString().trim() === "OK";
+  } catch (_e) {
+    return false;
+  }
+}
+
+// ----------------------------------------------------------------------------
+// SMS-PÅMINNELSER (#4) — pluggbar leverantör (46elks), ramverk utan externa deps
+// ----------------------------------------------------------------------------
+function smsConfig() {
+  const cfg = loadJson(SETTINGS_FILE, {});
+  const s = cfg.smsSettings || {};
+  return {
+    enabled: s.enabled === true,
+    provider: String(s.provider || "46elks"),
+    apiUser: String(s.apiUser || "").trim(),
+    apiPassword: String(s.apiPassword || "").trim(),
+    sender: String(s.sender || "BackstageW").replace(/[^A-Za-z0-9 ]/g, "").slice(0, 11) || "BackstageW",
+    notifyNumber: String(s.notifyNumber || "").trim(),
+    hoursBefore: Number(s.hoursBefore || 24)
+  };
+}
+
+function sendSmsViaProvider(toNumber, message) {
+  const sms = smsConfig();
+  if (!sms.enabled) return { ok: false, error: "SMS-påminnelser är avstängda i inställningarna." };
+  const cleanTo = String(toNumber || "").replace(/[^+0-9]/g, "");
+  if (!/^\+?[0-9]{6,18}$/.test(cleanTo)) return { ok: false, error: "Ogiltigt telefonnummer." };
+  if (sms.provider === "46elks" && sms.apiUser && sms.apiPassword) {
+    return new Promise((resolve) => {
+      try {
+        const postData = new URLSearchParams({
+          from: sms.sender,
+          to: cleanTo,
+          message: String(message || "").slice(0, 480)
+        }).toString();
+        const auth = Buffer.from(`${sms.apiUser}:${sms.apiPassword}`).toString("base64");
+        const req = https.request(
+          { hostname: "api.46elks.com", path: "/a1/SMS", method: "POST", timeout: 12000,
+            headers: { "Authorization": `Basic ${auth}`, "Content-Type": "application/x-www-form-urlencoded", "Content-Length": Buffer.byteLength(postData) } },
+          (res) => {
+            let data = "";
+            res.setEncoding("utf8");
+            res.on("data", (c) => (data += c));
+            res.on("end", () => resolve({ ok: res.statusCode >= 200 && res.statusCode < 300, status: res.statusCode, provider: "46elks" }));
+          }
+        );
+        req.on("timeout", () => req.destroy(new Error("Timeout mot SMS-leverantör")));
+        req.on("error", (err) => resolve({ ok: false, error: err.message }));
+        req.write(postData);
+        req.end();
+      } catch (e) {
+        resolve({ ok: false, error: e.message });
+      }
+    });
+  }
+  return Promise.resolve({ ok: false, error: "Ingen SMS-leverantör är konfigurerad (fyll i API-nyckel i kontrollpanelen)." });
+}
+
+// Skannar kalendern varje timme och skickar SMS-påminnelser för kommande bokningar.
+let smsReminderTimer = null;
+function startSmsReminderLoop() {
+  if (smsReminderTimer) clearInterval(smsReminderTimer);
+  const runCheck = async () => {
+    try {
+      const sms = smsConfig();
+      if (!sms.enabled) return;
+      const items = loadJson(CALENDAR_FILE, []);
+      if (!Array.isArray(items) || !items.length) return;
+      const state = loadJson(SMS_STATE_FILE, { sent: {} });
+      const now = Date.now();
+      const windowMs = Math.max(1, sms.hoursBefore) * 3600 * 1000;
+      for (const it of items) {
+        if (!it || !it.date) continue;
+        const slotTime = String(it.timeSlot || "").match(/(\d{1,2}:\d{2})/);
+        const startMs = Date.parse(`${it.date}T${slotTime ? slotTime[1] : "20:00"}:00`);
+        if (!Number.isFinite(startMs)) continue;
+        const untilStart = startMs - now;
+        if (untilStart <= 0 || untilStart > windowMs) continue;
+        const key = `sms-${it.id || `${it.date}_${slotTime ? slotTime[1] : ""}_${String(it.publicTitle || it.adminTitle || "").slice(0, 40)}`}`;
+        if (state.sent[key]) continue;
+        const msg = `Påminnelse Backstage Wheels: bokning ${it.date}${slotTime ? " kl " + slotTime[1] : ""} – ${String(it.publicTitle || it.adminTitle || "Bokning").slice(0, 80)}`;
+        const result = await sendSmsViaProvider(sms.notifyNumber, msg);
+        if (result.ok) {
+          state.sent[key] = { sentAt: new Date().toISOString(), to: sms.notifyNumber };
+          saveJson(SMS_STATE_FILE, state);
+          writeDebugLog("INFO", "SMS_REMINDER", `SMS-påminnelse skickad för ${it.date} ${it.time || ""}`);
+        } else {
+          writeDebugLog("ERROR", "SMS_REMINDER", `Kunde inte skicka SMS-påminnelse: ${result.error || result.status || "?"}`);
+          break; // Sluta nota API:t nar konfig saknas
+        }
+      }
+    } catch (e) {
+      writeDebugLog("ERROR", "SMS_REMINDER", `SMS-loopfel: ${e.message}`);
+    }
+  };
+  smsReminderTimer = setInterval(runCheck, 60 * 60 * 1000);
+  setTimeout(runCheck, 20000);
+}
+
+// ----------------------------------------------------------------------------
+// GÄSTFOTO VIA QR (#21) — modererad uppladdning
+// ----------------------------------------------------------------------------
+const GUEST_IMG_MAGIC = [
+  { type: "jpg", bytes: [0xff, 0xd8, 0xff] },
+  { type: "png", bytes: [0x89, 0x50, 0x4e, 0x47] },
+  { type: "webp", bytes: null } // valideras via RIFF-huvud nedan
+];
+const GASTFOTO_MAX_BYTES = 8 * 1024 * 1024;
+const GASTFOTO_DAILY_LIMIT = 6;
+
+function detectGuestImageType(buf) {
+  if (!buf || buf.length < 16) return null;
+  if (buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff) return "jpg";
+  if (buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4e && buf[3] === 0x47) return "png";
+  if (buf.slice(0, 4).toString("ascii") === "RIFF" && buf.slice(8, 12).toString("ascii") === "WEBP") return "webp";
+  return null;
+}
+
+function guestRateKeyIp(req) {
+  const ip = getClientIp(req) || "okänd";
+  const day = new Date().toISOString().slice(0, 10);
+  return `${day}_${ip}`;
+}
+
+function guestUploadAllowed(req) {
+  const key = guestRateKeyIp(req);
+  const rates = loadJson(GASTFOTO_RATE_FILE, {});
+  if (!rates[key]) return true;
+  if (rates[key].day !== new Date().toISOString().slice(0, 10)) return true;
+  return rates[key].count < GASTFOTO_DAILY_LIMIT;
+}
+
+function guestUploadCount(req) {
+  const rates = loadJson(GASTFOTO_RATE_FILE, {});
+  const key = guestRateKeyIp(req);
+  const entry = rates[key];
+  if (!entry || entry.day !== new Date().toISOString().slice(0, 10)) return 0;
+  return entry.count || 0;
+}
+
+function guestUploadTick(req) {
+  const key = guestRateKeyIp(req);
+  const day = new Date().toISOString().slice(0, 10);
+  const rates = loadJson(GASTFOTO_RATE_FILE, {});
+  const entry = rates[key] && rates[key].day === day ? rates[key] : { day, count: 0 };
+  entry.count += 1;
+  rates[key] = entry;
+  // Städa bort gamla dagar (minneshantering)
+  for (const k of Object.keys(rates)) {
+    if (rates[k].day !== day) delete rates[k];
+  }
+  saveJson(GASTFOTO_RATE_FILE, rates);
+}
+
+function decodeDataUrlImage(dataUrl) {
+  const m = /^data:image\/(jpeg|jpg|png|webp);base64,([A-Za-z0-9+/=\s]+)$/.exec(String(dataUrl || ""));
+  if (!m) return null;
+  try {
+    return Buffer.from(m[2].replace(/\s+/g, ""), "base64");
+  } catch (_e) {
+    return null;
+  }
+}
+
+function guestMetaList() {
+  return loadJson(GASTFOTO_META_FILE, []);
+}
+
+function approvedGuestPhotos() {
+  const meta = guestMetaList().filter((m) => m.status === "approved");
+  const outDir = path.join(ROOT, "bilder", "galleri", "gastfoton");
+  const files = new Set();
+  try {
+    if (fs.existsSync(outDir)) fs.readdirSync(outDir).forEach((f) => files.add(f));
+  } catch (_e) {}
+  return meta.filter((m) => files.has(m.filename));
+}
+
 
 // ----------------------------------------------------------------------------
 // GOOGLE CALENDAR (.ICS) PARSER & UTGÅENDE .ICS FEED
@@ -1612,12 +1814,43 @@ const server = http.createServer(async (req, res) => {
           subscribers: loadJson(SUBSCRIBERS_FILE, []),
           campaigns: loadJson(CAMPAIGNS_FILE, []).slice(0, 50),
           quotes: loadJson(QUOTES_FILE, []).slice(0, 100),
+          reviews: loadJson(REVIEWS_FILE, []),
+          gastfoto: {
+            pending: guestMetaList().filter((m) => m.status === "pending"),
+            approved: approvedGuestPhotos(),
+            dailyUploadsToday: (() => {
+              const day = new Date().toISOString().slice(0, 10);
+              const rates = loadJson(GASTFOTO_RATE_FILE, {});
+              return Object.values(rates).filter((r) => r.day === day).reduce((acc, r) => acc + (r.count || 0), 0);
+            })()
+          },
           logs: loadJson(DEBUG_LOG_FILE, []),
           health: collectSystemHealth(),
           icsSubscribeUrl: `${siteOrigin}/api/calendar.ics`
         },
         true
       );
+      return;
+    }
+
+    // Admin-visning av pending gästfoto (token via query, servern streamar bilden)
+    if (req.method === "GET" && action === "gastfoto_photo") {
+      const candidateToken = urlObj.searchParams.get("token") || "";
+      if (!isTokenAuthenticated(req, candidateToken)) {
+        sendJson(res, 401, { ok: false, error: "Ej inloggad i Admin." }, true);
+        return;
+      }
+      const fname = path.basename(String(urlObj.searchParams.get("file") || ""));
+      const ext = path.extname(fname).toLowerCase();
+      const mime = ext === ".png" ? "image/png" : ext === ".webp" ? "image/webp" : ext === ".jpg" || ext === ".jpeg" ? "image/jpeg" : null;
+      const full = path.join(GASTFOTO_PENDING_DIR, fname);
+      if (!mime || !fs.existsSync(full) || !fs.statSync(full).isFile()) {
+        sendJson(res, 404, { ok: false, error: "Fotot hittades inte." }, true);
+        return;
+      }
+      const stat = fs.statSync(full);
+      res.writeHead(200, { "Content-Type": mime, "Content-Length": stat.size, "Cache-Control": "private, max-age=60" });
+      fs.createReadStream(full).pipe(res);
       return;
     }
 
@@ -2295,6 +2528,122 @@ const server = http.createServer(async (req, res) => {
           return;
         }
 
+        // 9) RECENSIONER (Google-omdömen): spara lista
+        if (act === "save_reviews") {
+          if (!Array.isArray(body.reviews)) {
+            sendJson(res, 400, { ok: false, error: "Ogiltig recensionslista." }, true);
+            return;
+          }
+          const clean = body.reviews.slice(0, 100).map((r, i) => ({
+            id: String(r.id || `rev-${Date.now()}-${i}`),
+            name: String(r.name || "").trim().slice(0, 60),
+            stars: Math.min(5, Math.max(1, Number(r.stars) || 5)),
+            text: String(r.text || "").trim().slice(0, 600),
+            date: String(r.date || formatSvDate(Date.now())).trim().slice(0, 40),
+            source: String(r.source || "Google").trim().slice(0, 40),
+            status: r.status === "hidden" ? "hidden" : "visible"
+          }));
+          saveJson(REVIEWS_FILE, clean);
+          writeDebugLog("INFO", "REVIEWS", `Recensionslista sparad (${clean.length} st)`);
+          sendJson(res, 200, { ok: true, reviews: clean }, true);
+          return;
+        }
+
+        // 10) RECENSIONSINSAMLING: mejla recensionsförfrågan med Google-länk
+        if (act === "send_review_request") {
+          const cfg = loadJson(SETTINGS_FILE, {});
+          const googleUrl = String(cfg.googleReviewUrl || "").trim();
+          if (!googleUrl) {
+            sendJson(res, 400, { ok: false, error: "Ange din Google-recensionslänk under Kontakt-inställningar först." }, true);
+            return;
+          }
+          const to = String(body.email || "").trim();
+          if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(to)) {
+            sendJson(res, 400, { ok: false, error: "Ogiltig e-postadress." }, true);
+            return;
+          }
+          const name = String(body.name || "").trim();
+          const fromEmail = String(cfg.contactEmail || "bokning@backstagewheels.se").trim();
+          const html = `
+            <div style="background:#090a0f;color:#f8fafc;font-family:Arial,sans-serif;padding:28px 16px;">
+              <div style="max-width:600px;margin:0 auto;background:#141722;border:1px solid #2e3448;border-radius:10px;overflow:hidden;">
+                <div style="background:linear-gradient(135deg,#b91c1c,#f97316);padding:18px 24px;color:#fff;">
+                  <strong style="font-size:20px;letter-spacing:1px;">BACKSTAGE WHEELS · TACK FÖR KÖRDEN!</strong>
+                </div>
+                <div style="padding:26px 24px;line-height:1.65;font-size:16px;color:#e2e8f0;">
+                  <p style="margin-top:0;">Hej${name ? " " + escapeHtmlServer(name) : ""}!</p>
+                  <p>Tack för att ni körde med Backstage Wheels – vi hoppas ni fick en minnesvärd upplevelse ombord på Hummer H2!</p>
+                  <p>Det skulle betyda oerhört mycket för oss om du tog en minut och lämnade ett omdöme på Google:</p>
+                  <p style="text-align:center;margin:26px 0;">
+                    <a href="${escapeHtmlServer(googleUrl)}" style="background:#f97316;color:#0b0c10;font-weight:800;padding:14px 28px;border-radius:8px;text-decoration:none;letter-spacing:1px;">⭐ LÄMNA OMDÖME PÅ GOOGLE</a>
+                  </p>
+                  <p style="color:#94a3b8;font-size:13px;">Vi ser fram emot att köra er igen – Backstage Wheels</p>
+                </div>
+              </div>
+            </div>`;
+          const sent = sendSingleEmail(to, `Tack för körningen – lämna ett omdöme på Google${name ? " (" + name + ")" : ""}`, html, fromEmail);
+          writeDebugLog("INFO", "REVIEW_REQUEST", `Recensionsförfrågan mejlad till ${to}`);
+          sendJson(res, 200, { ok: true, sent: Boolean(sent), to }, true);
+          return;
+        }
+
+        // 11) GÄSTFOTO: moderera (godkänn → gallerimapp / avvisa / radera godkänd)
+        if (act === "gastfoto_moderate") {
+          const filename = path.basename(String(body.filename || ""));
+          const modAction = String(body.modAction || "");
+          const meta = guestMetaList();
+          const idx = meta.findIndex((m) => m.filename === filename);
+          if (idx < 0) {
+            sendJson(res, 404, { ok: false, error: "Hittar inte fotot." }, true);
+            return;
+          }
+          const pendingPath = path.join(GASTFOTO_PENDING_DIR, filename);
+          const outDir = path.join(ROOT, "bilder", "galleri", "gastfoton");
+          if (modAction === "approve") {
+            if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
+            if (fs.existsSync(pendingPath)) fs.renameSync(pendingPath, path.join(outDir, filename));
+            meta[idx].status = "approved";
+            meta[idx].approvedAt = formatSvDate(Date.now());
+            // Säkerställ att gallerimappen "Gästfoton" finns med i evenemangsmapparna
+            const galMeta = loadJson(FOLDERS_META_FILE, []);
+            if (!galMeta.some((m) => m.slug === "gastfoton")) {
+              galMeta.unshift({
+                slug: "gastfoton",
+                name: "Gästfoton via QR",
+                date: "Löpande",
+                description: "Modererade foton som gäster laddat upp via QR-koden i limousinen."
+              });
+              saveJson(FOLDERS_META_FILE, galMeta);
+            }
+            writeDebugLog("INFO", "GASTFOTO", `Gästfoto godkänt och publicerat: ${filename}`);
+          } else if (modAction === "reject" || modAction === "delete") {
+            if (fs.existsSync(pendingPath)) fs.unlinkSync(pendingPath);
+            const approvedPath = path.join(outDir, filename);
+            if (modAction === "delete" && fs.existsSync(approvedPath)) fs.unlinkSync(approvedPath);
+            meta.splice(idx, 1);
+            writeDebugLog(modAction === "delete" ? "MEDIA" : "INFO", "GASTFOTO", `Gästfoto ${modAction === "delete" ? "raderat" : "avvisat"}: ${filename}`);
+          } else {
+            sendJson(res, 400, { ok: false, error: "Okänd modereringsåtgärd." }, true);
+            return;
+          }
+          saveJson(GASTFOTO_META_FILE, meta);
+          const gal = buildGalleryAndFoldersCache();
+          sendJson(res, 200, { ok: true, meta: meta[idx] || null, folders: gal.folders, images: gal.items }, true);
+          return;
+        }
+
+        // 12) SMS: skicka test-SMS + starta om påminnelse-loopen
+        if (act === "send_test_sms") {
+          const result = await sendSmsViaProvider(String(body.number || "").trim(), String(body.message || "Test-SMS från Backstage Wheels kontrollpanel 🚘"));
+          if (result.ok) {
+            writeDebugLog("INFO", "SMS_TEST", `Test-SMS skickat till ${body.number}`);
+          } else {
+            writeDebugLog("ERROR", "SMS_TEST", `Test-SMS misslyckades: ${result.error || result.status || "?"}`);
+          }
+          sendJson(res, 200, { ok: result.ok, result }, true);
+          return;
+        }
+
         sendJson(res, 400, { ok: false, error: "Okänd åtgärd" }, true);
       });
       return;
@@ -2326,6 +2675,113 @@ const server = http.createServer(async (req, res) => {
         sendJson(res, 400, { ok: false });
       }
     });
+    return;
+  }
+
+  // 8B. PUBLIKA RECENSIONER (Google-omdömen-insamling)
+  if (req.method === "GET" && pathname === "/api/reviews") {
+    const cfg = loadJson(SETTINGS_FILE, {});
+    const reviews = loadJson(REVIEWS_FILE, [])
+      .filter((r) => r && r.status !== "hidden")
+      .slice(0, 24);
+    sendJson(res, 200, {
+      ok: true,
+      reviews,
+      googleReviewUrl: String(cfg.googleReviewUrl || "").trim()
+    });
+    return;
+  }
+
+  // 8C. GÄSTFOTO VIA QR — publika endpoints (modererat fotoläge)
+  if (pathname === "/api/gastfoto") {
+    if (req.method === "GET") {
+      sendJson(res, 200, {
+        ok: true,
+        photos: approvedGuestPhotos().map((m) => ({
+          filename: m.filename,
+          url: `bilder/galleri/gastfoton/${encodeURIComponent(m.filename)}`,
+          name: m.name || "",
+          caption: m.caption || "",
+          approvedAt: m.approvedAt || ""
+        }))
+      });
+      return;
+    }
+    if (req.method === "POST") {
+      let body = "";
+      req.on("data", (c) => {
+        body += c;
+        if (body.length > GASTFOTO_MAX_BYTES * 1.4) req.destroy();
+      });
+      req.on("end", () => {
+        try {
+          if (!guestUploadAllowed(req)) {
+            sendJson(res, 429, { ok: false, error: "Daglig uppladdningsgräns nådd. Försök igen imorgon." });
+            return;
+          }
+          const data = JSON.parse(body || "{}");
+          const imgBuf = decodeDataUrlImage(data.imageDataUrl);
+          const imgType = imgBuf ? detectGuestImageType(imgBuf) : null;
+          if (!imgBuf || !imgType || imgBuf.length > GASTFOTO_MAX_BYTES) {
+            sendJson(res, 400, { ok: false, error: "Ogiltig bild ( JPG/PNG/WebP, max 8 MB)." });
+            return;
+          }
+          if (!fs.existsSync(GASTFOTO_PENDING_DIR)) fs.mkdirSync(GASTFOTO_PENDING_DIR, { recursive: true });
+          const id = "gf-" + Date.now() + "-" + crypto.randomBytes(3).toString("hex");
+          const filename = `${id}.${imgType}`;
+          fs.writeFileSync(path.join(GASTFOTO_PENDING_DIR, filename), imgBuf);
+          const meta = guestMetaList();
+          meta.unshift({
+            id,
+            filename,
+            status: "pending",
+            name: String(data.name || "").trim().slice(0, 60),
+            caption: String(data.caption || "").trim().slice(0, 140),
+            receivedAt: formatSvDate(Date.now()),
+            receivedAtIso: new Date().toISOString(),
+            bytes: imgBuf.length
+          });
+          // Håll metastacken rimlig (max 500 poster)
+          if (meta.length > 500) meta.length = 500;
+          saveJson(GASTFOTO_META_FILE, meta);
+          guestUploadTick(req);
+          writeDebugLog("INFO", "GASTFOTO", `Nytt gästfoto inkommet (${imgType}, ${Math.round(imgBuf.length / 1024)} kB) – väntar på granskning.`);
+          sendJson(res, 200, { ok: true, id, message: "Tack! Bilden granskas innan publicering." });
+        } catch (_e) {
+          sendJson(res, 400, { ok: false, error: "Kunde inte läsa uppladdningen." });
+        }
+      });
+      return;
+    }
+    sendJson(res, 405, { ok: false, error: "Metod ej tillåten." });
+    return;
+  }
+
+  // 8D. QR-KOD SOM PEKAR PÅ GÄSTFOTO-SIDAN (PNG, genereras med python-fallback)
+  if (req.method === "GET" && pathname === "/api/gastfoto-qr") {
+    const host = String(req.headers.host || "localhost").split(":")[0];
+    const proto = String(req.headers["x-forwarded-proto"] || "http");
+    const target = `${proto}://${host}/gastfoto`;
+    const outPath = path.join(CACHE_DIR, "qr-gastfoto.png");
+    const targetPath = path.join(CACHE_DIR, "qr-gastfoto.target.txt");
+    let currentTarget = "";
+    try {
+      if (fs.existsSync(targetPath)) currentTarget = fs.readFileSync(targetPath, "utf8").trim();
+    } catch (_e) {}
+    if (currentTarget !== target || !fs.existsSync(outPath)) {
+      if (generateQrPng(target, outPath)) {
+        try {
+          fs.writeFileSync(targetPath, target, "utf8");
+        } catch (_e) {}
+      }
+    }
+    if (fs.existsSync(outPath)) {
+      const stat = fs.statSync(outPath);
+      res.writeHead(200, { "Content-Type": "image/png", "Content-Length": stat.size, "Cache-Control": "no-cache" });
+      fs.createReadStream(outPath).pipe(res);
+    } else {
+      sendJson(res, 404, { ok: false, error: "QR kunde inte genereras (python3 + qrcode saknas). Använd länken som text.", url: target });
+    }
     return;
   }
 
@@ -2378,6 +2834,7 @@ const server = http.createServer(async (req, res) => {
 
 ensureDirs();
 writeDebugLog("INFO", "BOOT", "Backstage Wheels säker server startad (AES-256 valv, Kalender-synk, Evenemangsmappar).");
+startSmsReminderLoop();
 
 server.listen(PORT, "0.0.0.0", () => {
   console.log(`Backstage Wheels server körs på http://0.0.0.0:${PORT}`);

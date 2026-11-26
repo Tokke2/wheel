@@ -127,7 +127,7 @@
 | R12 Minne/hastighet/energi | Behåll ring-buffer-max i `logger.js`, lazy-loading av galleri/media, inga polling-loopar mot `api/`, service workern får inte pre-cacha hela galleriet. |
 | K1 Skärpa/DPI | SVG-logotyp & SVG-ikoner där möjligt, ikoner i 192/512 + maskable i manifest, `srcset`/WebP på foton, ingen CSS-skala som förblurar. |
 | K2 Layout | Responsiv från små mobiler till stora skärmar; adminvyer i max höjd med minsta möjliga scroll; allt synligt utan dolda menytorngrenar. |
-| K3 Logotyp | Pixel-logotyper: `bilder/app-icon-192.png`, `app-icon-512.png`, `apple-touch-icon.png`. Redigerbara tryckvektorer: `data/print-svg/*.svg` (crest, cap-embroidery, back-tour, QR-skylt). Håll alla i samma stil. |
+| K3 Logotyp | Pixel-logotyper: `bilder/app-icon-192.png`, `app-icon-512.png`, `apple-touch-icon.png`. Redigerbara tryckvektorer: `data/print-svg/*.svg` (skyddade) + publik kvitto-/tryckkopia `bilder/backstage-wheels-crest.svg` (håll i synk med originalet). Håll alla i samma stil. |
 | K4 Kolumner | Adminlistor (merch-beställningar, prenumeranter, offerter, logg) ska få sortering + kolumnflytt. |
 | K5 Profiler | **Vilar** — Backstage Wheels använder inte flerprofiler. Aktiveras om profiler läggs till (då: egen underflik i admin-inställningar). |
 | K6 TTK projektskapare-ruta | **Gäller ej** — appen hade aldrig TTK:s projekt-skapare. |

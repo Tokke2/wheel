@@ -842,6 +842,30 @@
             </div>
           </div>
 
+          <!-- KUNDOMDÖMEN (Google-recensioner) -->
+          <div class="bsw-reviews-block" id="bsw-reviews-block" hidden>
+            <div class="bsw-section-head" style="margin-top:8px;">
+              <div>
+                <span class="bsw-kicker">KUNDOMDÖMEN &amp; RECENSIONER</span>
+                <h2 class="bsw-section-title" style="font-size:clamp(1.3rem,3vw,1.9rem);">VAD VÅRA GÄSTER SÄGER</h2>
+              </div>
+              <a
+                id="bsw-google-review-btn"
+                class="bsw-btn bsw-btn-primary"
+                href="#"
+                target="_blank"
+                rel="noopener"
+                hidden
+              >
+                <span>Lämna ett omdöme på Google</span>
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
+                  <path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                </svg>
+              </a>
+            </div>
+            <div class="bsw-reviews-grid" id="bsw-reviews-grid" aria-live="polite"></div>
+          </div>
+
           <div class="bsw-contact-grid">
             <div class="bsw-contact-card">
               <span class="bsw-contact-lbl">E-post (klicka för att mejla)</span>
@@ -1186,6 +1210,7 @@
             <li><button type="button" data-tab-target="galleri">Bildgalleri</button></li>
             <li><button type="button" data-tab-target="merch">Merch (Kommer snart)</button></li>
             <li><button type="button" data-tab-target="offert">Begär offert</button></li>
+            <li><a href="gastfoto.html">Gästfoton</a></li>
           </ul>
         </div>
 
@@ -1213,6 +1238,7 @@
   <!-- Konfiguration, Helskärmsvisare & Huvudlogik -->
   <script src="js/config.js"></script>
   <script src="js/lightbox.js"></script>
+  <script src="js/i18n.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

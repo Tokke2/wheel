@@ -137,6 +137,8 @@
     galleryImages: [],
     vault: {},
     quotes: [],
+    reviews: [],
+    gastfoto: { pending: [], approved: [], dailyUploadsToday: 0 },
     debugLogs: [],
     health: {},
     icsSubscribeUrl: "/api/calendar.ics",
@@ -1044,6 +1046,8 @@
       state.galleryImages = db.galleryImages;
       state.vault = db.vault;
       state.quotes = db.quotes;
+      state.reviews = db.reviews;
+      state.gastfoto = db.gastfoto || { pending: [], approved: [] };
       state.debugLogs = db.logs;
       return;
     }
@@ -1101,6 +1105,8 @@
           state.subscribers = Array.isArray(d.subscribers) ? d.subscribers : [];
           state.campaigns = Array.isArray(d.campaigns) ? d.campaigns : [];
           state.quotes = Array.isArray(d.quotes) ? d.quotes : [];
+          state.reviews = Array.isArray(d.reviews) ? d.reviews : [];
+          state.gastfoto = d.gastfoto && Array.isArray(d.gastfoto.pending) ? d.gastfoto : { pending: [], approved: [], dailyUploadsToday: 0 };
           state.debugLogs = Array.isArray(d.logs) ? d.logs : [];
           state.health = d.health || {};
           if (d.icsSubscribeUrl) state.icsSubscribeUrl = d.icsSubscribeUrl;
@@ -2363,6 +2369,47 @@
             </div>
           </div>
 
+          <div class="bsw-form-grid">
+            <div class="bsw-field">
+              <label>Google-recensionslänk (omdömes-knapp på hemsidan)</label>
+              <input type="url" id="c-google-rev" value="${esc(s.googleReviewUrl || "")}" placeholder="https://g.page/r/.../review" />
+            </div>
+            <div class="bsw-field">
+              <label>SMS-notisnummer (påminnelser skickas hit)</label>
+              <input type="text" id="c-sms-number" value="${esc((s.smsSettings && s.smsSettings.notifyNumber) || "")}" placeholder="+46701234567" />
+            </div>
+          </div>
+
+          <div class="bsw-form-grid">
+            <div class="bsw-field">
+              <label>SMS-leverantör (46elks — användarnamn)</label>
+              <input type="text" id="c-sms-user" value="${esc((s.smsSettings && s.smsSettings.apiUser) || "")}" placeholder="46elks API-användarnamn" autocomplete="off" />
+            </div>
+            <div class="bsw-field">
+              <label>SMS-leverantör (46elks — API-nyckel)</label>
+              <input type="password" id="c-sms-pass" value="${esc((s.smsSettings && s.smsSettings.apiPassword) || "")}" placeholder="46elks API-nyckel" autocomplete="off" />
+            </div>
+          </div>
+
+          <div class="bsw-form-grid">
+            <div class="bsw-field">
+              <label>SMS-avsändarnamn (max 11 tecken)</label>
+              <input type="text" id="c-sms-sender" value="${esc((s.smsSettings && s.smsSettings.sender) || "BackstageW")}" maxlength="11" />
+            </div>
+            <div class="bsw-field">
+              <label>Påminnelse antal timmar före bokning</label>
+              <input type="number" id="c-sms-hours" min="1" max="72" value="${esc((s.smsSettings && s.smsSettings.hoursBefore) || 24)}" />
+            </div>
+          </div>
+
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+            <label style="display:flex;gap:8px;align-items:center;font-weight:600;">
+              <input type="checkbox" id="c-sms-enabled" ${(s.smsSettings && s.smsSettings.enabled) ? "checked" : ""} />
+              Aktivera SMS-påminnelser (skickas automatiskt före varje bokning i kalendern)
+            </label>
+            <button type="button" id="adm-sms-test-btn" class="bsw-icon-action-btn">📤 Skicka test-SMS</button>
+          </div>
+
           <div class="bsw-field">
             <label>Egen Logotyp (visas i sidhuvudet, sidfoten &amp; på kontaktsidan)</label>
             <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
@@ -2400,9 +2447,197 @@
                     Sträcka: ${esc(q.fran || "-")} → ${esc(q.till || "-")} (${esc(q.passagerare || "-")} passagerare)
                     ${q.meddelande ? `<br/>Önskemål: ${esc(q.meddelande)}` : ""}
                   </div>
+                  <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
+                    <button type="button" class="bsw-btn bsw-btn-ghost" data-quote-receipt="${esc(idx)}">🧾 Kvitto / Faktura</button>
+                    <button type="button" class="bsw-icon-action-btn" data-quote-reviewmail="${esc(idx)}">⭐ Mejla recensionsförfrågan</button>
+                  </div>
                 </div>`
                 )
                 .join("")
+        }
+      </div>`;
+  }
+
+  // --------------------------------------------------------------------------
+  // MODUL 9B: KUNDOMDÖMEN (GOOGLE-RECENSIONER)
+  // --------------------------------------------------------------------------
+  function renderReviewsTab() {
+    const s = state.settings;
+    const reviews = Array.isArray(state.reviews) ? state.reviews : [];
+    const stars = (n) => "★".repeat(Math.max(1, Math.min(5, Number(n) || 5)));
+
+    return `
+      <div class="bsw-form-card" style="margin-bottom:28px;">
+        <span class="bsw-kicker">GOOGLE-RECENSIONER · AUTO-INSAMLING</span>
+        <h2 style="margin:0 0 10px;font-family:var(--font-display);text-transform:uppercase;">Kundomdömen & recensioner</h2>
+        <p style="color:var(--text-soft);">
+          Samla in och visa kundomdömen på hemsidan (kontaktfliken). Fyll i din Google-recensionslänk
+          (Maps → din profil → "Skriv en recension" → kopiera länken) och skicka recensionsförfrågningar
+          per mejl efter genomförda körningar.
+        </p>
+        <form id="adm-reviews-settings-form" style="display:grid;gap:12px;margin-top:14px;">
+          <div class="bsw-field">
+            <label>Google-recensionslänk (publik CTA-knapp på hemsidan)</label>
+            <input type="url" id="rev-google-url" value="${esc(s.googleReviewUrl || "")}" placeholder="https://g.page/r/.../review" />
+          </div>
+          <div><button type="submit" class="bsw-btn bsw-btn-primary"><span>Spara Google-länk</span></button></div>
+        </form>
+        <form id="adm-review-request-form" style="display:grid;gap:12px;margin-top:18px;border-top:1px solid var(--border-steel);padding-top:16px;">
+          <div class="bsw-form-grid">
+            <div class="bsw-field">
+              <label>Kundens e-post</label>
+              <input type="email" id="rev-req-email" required placeholder="kund@example.com" />
+            </div>
+            <div class="bsw-field">
+              <label>Kundens namn (valfritt)</label>
+              <input type="text" id="rev-req-name" placeholder="T ex Maggans 40-årsfirande" />
+            </div>
+          </div>
+          <div><button type="submit" class="bsw-btn bsw-btn-primary"><span>✉ Skicka recensionsförfrågan</span></button></div>
+        </form>
+      </div>
+
+      <div class="bsw-form-card">
+        <h3 style="margin:0 0 14px;font-family:var(--font-display);text-transform:uppercase;">Recensioner som visas på hemsidan (${reviews.length})</h3>
+        <form id="adm-review-add-form" style="display:grid;gap:12px;border:1px dashed var(--border-steel);border-radius:10px;padding:14px;margin-bottom:16px;">
+          <div class="bsw-form-grid">
+            <div class="bsw-field">
+              <label>Namn</label>
+              <input type="text" id="rev-new-name" required placeholder="T ex Johan B." />
+            </div>
+            <div class="bsw-field">
+              <label>Betyg (1–5)</label>
+              <select id="rev-new-stars">
+                <option value="5" selected>★★★★★ (5)</option>
+                <option value="4">★★★★ (4)</option>
+                <option value="3">★★★ (3)</option>
+                <option value="2">★★ (2)</option>
+                <option value="1">★ (1)</option>
+              </select>
+            </div>
+          </div>
+          <div class="bsw-field">
+            <label>Recensionstext</label>
+            <textarea id="rev-new-text" rows="3" required placeholder="Vilken upplevelse! ..." style="width:100%;box-sizing:border-box;"></textarea>
+          </div>
+          <div class="bsw-form-grid">
+            <div class="bsw-field">
+              <label>Datum</label>
+              <input type="text" id="rev-new-date" value="${esc(new Date().toLocaleDateString("sv-SE"))}" />
+            </div>
+            <div class="bsw-field">
+              <label>Källa</label>
+              <select id="rev-new-source">
+                <option selected>Google</option>
+                <option>Instagram</option>
+                <option>Facebook</option>
+                <option>Mejl</option>
+              </select>
+            </div>
+          </div>
+          <div><button type="submit" class="bsw-btn bsw-btn-ghost"><span>＋ Lägg till recension</span></button></div>
+        </form>
+
+        ${
+          !reviews.length
+            ? `<p style="color:var(--text-muted);">Inga recensioner lagrade ännu. Lägg till den första ovan – den syns direkt på hemsidan.</p>`
+            : reviews
+                .map(
+                  (r, i) => `
+                <div style="padding:14px;margin-bottom:10px;background:#0e1018;border:1px solid var(--border-steel);border-radius:8px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+                  <div style="flex:1;min-width:240px;">
+                    <div><span style="color:#f59e0b;letter-spacing:2px;">${stars(r.stars)}</span> <strong>${esc(r.name)}</strong> <small style="color:var(--text-muted);">${esc(r.date || "")} · ${esc(r.source || "Google")}${r.status === "hidden" ? " · 🙈 DOLD" : ""}</small></div>
+                    <p style="margin:6px 0 0;color:var(--text-soft);font-size:0.92rem;">${esc(r.text)}</p>
+                  </div>
+                  <div style="display:flex;flex-direction:column;gap:6px;">
+                    <button type="button" class="bsw-icon-action-btn" data-review-toggle="${esc(i)}">${r.status === "hidden" ? "👁 Visa" : "🙈 Dölj"}</button>
+                    <button type="button" class="bsw-icon-action-btn" data-review-del="${esc(i)}">🗑 Radera</button>
+                  </div>
+                </div>`
+                )
+                .join("")
+        }
+      </div>`;
+  }
+
+  // --------------------------------------------------------------------------
+  // MODUL 9C: GÄSTFOTO VIA QR (MODERERAT FOTOLÄGE)
+  // --------------------------------------------------------------------------
+  function renderGuestPhotoTab() {
+    const gf = state.gastfoto || { pending: [], approved: [] };
+    const approvedCount = Array.isArray(gf.approved) ? gf.approved.length : 0;
+
+    return `
+      <div class="bsw-form-card" style="margin-bottom:28px;">
+        <span class="bsw-kicker">MODERERAT FOTOLÄGE · QR I LIMOUSINEN</span>
+        <h2 style="margin:0 0 10px;font-family:var(--font-display);text-transform:uppercase;">Gästfoto via QR</h2>
+        <p style="color:var(--text-soft);">
+          Gäster skannar QR-koden i limousinen och laddar upp foton på <code>/gastfoto</code>.
+          Inget publiceras förrän <strong>du</strong> godkänt bilden här. Godkända bilder hamnar i
+          gallerimappen <strong>"Gästfoton via QR"</strong> på hemsidan automatiskt.
+        </p>
+        <div style="display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin-top:14px;">
+          <img
+            src="/api/gastfoto-qr"
+            alt="QR-kod till gästfoto-sidan"
+            width="150"
+            height="150"
+            style="border-radius:10px;border:1px solid var(--border-steel);background:#fff;padding:8px;"
+            onerror="this.style.display='none'"
+          />
+          <div style="display:grid;gap:8px;">
+            <code style="user-select:all;">${esc(location.origin + "/gastfoto")}</code>
+            <button type="button" class="bsw-btn bsw-btn-ghost" id="gf-copy-link">📋 Kopiera länk</button>
+            <small style="color:var(--text-muted);">Skriv ut QR-koden & rama in den vid baren i limousinen (t ex på akrylskydden från fliken Merch & Vektor-SVG).</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="bsw-form-card" style="margin-bottom:28px;">
+        <h3 style="margin:0 0 14px;font-family:var(--font-display);text-transform:uppercase;">Väntar på granskning (${gf.pending.length})</h3>
+        ${
+          !gf.pending.length
+            ? `<p style="color:var(--text-muted);">Inga nya gästfoton i kön just nu.</p>`
+            : `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;">` +
+              gf.pending
+                .map(
+                  (m) => `
+                <div style="background:#0e1018;border:1px solid var(--border-steel);border-radius:10px;overflow:hidden;">
+                  <img loading="lazy" src="/api/admin?action=gastfoto_photo&file=${encodeURIComponent(m.filename)}&token=${encodeURIComponent(state.token || "")}" alt="${esc(m.caption || "Gästfoto")}" style="width:100%;aspect-ratio:1/1;object-fit:cover;display:block;" />
+                  <div style="padding:10px;">
+                    <small style="color:var(--text-muted);display:block;">${esc(m.name || "Anonym gäst")} · ${esc(m.receivedAt || "")}</small>
+                    <small style="color:var(--text-soft);display:block;margin:4px 0 8px;">${esc(m.caption || "")}</small>
+                    <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                      <button type="button" class="bsw-btn bsw-btn-primary" data-gf-approve="${esc(m.filename)}"><span>✓ Godkänn</span></button>
+                      <button type="button" class="bsw-icon-action-btn" data-gf-reject="${esc(m.filename)}">🗑 Avvisa</button>
+                    </div>
+                  </div>
+                </div>`
+                )
+                .join("") +
+              `</div>`
+        }
+      </div>
+
+      <div class="bsw-form-card">
+        <h3 style="margin:0 0 14px;font-family:var(--font-display);text-transform:uppercase;">Godkända gästfoton (${approvedCount}) · uppladdningar idag: ${esc(gf.dailyUploadsToday || 0)}</h3>
+        ${
+          !approvedCount
+            ? `<p style="color:var(--text-muted);">Inga godkända gästfoton ännu.</p>`
+            : `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;">` +
+              gf.approved
+                .map(
+                  (m) => `
+                <div style="background:#0e1018;border:1px solid var(--border-steel);border-radius:10px;overflow:hidden;">
+                  <img loading="lazy" src="bilder/galleri/gastfoton/${encodeURIComponent(m.filename)}" alt="${esc(m.caption || "Gästfoto")}" style="width:100%;aspect-ratio:1/1;object-fit:cover;display:block;" />
+                  <div style="padding:8px;display:grid;gap:6px;">
+                    <small style="color:var(--text-muted);">${esc(m.caption || m.name || "")}</small>
+                    <button type="button" class="bsw-icon-action-btn" data-gf-delete="${esc(m.filename)}">🗑 Radera</button>
+                  </div>
+                </div>`
+                )
+                .join("") +
+              `</div>`
         }
       </div>`;
   }
@@ -2518,6 +2753,8 @@
       { id: "cars", label: "🚘 Bilar, Priser & Paket" },
       { id: "vault", label: "🔐 Sociala Medier (Auto)" },
       { id: "contact", label: `📞 Kontakt & Offerter (${state.quotes.length})` },
+      { id: "reviews", label: `⭐ Omdömen (${state.reviews.length})` },
+      { id: "gastfoto", label: `🖼️ Gästfoto via QR (${state.gastfoto.pending.length})` },
       { id: "logs", label: "🛡️ Lösenord & Systemlogg" }
     ];
 
@@ -2530,6 +2767,8 @@
     else if (state.activeSubTab === "cars") contentHtml = renderCarsAndPricesTab();
     else if (state.activeSubTab === "vault") contentHtml = renderVaultTab();
     else if (state.activeSubTab === "contact") contentHtml = renderContactAndQuotesTab();
+    else if (state.activeSubTab === "reviews") contentHtml = renderReviewsTab();
+    else if (state.activeSubTab === "gastfoto") contentHtml = renderGuestPhotoTab();
     else contentHtml = renderSecurityAndLogsTab();
 
     root.innerHTML = `
@@ -3291,8 +3530,180 @@
         state.settings.homeRegion = document.getElementById("c-region").value.trim();
         state.settings.instagramUrl = document.getElementById("c-ig").value.trim();
         state.settings.logoUrl = document.getElementById("c-logo").value.trim();
+        state.settings.googleReviewUrl = document.getElementById("c-google-rev").value.trim();
+        state.settings.smsSettings = {
+          enabled: document.getElementById("c-sms-enabled").checked,
+          provider: "46elks",
+          apiUser: document.getElementById("c-sms-user").value.trim(),
+          apiPassword: document.getElementById("c-sms-pass").value.trim(),
+          sender: document.getElementById("c-sms-sender").value.trim() || "BackstageW",
+          notifyNumber: document.getElementById("c-sms-number").value.trim(),
+          hoursBefore: Number(document.getElementById("c-sms-hours").value) || 24
+        };
         const r = await apiPost("save_settings", { settings: state.settings });
-        if (r.ok) showToast("Kontaktuppgifter & logotyp sparade!");
+        if (r.ok) showToast("Kontaktuppgifter, SMS & logotyp sparade!");
+      });
+      const smsTestBtn = document.getElementById("adm-sms-test-btn");
+      if (smsTestBtn) {
+        smsTestBtn.addEventListener("click", async () => {
+          const number = document.getElementById("c-sms-number").value.trim();
+          if (!number) {
+            showToast("Fyll i SMS-notisnummer först.", true);
+            return;
+          }
+          smsTestBtn.disabled = true;
+          const r = await apiPost("send_test_sms", { number, message: "Test-SMS från Backstage Wheels kontrollpanel 🚘" });
+          smsTestBtn.disabled = false;
+          if (r && r.ok && r.result && r.result.ok) showToast("Test-SMS skickat! 📱");
+          else showToast("Test-SMS misslyckades: " + ((r && r.result && (r.result.error || r.result.status)) || "kontrollera API-nyckel"), true);
+        });
+      }
+    }
+
+    // --- KVITTO/FAKTURA & RECENSIONSMETJL PER OFFERT ---
+    document.querySelectorAll("[data-quote-receipt]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const q = state.quotes[Number(btn.getAttribute("data-quote-receipt"))];
+        if (!q) return;
+        const payload = {
+          kind: "FAKTURA",
+          company: `Backstage Wheels\n${state.settings.contactPhone || ""}\n${state.settings.contactEmail || ""}\nbackstagewheels.se`,
+          customer: `${q.namn || "-"}\n${q.epost || "-"}\n${q.telefon || "-"}`,
+          docmeta: `Nr: BSW-${String(q.receivedAt || Date.now()).replace(/[^0-9]/g, "").slice(-8) || "00000000"}\nDatum: ${new Date().toLocaleDateString("sv-SE")}\nOffert mottagen: ${q.receivedAt || "-"}`,
+          event: `Fordon / upplägg: ${q.bil || "-"} (${q.kortid || "-"})\nDatum & tid: ${q.datum || "-"} kl ${q.tid || "-"}\nSträcka: ${q.fran || "-"} → ${q.till || "-"}\nPassagerare: ${q.passagerare || "-"}`,
+          rows: [{ label: "Limousinekörning enligt offert (exkl. moms)", qty: 1, price: 0 }],
+          note: "Fyll i belopp på raden nedan (À-pris) – moms 25 % och summa beräknas automatiskt. Alla fält kan redigeras innan utskrift."
+        };
+        const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(payload)))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+        window.open("kvitto.html#d=" + b64, "_blank");
+      });
+    });
+    document.querySelectorAll("[data-quote-reviewmail]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const q = state.quotes[Number(btn.getAttribute("data-quote-reviewmail"))];
+        if (!q || !q.epost) {
+          showToast("Offerten saknar e-postadress.", true);
+          return;
+        }
+        apiPost("send_review_request", { email: q.epost, name: q.namn }).then((r) => {
+          if (r && r.ok) showToast("Recensionsförfrågan mejlad till " + q.epost);
+          else showToast((r && r.error) || "Kunde inte skicka – kontrollera Google-länken.", true);
+        });
+      });
+    });
+
+    // --- KUNDOMDÖMEN ---
+    const revSettingsForm = document.getElementById("adm-reviews-settings-form");
+    if (revSettingsForm) {
+      revSettingsForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        state.settings.googleReviewUrl = document.getElementById("rev-google-url").value.trim();
+        const r = await apiPost("save_settings", { settings: state.settings });
+        if (r.ok) showToast("Google-länk sparad!");
+      });
+    }
+    const revAddForm = document.getElementById("adm-review-add-form");
+    if (revAddForm) {
+      revAddForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const list = Array.isArray(state.reviews) ? state.reviews : [];
+        list.unshift({
+          id: "rev-" + Date.now(),
+          name: document.getElementById("rev-new-name").value.trim(),
+          stars: Number(document.getElementById("rev-new-stars").value) || 5,
+          text: document.getElementById("rev-new-text").value.trim(),
+          date: document.getElementById("rev-new-date").value.trim(),
+          source: document.getElementById("rev-new-source").value,
+          status: "visible"
+        });
+        const r = await apiPost("save_reviews", { reviews: list });
+        if (r && r.ok) {
+          state.reviews = r.reviews || list;
+          showToast("Recension tillagd – syns nu på hemsidan!");
+          render();
+        } else {
+          showToast((r && r.error) || "Kunde inte spara recensionen.", true);
+        }
+      });
+    }
+    const revReqForm = document.getElementById("adm-review-request-form");
+    if (revReqForm) {
+      revReqForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const r = await apiPost("send_review_request", {
+          email: document.getElementById("rev-req-email").value.trim(),
+          name: document.getElementById("rev-req-name").value.trim()
+        });
+        if (r && r.ok) showToast("Recensionsförfrågan skickad! ✉");
+        else showToast((r && r.error) || "Kunde inte skicka.", true);
+      });
+    }
+    document.querySelectorAll("[data-review-toggle]").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const i = Number(btn.getAttribute("data-review-toggle"));
+        if (!state.reviews[i]) return;
+        state.reviews[i].status = state.reviews[i].status === "hidden" ? "visible" : "hidden";
+        const r = await apiPost("save_reviews", { reviews: state.reviews });
+        if (r && r.ok) {
+          state.reviews = r.reviews || state.reviews;
+          render();
+        }
+      });
+    });
+    document.querySelectorAll("[data-review-del]").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const i = Number(btn.getAttribute("data-review-del"));
+        if (!state.reviews[i]) return;
+        if (!confirm("Radera den här recensionen?")) return;
+        state.reviews.splice(i, 1);
+        const r = await apiPost("save_reviews", { reviews: state.reviews });
+        if (r && r.ok) {
+          state.reviews = r.reviews || state.reviews;
+          showToast("Recension raderad.");
+          render();
+        }
+      });
+    });
+
+    // --- GÄSTFOTO VIA QR ---
+    document.querySelectorAll("[data-gf-approve]").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const r = await apiPost("gastfoto_moderate", { filename: btn.getAttribute("data-gf-approve"), modAction: "approve" });
+        if (r && r.ok) {
+          showToast("Fotot godkänt & publicerat i galleriet!");
+          await loadAllAdminData();
+          render();
+        } else showToast((r && r.error) || "Kunde inte godkänna fotot.", true);
+      });
+    });
+    document.querySelectorAll("[data-gf-reject]").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const r = await apiPost("gastfoto_moderate", { filename: btn.getAttribute("data-gf-reject"), modAction: "reject" });
+        if (r && r.ok) {
+          showToast("Fotot avvisat & raderat.");
+          await loadAllAdminData();
+          render();
+        } else showToast((r && r.error) || "Kunde inte avvisa fotot.", true);
+      });
+    });
+    document.querySelectorAll("[data-gf-delete]").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        if (!confirm("Radera det godkända fotot från galleriet?")) return;
+        const r = await apiPost("gastfoto_moderate", { filename: btn.getAttribute("data-gf-delete"), modAction: "delete" });
+        if (r && r.ok) {
+          showToast("Fotot raderat.");
+          await loadAllAdminData();
+          render();
+        } else showToast((r && r.error) || "Kunde inte radera fotot.", true);
+      });
+    });
+    const gfCopyBtn = document.getElementById("gf-copy-link");
+    if (gfCopyBtn) {
+      gfCopyBtn.addEventListener("click", () => {
+        const url = location.origin + "/gastfoto";
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(url).then(() => showToast("Länken kopierad!"));
+        }
       });
     }
 

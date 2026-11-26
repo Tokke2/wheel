@@ -2049,6 +2049,7 @@
 
       let savedServer = false;
       let resolvedRecipient = targetEmail;
+      let networkDown = false;
       for (const ep of ["/api/offert", "api/offert.php"]) {
         try {
           const r = await fetch(ep, {
@@ -2058,13 +2059,45 @@
           });
           if (r.ok) {
             savedServer = true;
+            networkDown = false;
             try {
               const respJson = await r.json();
               if (respJson && respJson.recipient) resolvedRecipient = respJson.recipient;
             } catch (_ignore) {}
             break;
           }
+        } catch (_e) {
+          // Nätverksfel (endpointen nåddes aldrig) – testa nästa / kör offline-kö
+          networkDown = true;
+        }
+      }
+
+      // OFFLINE-LÄGE (#19): nätet nere → kön i localStorage, auto-flush när nätet återkommer
+      if (!savedServer && networkDown) {
+        try {
+          const q = JSON.parse(localStorage.getItem("bsw_offert_queue_v1") || "[]");
+          q.push({ queuedAt: new Date().toISOString(), data });
+          if (q.length > 20) q.splice(0, q.length - 20); // hård maxgräns (minneshantering)
+          localStorage.setItem("bsw_offert_queue_v1", JSON.stringify(q));
         } catch (_e) {}
+        if (resultBox) {
+          resultBox.hidden = false;
+          resultBox.innerHTML = `
+            <div class="bsw-quote-success-card">
+              <span class="bsw-success-badge">SPARAD OFFLINE ✓</span>
+              <h3 style="margin:6px 0 8px;">Tack ${escapeHtml(data.namn)}! Din förfrågan är sparad i telefonen</h3>
+              <p style="color:var(--text-soft);margin:0 0 12px;">
+                Du verkar vara utan uppkoppling just nu. Förfrågan skickas <strong>automatiskt</strong> så snart
+                nätet är tillbaka – du behöver inte göra något mer. Håll den här sidan öppen, eller kom tillbaka
+                till den igen inom kort ( samma enhet & webbläsare ).
+              </p>
+              <pre class="bsw-quote-summary-pre">${escapeHtml(summary)}</pre>
+            </div>`;
+          if (window.BSWLogger && window.BSWLogger.log) {
+            window.BSWLogger.log("INFO", "OFFERT_QUEUE", `Offertförfrågan köad offline (${data.datum || "inget datum"})`);
+          }
+        }
+        return;
       }
 
       if (!savedServer) {
@@ -2145,6 +2178,109 @@
       }
     } catch (_e) {}
     return false;
+  }
+
+  // --------------------------------------------------------------------------
+  // 14B. OFFLINE-KÖ FÖR OFFERTFÖRFRÅGAN (#19) — flush när nätet återkommer
+  // --------------------------------------------------------------------------
+  const OFFERT_QUEUE_KEY = "bsw_offert_queue_v1";
+
+  async function flushOffertQueue() {
+    let queue = [];
+    try {
+      queue = JSON.parse(localStorage.getItem(OFFERT_QUEUE_KEY) || "[]");
+    } catch (_e) {
+      return;
+    }
+    if (!Array.isArray(queue) || !queue.length) return;
+
+    const remaining = [];
+    for (const item of queue) {
+      let sent = false;
+      for (const ep of ["/api/offert", "api/offert.php"]) {
+        try {
+          const r = await fetch(ep, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(item.data || {})
+          });
+          if (r.ok) {
+            sent = true;
+            break;
+          }
+        } catch (_e) {
+          break; // Nätet är fortfarande nere – sluta forsoka
+        }
+      }
+      if (!sent) remaining.push(item);
+    }
+
+    try {
+      if (remaining.length) localStorage.setItem(OFFERT_QUEUE_KEY, JSON.stringify(remaining));
+      else localStorage.removeItem(OFFERT_QUEUE_KEY);
+    } catch (_e) {}
+
+    if (remaining.length < queue.length && window.BSWLogger && window.BSWLogger.log) {
+      window.BSWLogger.log("INFO", "OFFERT_QUEUE", `${queue.length - remaining.length} köade offertförfrågan (nätet tillbaka) skickade ✓`);
+    }
+  }
+
+  function initOffertQueueFlush() {
+    // Flusha ev. köade förfrågningar vid start + när nätet kommer tillbaka
+    if (navigator.onLine) flushOffertQueue();
+    window.addEventListener("online", () => flushOffertQueue());
+    // Lätt retry när användaren återvänder till fliken (energisnålt – eventstyrt, ingen polling)
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible" && navigator.onLine) flushOffertQueue();
+    });
+  }
+
+  // --------------------------------------------------------------------------
+  // 14C. KUNDOMDÖMEN / GOOGLE-RECENSIONER (#20) — widget i kontaktfliken
+  // --------------------------------------------------------------------------
+  async function initReviews() {
+    const block = document.getElementById("bsw-reviews-block");
+    const grid = document.getElementById("bsw-reviews-grid");
+    const cta = document.getElementById("bsw-google-review-btn");
+    if (!block || !grid) return;
+
+    let payload = null;
+    for (const ep of ["/api/reviews", "api/reviews.php"]) {
+      try {
+        const r = await fetch(ep);
+        if (r.ok) {
+          payload = await r.json();
+          break;
+        }
+      } catch (_e) {}
+    }
+    if (!payload || !Array.isArray(payload.reviews) || !payload.reviews.length) return;
+
+    const stars = (n) => "★".repeat(Math.max(0, Math.min(5, Number(n) || 0))) + "☆".repeat(Math.max(0, 5 - (Number(n) || 0)));
+    const safe = (s) => escapeHtml(String(s == null ? "" : s));
+
+    grid.innerHTML = payload.reviews
+      .map(
+        (r) => `
+        <figure class="bsw-review-card">
+          <blockquote>${safe(r.text)}</blockquote>
+          <figcaption>
+            <span class="bsw-review-stars" aria-label="${Number(r.stars) || 5} av 5">${stars(r.stars)}</span>
+            <strong>${safe(r.name) || "Gäst"}</strong>
+            <small>${safe(r.date)}${r.source ? " · " + safe(r.source) : ""}</small>
+          </figcaption>
+        </figure>`
+      )
+      .join("");
+
+    block.hidden = false;
+    if (cta && payload.googleReviewUrl) {
+      cta.href = payload.googleReviewUrl;
+      cta.hidden = false;
+    }
+    if (window.BSWLogger && window.BSWLogger.log) {
+      window.BSWLogger.log("INFO", "REVIEWS", `Visar ${payload.reviews.length} kundomdömen i kontaktfliken`);
+    }
   }
 
   async function initMobileOnlyPwa() {
@@ -2278,6 +2414,8 @@
     initGalleryToolbar();
     initCalendarControls();
     initQuoteForm();
+    initOffertQueueFlush();
+    initReviews();
     await Promise.all([loadGallery(), loadCalendarData()]);
     await initMobileOnlyPwa();
   });

@@ -1,0 +1,22 @@
+# Körningsdata (innehåll skapat av appen i produktion) – versionshanteras ej
+node_modules/
+data/debug-logs.json
+data/admin-auth.json
+data/.vault.key
+data/social-vault.enc.json
+data/site-settings.json
+data/posts.json
+data/merch.json
+data/merch-orders.json
+data/merch-interest.json
+data/subscribers.json
+data/campaigns.json
+data/calendar.json
+data/offert-logg.json
+data/reviews.json
+data/gastfoto-meta.json
+data/gastfoto-rate.json
+data/sms-state.json
+data/gastfoto-pending/
+bilder/galleri/_cache/
+bilder/galleri/gastfoton/
