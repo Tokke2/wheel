@@ -27,3 +27,17 @@ Kontrollera att PHP har skrivrättigheter (`chmod 755` eller `775`) på:
 - **Kalender & Google Kalender (.ics):** Ställ in bokade/lediga tider, kommande festivaler och tvåvägs `.ics`-synk.
 - **Bilar & Paketpriser:** Uppdatera bilfakta och tim-/paketpriser (Vardag `5 500 kr/h`, Helg `7 500 kr/h`, Heldag 12 h `25 000 kr`, Sponsorevent `från 50 000 kr/dag + lunch och hotell`).
 - **Kontakt, Logotyp & QR-skylt:** Uppdatera telefonnummer, e-post, logotyp och QR-kod (t.ex. för baksätes-QR i limousinen).
+
+## 4. Automatisk utrullning från GitHub (#1, v1.0.9)
+
+Panelen kan nu rulla ut filerna åt dig vid varje ändring:
+
+**Webbhotell (FTP):**
+1. GitHub → repo → Settings → Secrets and variables → Actions → *New repository secret*: `FTP_HOST`, `FTP_USER`, `FTP_PASS` (valfritt `FTP_REMOTE_DIR`, t ex `/public_html`).
+2. Variables-fliken → *New repository variable*: `DEPLOY_TARGET` = `ftp`.
+3. Actions-fliken → "Deploy webbhotell / VPS" → **Run workflow**. Klart!
+4. Vill du ha **helt automatiskt** vid varje push: redigera `.github/workflows/deploy.yml` och ta bort `#` framför `push:`-raderna.
+
+**VPS (SSH):** samma sak men secrets `SSH_HOST`, `SSH_USER`, `SSH_KEY` (+ valfritt `SSH_PORT`, `SSH_REMOTE_DIR`) och variabeln `DEPLOY_TARGET` = `ssh`. Workflowen rsyncar filerna och startar om Node-servern.
+
+**Obs:** körtidsdata (data/*.json, galleribilder) skrivs aldrig över av deployen — bara kod.

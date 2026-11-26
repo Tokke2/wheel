@@ -3666,3 +3666,38 @@ html[data-theme="dark"] .bsw-cal-cell.is-booked .cal-day-tag {
   color: var(--text-muted, #94a3b8);
   font-size: 0.78rem;
 }
+
+/* ============================================================================
+   TILLÄGG v1.0.9 — Lagersaldo (#7), vattenstämpel (#8)
+   ============================================================================ */
+.bsw-stock-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0 4px;
+}
+.bsw-stock-pill {
+  font: 700 0.72rem/1 "Inter", system-ui, sans-serif;
+  letter-spacing: 0.5px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+}
+.bsw-stock-ok { background: rgba(34, 197, 94, 0.12); color: #86efac; border-color: rgba(34, 197, 94, 0.4); }
+.bsw-stock-low { background: rgba(245, 158, 11, 0.14); color: #fcd34d; border-color: rgba(245, 158, 11, 0.45); }
+.bsw-stock-out { background: rgba(220, 38, 38, 0.16); color: #fca5a5; border-color: rgba(220, 38, 38, 0.5); }
+
+/* Vattenstämpel (gästfoton) — överlagrad vektorlogotyp, syns i webbläget */
+.bsw-gallery-img-box,
+.bsw-watermark-box figure,
+.gfp-grid figure { position: relative; }
+.bsw-watermark-mark {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  width: 44px;
+  height: 44px;
+  opacity: 0.75;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.7));
+  pointer-events: none;
+}

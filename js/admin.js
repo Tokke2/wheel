@@ -2326,6 +2326,11 @@
           </div>
 
           <div class="bsw-field">
+            <label>Lagersaldo per storlek (frivilligt — t ex "S:5, M:2, XL:0" → visar "2 kvar"/"SLUT"-märken i shoppen)</label>
+            <input type="text" id="m-inventory" value="${esc(editingItem ? editingItem.inventory || "" : "")}" placeholder="S:5, M:2, L:0 — lämna tomt för inget saldo" />
+          </div>
+
+          <div class="bsw-field">
             <label>Produkt- / Designbild *</label>
             <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
               ${previewImg ? `<img src="${esc(previewImg)}" alt="" style="width:88px;height:88px;object-fit:cover;border-radius:8px;border:1px solid var(--border-chrome);" />` : ""}
@@ -2588,6 +2593,7 @@
                 <small style="display:block;color:var(--accent-gold);">${esc(c.timeSlot || "")} ${c.location ? "· " + esc(c.location) : ""}</small>
                 ${c.description ? `<small style="display:block;color:var(--text-muted);">${esc(c.description)}</small>` : ""}
               </div>
+              <button type="button" class="bsw-icon-action-btn" data-link-cal="${idx}">🔗 Kundlänk</button>
               <button type="button" class="bsw-icon-action-btn" data-del-cal="${idx}" style="color:#fca5a5;">🗑️ Ta bort</button>
             </div>`
             )
@@ -3802,6 +3808,7 @@
             .filter(Boolean),
           stockStatus: document.getElementById("m-stock").value,
           badge: document.getElementById("m-badge").value.trim(),
+          inventory: document.getElementById("m-inventory").value.trim(),
           image: document.getElementById("m-image").value.trim(),
           description: document.getElementById("m-desc").value.trim()
         };
@@ -3934,6 +3941,23 @@
         await apiPost("save_calendar_list", { calendar: state.calendar });
         showToast("Kalenderpost borttagen.");
         render();
+      });
+    });
+
+    // --- KUNDPORTAL: kopiera statuslänk per bokning (#3) ---
+    document.querySelectorAll("[data-link-cal]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const item = state.calendar[Number(btn.getAttribute("data-link-cal"))];
+        if (!item || !item.id) {
+          showToast("Kalenderposten saknar ID — spara den på nytt först.", true);
+          return;
+        }
+        const url = location.origin + "/status.html?b=" + encodeURIComponent(item.id);
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(url).then(() => showToast("Kundlänk kopierad! Mejla den till kunden."));
+        } else {
+          window.prompt("Kopiera kundlänken (Ctrl+C):", url);
+        }
       });
     });
 

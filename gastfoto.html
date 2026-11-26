@@ -238,8 +238,9 @@
         wall.innerHTML = photos
           .map(function (p) {
             return (
-              '<figure>' +
+              '<figure class="bsw-watermark-box">' +
               '<img loading="lazy" src="' + p.url + '" alt="' + String(p.caption || "Gästfoto").replace(/[<>&"]/g, "") + '" />' +
+              '<img class="bsw-watermark-mark" src="bilder/backstage-wheels-crest.svg" alt="" aria-hidden="true" />' +
               '<figcaption>' + String(p.caption || p.name || "").replace(/[<>&"]/g, "") + '</figcaption>' +
               '</figure>'
             );

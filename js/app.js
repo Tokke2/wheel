@@ -1071,6 +1071,28 @@
         const votes = Number(merchInterestCounts[item.id] || 0);
         const alreadyVoted = hasVotedForMerch(item.id);
 
+        // LAGERSALDO (#7): "S:5, M:2, XL:0" → märken per storlek
+        let stockBadges = "";
+        if (item.inventory) {
+          const inv = {};
+          String(item.inventory)
+            .split(",")
+            .forEach((pair) => {
+              const m = /^\s*([A-Za-zÅÄÖåäö0-9 ()/-]{1,12})\s*:\s*(\d+)\s*$/.exec(pair);
+              if (m) inv[m[1].trim()] = Number(m[2]);
+            });
+          const badges = Object.entries(inv)
+            .map(([size, qty]) =>
+              qty === 0
+                ? `<span class="bsw-stock-pill bsw-stock-out">${escapeHtml(size)}: SLUT</span>`
+                : qty <= 3
+                  ? `<span class="bsw-stock-pill bsw-stock-low">${escapeHtml(size)}: ${qty} kvar</span>`
+                  : `<span class="bsw-stock-pill bsw-stock-ok">${escapeHtml(size)}: ${qty} st</span>`
+            )
+            .join("");
+          if (badges) stockBadges = `<div class="bsw-stock-row">${badges}</div>`;
+        }
+
         return `
         <article class="bsw-merch-card">
           <figure
@@ -1093,6 +1115,7 @@
             <strong class="bsw-merch-price">${isComingSoon ? "Planerat pris: ca " : ""}${escapeHtml(item.price)} ${escapeHtml(item.currency || "kr")}</strong>
             <p class="bsw-merch-desc">${escapeHtml(item.description || "")}</p>
             <p class="bsw-merch-sizes"><strong>Planerade storlekar:</strong> ${escapeHtml(sizes.join(", "))}</p>
+            ${stockBadges}
             <div class="bsw-merch-actions">
               <button
                 type="button"
@@ -1949,6 +1972,7 @@
           <div class="bsw-gallery-img-box">
             <img src="${escapeHtml(thumbUrl)}" alt="${escapeHtml(item.title)}" loading="lazy" />
             ${isVid ? `<span class="bsw-video-play-pill">▶ VIDEO</span>` : ""}
+            ${String(item.src || "").includes("/gastfoton/") ? `<img class="bsw-watermark-mark" src="bilder/backstage-wheels-crest.svg" alt="" aria-hidden="true" />` : ""}
           </div>
           <figcaption class="bsw-gallery-caption-bar">
             <span class="bsw-gallery-title">${escapeHtml(item.title)}</span>
@@ -2022,6 +2046,10 @@
       const fd = new FormData(form);
       const data = Object.fromEntries(fd.entries());
       data.subscribeNewsletter = Boolean(form.subscribeNewsletter && form.subscribeNewsletter.checked);
+      // Språk på bekräftelse-/uppföljningsmejl: formulärets val, annars aktivt språk (SV/EN/DE)
+      if (!data.sprak) {
+        data.sprak = window.BSWI18N && window.BSWI18N.lang && window.BSWI18N.lang !== "sv" ? window.BSWI18N.lang : "sv";
+      }
 
       const CFG = window.BACKSTAGE_CONFIG || {};
       const emailList = parseEmailItems(CFG.contactEmail || "bokning@backstagewheels.se");

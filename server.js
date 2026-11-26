@@ -706,6 +706,95 @@ function reminderConfig() {
   return { hoursBefore: Number(r.hoursBefore ?? legacy.hoursBefore ?? 24) };
 }
 
+// ----------------------------------------------------------------------------
+// FLERSPRÅKIG OFFERTMEJL (#10) + AUTOMATISK UPPFÖLJNING (#4)
+// ----------------------------------------------------------------------------
+function quoteEmailTemplates(lang, name) {
+  const lang_ = ["sv", "en", "de"].includes(String(lang)) ? String(lang) : "sv";
+  const T = {
+    sv: {
+      confirmSubject: "Vi har tagit emot din offertförfrågan – Backstage Wheels",
+      followSubject: "Har du frågor kring din offertförfrågan? – Backstage Wheels",
+      confirm: `Hej${name ? " " + name : ""}!\n\nTack för din offertförfrågan till Backstage Wheels! Vi har den nu och återkommer med prisförslag så snabbt vi kan (normalt inom 24 timmar).\n\nVill du ändra något? Svara bara på det här mejlet eller ring oss.\n\nRock on!\nBackstage Wheels · 10 m Hummer H2 "Legends of Rock"\nbackstagewheels.se`,
+      follow: `Hej${name ? " " + name : ""}!\n\nVi skickade en offertbekräftelse till dig för några dagar sedan men har inte hört från dig ännu.\n\nÄr datumet fortfarande aktuellt? Vill du justera upplägget eller har du frågor om pris? Svara på det här mejlet – vi anpassar gärna offerten efter dina önskemål.\n\nBackstage Wheels · backstagewheels.se`
+    },
+    en: {
+      confirmSubject: "We have received your quote request – Backstage Wheels",
+      followSubject: "Any questions about your quote request? – Backstage Wheels",
+      confirm: `Hi${name ? " " + name : ""}!\n\nThank you for your quote request to Backstage Wheels! We have it now and will get back to you with a price proposal as soon as we can (normally within 24 hours).\n\nWant to change anything? Just reply to this email or give us a call.\n\nRock on!\nBackstage Wheels · 10 m Hummer H2 "Legends of Rock"\nbackstagewheels.se`,
+      follow: `Hi${name ? " " + name : ""}!\n\nWe sent you a quote confirmation a few days ago but haven't heard back from you yet.\n\nIs your date still available? Would you like to adjust the setup or do you have questions about pricing? Just reply to this email – we're happy to tailor the offer.\n\nBackstage Wheels · backstagewheels.se`
+    },
+    de: {
+      confirmSubject: "Wir haben Ihre Angebotsanfrage erhalten – Backstage Wheels",
+      followSubject: "Fragen zu Ihrer Angebotsanfrage? – Backstage Wheels",
+      confirm: `Hallo${name ? " " + name : ""}!\n\nDanke für Ihre Angebotsanfrage an Backstage Wheels! Wir haben sie erhalten und melden uns so schnell wie möglich mit einem Preisvorschlag (normalerweise innerhalb von 24 Stunden).\n\nMöchten Sie etwas ändern? Antworten Sie einfach auf diese E-Mail oder rufen Sie uns an.\n\nRock on!\nBackstage Wheels · 10 m Hummer H2 "Legends of Rock"\nbackstagewheels.se`,
+      follow: `Hallo${name ? " " + name : ""}!\n\nWir haben vor einigen Tagen eine Angebotsbestätigung an Sie gesendet, aber noch nichts von Ihnen gehört.\n\nIst Ihr Datum weiterhin aktuell? Möchten Sie das Setup anpassen oder haben Sie Fragen zum Preis? Antworten Sie einfach auf diese E-Mail – wir passen das Angebot gerne an.\n\nBackstage Wheels · backstagewheels.se`
+    }
+  };
+  return T[lang_];
+}
+
+function quoteDateMs(q) {
+  const t = Date.parse(String(q.receivedAtIso || "").replace(" ", "T"));
+  if (Number.isFinite(t)) return t;
+  const t2 = Date.parse(String(q.receivedAt || "").replace(" ", "T"));
+  return Number.isFinite(t2) ? t2 : NaN;
+}
+
+function sendQuoteConfirmation(q) {
+  const cfg = loadJson(SETTINGS_FILE, {});
+  const fromEmail = String(cfg.contactEmail || "bokning@backstagewheels.se").trim();
+  const to = String(q.epost || "").trim();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(to)) return false;
+  const t = quoteEmailTemplates(q.sprak, String(q.namn || "").trim());
+  const body = `<div style="font-family:Arial,sans-serif;background:#090a0f;color:#f8fafc;padding:24px;">
+    <div style="max-width:600px;margin:0 auto;background:#141722;border:1px solid #2e3448;border-radius:10px;padding:24px;line-height:1.7;white-space:pre-line;font-size:15px;">${escapeHtmlServer(t.confirm)}</div>
+  </div>`;
+  return Boolean(sendSingleEmail(to, t.confirmSubject, body, fromEmail));
+}
+
+function sendQuoteFollowUp(q) {
+  const cfg = loadJson(SETTINGS_FILE, {});
+  const fromEmail = String(cfg.contactEmail || "bokning@backstagewheels.se").trim();
+  const to = String(q.epost || "").trim();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(to)) return false;
+  const t = quoteEmailTemplates(q.sprak, String(q.namn || "").trim());
+  const body = `<div style="font-family:Arial,sans-serif;background:#090a0f;color:#f8fafc;padding:24px;">
+    <div style="max-width:600px;margin:0 auto;background:#141722;border:1px solid #2e3448;border-radius:10px;padding:24px;line-height:1.7;white-space:pre-line;font-size:15px;">${escapeHtmlServer(t.follow)}</div>
+  </div>`;
+  return Boolean(sendSingleEmail(to, t.followSubject, body, fromEmail));
+}
+
+// Följer automatiskt upp offerter som ligger utan svar i 3 dagar (max 1 uppföljning/offert)
+const FOLLOW_UP_AFTER_MS = 3 * 24 * 3600 * 1000;
+let followUpTimer = null;
+function startFollowUpLoop() {
+  if (followUpTimer) clearInterval(followUpTimer);
+  const runCheck = () => {
+    try {
+      const quotes = loadJson(QUOTES_FILE, []);
+      if (!Array.isArray(quotes) || !quotes.length) return;
+      const now = Date.now();
+      let changed = false;
+      for (const q of quotes) {
+        if (!q || q.followUpSentAt) continue;
+        const t = quoteDateMs(q);
+        if (!Number.isFinite(t) || now - t < FOLLOW_UP_AFTER_MS) continue;
+        if (sendQuoteFollowUp(q)) {
+          q.followUpSentAt = new Date().toISOString();
+          changed = true;
+          writeDebugLog("INFO", "QUOTE_FOLLOWUP", `Automatisk offertuppföljning mejlad till ${q.epost}`);
+        }
+      }
+      if (changed) saveJson(QUOTES_FILE, quotes);
+    } catch (e) {
+      writeDebugLog("ERROR", "QUOTE_FOLLOWUP", `Uppföljningsloopfel: ${e.message}`);
+    }
+  };
+  followUpTimer = setInterval(runCheck, 6 * 3600 * 1000);
+  setTimeout(runCheck, 45000);
+}
+
 // Beräknar bokningar inom påminnelsefönstret (används av BW Bot-feeden)
 function getDueReminders(nowMs) {
   const now = Number.isFinite(nowMs) ? nowMs : Date.now();
@@ -2643,6 +2732,8 @@ const server = http.createServer(async (req, res) => {
             source: "Offertförfrågan"
           });
         }
+        // Bekräftelse till kunden på valt språk (sv/en/de) (#10)
+        sendQuoteConfirmation(data);
         writeDebugLog("INFO", "QUOTE", `Ny offertförfrågan från ${data.namn || "kund"} (${data.datum || "-"}) → ${recipient}`);
         sendJson(res, 200, { ok: true, recipient });
       } catch (_e) {
@@ -2808,6 +2899,7 @@ const server = http.createServer(async (req, res) => {
 
 ensureDirs();
 writeDebugLog("INFO", "BOOT", "Backstage Wheels säker server startad (AES-256 valv, Kalender-synk, Evenemangsmappar).");
+startFollowUpLoop();
 
 server.listen(PORT, "0.0.0.0", () => {
   console.log(`Backstage Wheels server körs på http://0.0.0.0:${PORT}`);
