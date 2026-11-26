@@ -214,6 +214,11 @@
         resolve(file);
         return;
       }
+      // AUTOOPTIMERING: redan små & välkomprimerade bilder skickas orörda (ingen kvalitetsförlust)
+      if (file.size < 150 * 1024) {
+        resolve(file);
+        return;
+      }
       const reader = new FileReader();
       reader.onload = (ev) => {
         const img = new Image();
@@ -229,11 +234,25 @@
           canvas.width = w;
           canvas.height = h;
           const ctx = canvas.getContext("2d");
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = "high"; // skarpare nedskalning (K1)
           ctx.drawImage(img, 0, 0, w, h);
           canvas.toBlob(
             (blob) => {
-              if (!blob) return resolve(file);
+              if (!blob || blob.size >= file.size) {
+                resolve(file); // optimering gav inget — behåll original
+                return;
+              }
               const cleanBase = file.name.replace(/\.[^.]+$/, "");
+              const savedPct = Math.round((1 - blob.size / file.size) * 100);
+              const kbBefore = Math.round(file.size / 1024);
+              const kbAfter = Math.round(blob.size / 1024);
+              if (window.BSWLogger && window.BSWLogger.log) {
+                window.BSWLogger.log("INFO", "IMAGE_OPTIMIZE", `${file.name}: ${kbBefore} kB → ${kbAfter} kB (WebP, ${savedPct}% sparad)`);
+              }
+              if (typeof showToast === "function") {
+                showToast(`🖼 Autooptimerad: ${kbBefore} → ${kbAfter} kB (${savedPct}% mindre)`);
+              }
               resolve(new File([blob], `${cleanBase}.webp`, { type: "image/webp" }));
             },
             "image/webp",
@@ -259,7 +278,7 @@
       title: "Sköld-emblem v2 \"Legends of Rock\" (Snittig & Rockig)",
       usage: "Huvudlogo/tryck: T-shirt, hoodie, keps, dekal, kvitto, affisch",
       dimensions: "300 × 330 mm (100% skalbar vektor)",
-      updatedAt: "2026-11-26 11:53",
+      updatedAt: "2026-11-26 16:12",
       svgContent: `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1100" width="300mm" height="330mm">
   <title>Backstage Wheels – Sköld-emblem v2 "Legends of Rock" (Redigerbar Vektor-SVG)</title>
@@ -310,7 +329,7 @@
       title: "Bröst- & Frontemblem (Sköld + Vingar + Blixt)",
       usage: "T-shirt bröst/mage, Hoodie front, Jackmärke",
       dimensions: "300 × 300 mm (100% skalbar vektor)",
-      updatedAt: "2026-11-26 11:53",
+      updatedAt: "2026-11-26 16:12",
       svgContent: `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" width="300mm" height="300mm">
   <title>Backstage Wheels – Bröst-/Fronttryck (Redigerbar Vektor-SVG)</title>
@@ -350,7 +369,7 @@
       title: "Stort Ryggtryck – 10M Limo & Turnéstäder",
       usage: "T-shirt helrygg, Zip-Hoodie rygg, Poster",
       dimensions: "320 × 373 mm (100% skalbar vektor)",
-      updatedAt: "2026-11-26 11:53",
+      updatedAt: "2026-11-26 16:12",
       svgContent: `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1400" width="320mm" height="373mm">
   <title>Backstage Wheels – Stort Ryggtryck T-shirt &amp; Hoodie (Redigerbar Vektor-SVG)</title>
@@ -404,7 +423,7 @@
       title: "Keps- & Brodyremblem (Kraftiga linjer)",
       usage: "Truckerkeps, Beanie-mössa, Skuren vinyldekal",
       dimensions: "140 × 73,5 mm (100% skalbar vektor)",
-      updatedAt: "2026-11-26 11:53",
+      updatedAt: "2026-11-26 16:12",
       svgContent: `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 420" width="140mm" height="73.5mm">
   <title>Backstage Wheels – Kepsbrodyr &amp; Vinylskärning (Ren Vektor-SVG)</title>
@@ -432,7 +451,7 @@
       title: "Baksätes-QR Skyltoriginal",
       usage: "Akrylskylt eller dekal vid baren i limousinen",
       dimensions: "140 × 180 mm (100% skalbar vektor)",
-      updatedAt: "2026-11-26 11:53",
+      updatedAt: "2026-11-26 16:12",
       svgContent: `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 900" width="140mm" height="180mm">
   <title>Backstage Wheels – Baksätes-QR Skylt / Dekal (Redigerbar Vektor-SVG)</title>
@@ -465,7 +484,7 @@
       title: "\"Legends Tour\" T-Shirt Print (Turnéaffisch-stil)",
       usage: "Legends Tour T-shirt front/mage, Poster, Rollup",
       dimensions: "300 × 383 mm (100% skalbar vektor)",
-      updatedAt: "2026-11-26 11:53",
+      updatedAt: "2026-11-26 16:12",
       svgContent: `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1150" width="300mm" height="383mm">
   <title>Backstage Wheels – "Legends Tour" T-Shirt Print (Redigerbar Vektor-SVG)</title>
@@ -528,7 +547,7 @@
       title: "\"VIP Heavy\" Hoodie Print (Staplad VIP-typografi)",
       usage: "VIP Heavy Hoodie front/rygg, Zip-hoodie, Pellon-transfer",
       dimensions: "300 × 367 mm (100% skalbar vektor)",
-      updatedAt: "2026-11-26 11:53",
+      updatedAt: "2026-11-26 16:12",
       svgContent: `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1100" width="300mm" height="367mm">
   <title>Backstage Wheels – "VIP Heavy" Hoodie Print (Redigerbar Vektor-SVG)</title>
@@ -565,7 +584,7 @@
       title: "\"Trucker-Keps\" 3D-Puff Patch (BW-monogram)",
       usage: "3D-Broderad Trucker-Keps frontpatch, beanie, dekal",
       dimensions: "120 × 82 mm (100% skalbar vektor)",
-      updatedAt: "2026-11-26 11:53",
+      updatedAt: "2026-11-26 16:12",
       svgContent: `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 480" width="120mm" height="82mm">
   <title>Backstage Wheels – "3D-Broderad Trucker-Keps" Patch (Redigerbar Vektor-SVG)</title>
@@ -593,7 +612,7 @@
       title: "Eventaffisch \"TONIGHT\" (A2-poster, redigerbart eventnamn & datum)",
       usage: "Entréaffisch: bröllop, bal, studentutskott, företagsevent — skriv ut A2/A3",
       dimensions: "420 × 594 mm (A2, 100% skalbar vektor)",
-      updatedAt: "2026-11-26 11:53",
+      updatedAt: "2026-11-26 16:12",
       svgContent: `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1414" width="420mm" height="594mm">
   <title>Backstage Wheels – Eventaffisch "TONIGHT" A2 (Redigerbar Vektor-SVG)</title>
@@ -665,9 +684,17 @@
   </g>
 
   <g id="lager-cta-band">
-    <rect x="160" y="1190" width="680" height="110" rx="16" fill="#B91C1C"/>
-    <text x="500" y="1245" text-anchor="middle" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="48" font-weight="800" letter-spacing="4" fill="#FFFFFF">BOKA DIN KVÄLL:</text>
-    <text x="500" y="1288" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" letter-spacing="6" fill="#FACC15">BACKSTAGEWHEELS.SE</text>
+    <rect x="360" y="1190" width="480" height="110" rx="16" fill="#B91C1C"/>
+    <text x="600" y="1245" text-anchor="middle" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="44" font-weight="800" letter-spacing="4" fill="#FFFFFF">BOKA DIN KVÄLL:</text>
+    <text x="600" y="1288" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" letter-spacing="6" fill="#FACC15">BACKSTAGEWHEELS.SE</text>
+  </g>
+
+  <g id="lager-qr-yta">
+    <rect x="160" y="1190" width="160" height="160" rx="10" fill="#FFFFFF"/>
+    <rect x="170" y="1200" width="140" height="140" fill="none" stroke="#0B0C10" stroke-width="2" stroke-dasharray="6 4"/>
+    <text x="240" y="1258" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="700" fill="#0B0C10">PLACERA</text>
+    <text x="240" y="1280" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="700" fill="#0B0C10">QR HÄR</text>
+    <text x="240" y="1330" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#3b4252">(Skanna = förifylld offert)</text>
   </g>
 
   <g id="lager-botten">
@@ -680,7 +707,7 @@
       title: "T-shirt Ryggmonogram \"BW + Blixt\" (skulder-till-skulder)",
       usage: "T-shirt storrygg, zip-hoodie rygg, tank top",
       dimensions: "320 × 409 mm (100% skalbar vektor)",
-      updatedAt: "2026-11-26 11:53",
+      updatedAt: "2026-11-26 16:12",
       svgContent: `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1150" width="320mm" height="409mm">
   <title>Backstage Wheels – T-shirt Ryggmonogram "BW + Blixt" (Redigerbar Vektor-SVG)</title>
@@ -724,7 +751,7 @@
       title: "T-shirt Bröstmini \"Blixt + BW\" (vänster bröst)",
       usage: "T-shirt vänsterbröst, skjorta, workwear, keps bak",
       dimensions: "90 × 90 mm (100% skalbar vektor)",
-      updatedAt: "2026-11-26 11:53",
+      updatedAt: "2026-11-26 16:12",
       svgContent: `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" width="90mm" height="90mm">
   <title>Backstage Wheels – T-shirt Bröstmini "Blixt + BW" (Redigerbar Vektor-SVG)</title>
@@ -750,7 +777,7 @@
       title: "Keps Sidobrodyr \"Blixt + BW\" (sida)",
       usage: "Keps sida, mössa, dekal på koppar/flaskor",
       dimensions: "60 × 38 mm (100% skalbar vektor)",
-      updatedAt: "2026-11-26 11:53",
+      updatedAt: "2026-11-26 16:12",
       svgContent: `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" width="60mm" height="38mm">
   <title>Backstage Wheels – Keps Sidobrodyr "Blixt + BW" (Redigerbar Vektor-SVG)</title>
@@ -771,7 +798,7 @@
       title: "Keps Front \"Band-remsa\" (alternativ front)",
       usage: "Keps front (skuren vinyl/puff), snapback, visor",
       dimensions: "110 × 57 mm (100% skalbar vektor)",
-      updatedAt: "2026-11-26 11:53",
+      updatedAt: "2026-11-26 16:12",
       svgContent: `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 240" width="110mm" height="57mm">
   <title>Backstage Wheels – Keps Front "Band-remsa" Alternativ (Redigerbar Vektor-SVG)</title>
@@ -2202,6 +2229,19 @@
           </label>
         </div>
 
+        <div class="bsw-form-card" style="margin-bottom:22px;background:#0d1017;">
+          <span class="bsw-kicker">🖼 QR TILL EVENTAFFISCHEN (#6) — PEKAR PÅ OFFERTFORMULÄRET MED FÖRIFYLLT EVENT</span>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px;">
+            <input type="text" id="poster-qr-event" placeholder="Eventnamn, t ex Maggans 40-årsfirande" style="flex:1;min-width:220px;" />
+            <input type="date" id="poster-qr-datum" style="min-width:150px;" />
+            <button type="button" id="poster-qr-btn" class="bsw-btn bsw-btn-ghost">⬇ Ladda ner QR-PNG</button>
+          </div>
+          <small style="display:block;margin-top:8px;color:var(--text-muted);">
+            QR:n öppnar offertformuläret med eventnamnet & datumet förifyllda. Klistra in/överlägga PNG:n på
+            affischen (ytan "PLACERA QR HÄR" nere till vänster) innan utskrift — eller skriv ut separat och limma.
+          </small>
+        </div>
+
         ${
           activeSvg
             ? `
@@ -2817,6 +2857,63 @@
 
           <div>
             <button type="submit" class="bsw-btn bsw-btn-primary">💾 Spara kontaktuppgifter &amp; logotyp</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="bsw-form-card">
+        <span class="bsw-kicker">✉ AUTOMATISKA E-POSTMALLAR · ANPASSA UTAN KOD</span>
+        <h2 style="margin:0 0 8px;font-family:var(--font-display);text-transform:uppercase;">E-postmall-redigerare</h2>
+        <p style="color:var(--text-soft);">
+          Anpassa alla automatiska mejl (offertbekräftelse, uppföljning, recensionsförfrågan — på svenska, engelska &amp; tyska).
+          Använd platshållaren <code>{{namn}}</code> där kundens namn ska in. Tomt fält = inbyggd standardtext används.
+        </p>
+        <form id="adm-mailtemplates-form" style="display:grid;gap:14px;margin-top:12px;">
+          <div class="bsw-form-grid">
+            <div class="bsw-field">
+              <label>Offertbekräftelse — ämnesrad (SV)</label>
+              <input type="text" id="mt-confirm-subject-sv" value="${esc((s.emailTemplates && s.emailTemplates.confirmSubjectSv) || "")}" placeholder="Standard: Vi har tagit emot din offertförfrågan..." />
+            </div>
+            <div class="bsw-field">
+              <label>Uppföljning — ämnesrad (SV)</label>
+              <input type="text" id="mt-follow-subject-sv" value="${esc((s.emailTemplates && s.emailTemplates.followSubjectSv) || "")}" placeholder="Standard: Har du frågor kring din offertförfrågan..." />
+            </div>
+          </div>
+          <div class="bsw-field">
+            <label>Offertbekräftelse — text (SV)</label>
+            <textarea id="mt-confirm-sv" rows="4" placeholder="Lämna tomt för standardtext. {{namn}} = kundens namn." style="width:100%;box-sizing:border-box;">${esc((s.emailTemplates && s.emailTemplates.confirmSv) || "")}</textarea>
+          </div>
+          <div class="bsw-field">
+            <label>Uppföljning efter 3 dagar — text (SV)</label>
+            <textarea id="mt-follow-sv" rows="4" placeholder="Lämna tomt för standardtext. {{namn}} = kundens namn." style="width:100%;box-sizing:border-box;">${esc((s.emailTemplates && s.emailTemplates.followSv) || "")}</textarea>
+          </div>
+          <div class="bsw-form-grid">
+            <div class="bsw-field">
+              <label>Offertbekräftelse — text (EN)</label>
+              <textarea id="mt-confirm-en" rows="3" placeholder="Leave empty for the default text. {{namn}} = customer name." style="width:100%;box-sizing:border-box;">${esc((s.emailTemplates && s.emailTemplates.confirmEn) || "")}</textarea>
+            </div>
+            <div class="bsw-field">
+              <label>Uppföljning — text (EN)</label>
+              <textarea id="mt-follow-en" rows="3" placeholder="Leave empty for the default text." style="width:100%;box-sizing:border-box;">${esc((s.emailTemplates && s.emailTemplates.followEn) || "")}</textarea>
+            </div>
+          </div>
+          <div class="bsw-form-grid">
+            <div class="bsw-field">
+              <label>Offertbekräftelse — text (DE)</label>
+              <textarea id="mt-confirm-de" rows="3" placeholder="Leer lassen für Standardtext. {{namn}} = Kundenname." style="width:100%;box-sizing:border-box;">${esc((s.emailTemplates && s.emailTemplates.confirmDe) || "")}</textarea>
+            </div>
+            <div class="bsw-field">
+              <label>Uppföljning — text (DE)</label>
+              <textarea id="mt-follow-de" rows="3" placeholder="Leer lassen für Standardtext." style="width:100%;box-sizing:border-box;">${esc((s.emailTemplates && s.emailTemplates.followDe) || "")}</textarea>
+            </div>
+          </div>
+          <div class="bsw-field">
+            <label>Recensionsförfrågan — text ({{namn}} &amp; {{googleUrl}} kan användas; Google-knappen läggs alltid till automatiskt)</label>
+            <textarea id="mt-review" rows="4" placeholder="Tack för körningen {{namn}}! Lämna gärna ett omdöme: {{googleUrl}}" style="width:100%;box-sizing:border-box;">${esc((s.emailTemplates && s.emailTemplates.reviewRequestBody) || "")}</textarea>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button type="submit" class="bsw-btn bsw-btn-primary">💾 Spara e-postmallar</button>
+            <button type="button" id="mt-reset-btn" class="bsw-icon-action-btn">↺ Återställ alla till standard</button>
           </div>
         </form>
       </div>
@@ -4082,6 +4179,72 @@
         };
         const r = await apiPost("save_settings", { settings: state.settings });
         if (r.ok) showToast("Kontaktuppgifter, påminnelsefönster & logotyp sparade!");
+      });
+    }
+
+    // --- E-POSTMALL-REDAKTÖR (#9) ---
+    const mailTplForm = document.getElementById("adm-mailtemplates-form");
+    if (mailTplForm) {
+      mailTplForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        state.settings.emailTemplates = {
+          confirmSubjectSv: document.getElementById("mt-confirm-subject-sv").value.trim(),
+          followSubjectSv: document.getElementById("mt-follow-subject-sv").value.trim(),
+          confirmSv: document.getElementById("mt-confirm-sv").value.trim(),
+          followSv: document.getElementById("mt-follow-sv").value.trim(),
+          confirmEn: document.getElementById("mt-confirm-en").value.trim(),
+          followEn: document.getElementById("mt-follow-en").value.trim(),
+          confirmDe: document.getElementById("mt-confirm-de").value.trim(),
+          followDe: document.getElementById("mt-follow-de").value.trim(),
+          reviewRequestBody: document.getElementById("mt-review").value.trim()
+        };
+        const r = await apiPost("save_settings", { settings: state.settings });
+        if (r.ok) showToast("E-postmallar sparade — nya mejl använder dem direkt! ✉");
+      });
+      const mtResetBtn = document.getElementById("mt-reset-btn");
+      if (mtResetBtn) {
+        mtResetBtn.addEventListener("click", async () => {
+          state.settings.emailTemplates = {};
+          const r = await apiPost("save_settings", { settings: state.settings });
+          if (r.ok) {
+            showToast("Alla mallar återställda till standardtext.");
+            render();
+          }
+        });
+      }
+    }
+
+    // --- QR TILL EVENTAFFISCHEN (#6) ---
+    const posterQrBtn = document.getElementById("poster-qr-btn");
+    if (posterQrBtn) {
+      posterQrBtn.addEventListener("click", async () => {
+        const eventText = (document.getElementById("poster-qr-event") || {}).value || "";
+        const datum = (document.getElementById("poster-qr-datum") || {}).value || "";
+        const params = new URLSearchParams();
+        if (eventText.trim()) params.set("event", eventText.trim());
+        if (datum) params.set("datum", datum);
+        posterQrBtn.disabled = true;
+        try {
+          const res = await fetch(`/api/poster-qr?${params.toString()}`);
+          if (res.ok) {
+            const blob = await res.blob();
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "qr-affisch" + (eventText.trim() ? "-" + eventText.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 30) : "") + ".png";
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 4000);
+            showToast("QR-bild nedladdad! Lägg den på affischen vid BOKA-bandet.");
+          } else {
+            const j = await res.json().catch(() => ({}));
+            showToast((j && j.url) ? "QR-tjänst saknas på servern — använd länken i stället: " + j.url : "Kunde inte generera QR.", true);
+          }
+        } catch (_e) {
+          showToast("Kunde inte generera QR.", true);
+        }
+        posterQrBtn.disabled = false;
       });
     }
 

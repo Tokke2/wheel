@@ -11,6 +11,14 @@ const path = require("path");
 const crypto = require("crypto");
 const { execFileSync, spawn } = require("child_process");
 
+// QR-generator: npm-paketet "qrcode" först (robust), python-fallback därefter (#6, #21)
+let npmQr = null;
+try {
+  npmQr = require("qrcode");
+} catch (_e) {
+  npmQr = null;
+}
+
 const PORT = process.env.PORT || 3000;
 const ROOT = __dirname;
 const GALLERY_DIR = path.join(ROOT, "bilder", "galleri");
@@ -673,8 +681,22 @@ except Exception:
 }
 
 // Genererar en QR-PNG på godtycklig URL (samma python-fallback som Instagram-QR:n).
-function generateQrPng(targetUrl, outPath) {
+async function generateQrPng(targetUrl, outPath) {
   if (!targetUrl || !outPath) return false;
+  fs.mkdirSync(path.dirname(outPath), { recursive: true });
+  // 1) npm-paketet "qrcode" (ingen extern process, fungerar överallt)
+  if (npmQr && typeof npmQr.toFile === "function") {
+    try {
+      await npmQr.toFile(outPath, String(targetUrl), {
+        errorCorrectionLevel: "H",
+        margin: 2,
+        scale: 12,
+        color: { dark: "#0b0c10", light: "#ffffff" }
+      });
+      return fs.existsSync(outPath);
+    } catch (_e) {}
+  }
+  // 2) python-fallback (qrcode + PIL)
   const py = `
 try:
     import qrcode
@@ -688,7 +710,6 @@ except Exception:
     print("SKIP")
 `;
   try {
-    fs.mkdirSync(path.dirname(outPath), { recursive: true });
     return execFileSync("python3", ["-c", py], { timeout: 10000 }).toString().trim() === "OK";
   } catch (_e) {
     return false;
@@ -707,28 +728,33 @@ function reminderConfig() {
 }
 
 // ----------------------------------------------------------------------------
-// FLERSPRÅKIG OFFERTMEJL (#10) + AUTOMATISK UPPFÖLJNING (#4)
+// FLERSPRÅKIG OFFERTMEJL (#10) + AUTOMATISK UPPFÖLJNING (#4) + MALLREDAKTÖR (#9)
 // ----------------------------------------------------------------------------
-function quoteEmailTemplates(lang, name) {
+function quoteEmailTemplates(lang, name, custom) {
   const lang_ = ["sv", "en", "de"].includes(String(lang)) ? String(lang) : "sv";
+  const c = custom || {};
+  const pick = (key, fallback) => {
+    const v = String(c[key] || "").trim();
+    return v ? v.replace(/\{\{namn\}\}/g, name ? " " + name : "") : fallback;
+  };
   const T = {
     sv: {
-      confirmSubject: "Vi har tagit emot din offertförfrågan – Backstage Wheels",
-      followSubject: "Har du frågor kring din offertförfrågan? – Backstage Wheels",
-      confirm: `Hej${name ? " " + name : ""}!\n\nTack för din offertförfrågan till Backstage Wheels! Vi har den nu och återkommer med prisförslag så snabbt vi kan (normalt inom 24 timmar).\n\nVill du ändra något? Svara bara på det här mejlet eller ring oss.\n\nRock on!\nBackstage Wheels · 10 m Hummer H2 "Legends of Rock"\nbackstagewheels.se`,
-      follow: `Hej${name ? " " + name : ""}!\n\nVi skickade en offertbekräftelse till dig för några dagar sedan men har inte hört från dig ännu.\n\nÄr datumet fortfarande aktuellt? Vill du justera upplägget eller har du frågor om pris? Svara på det här mejlet – vi anpassar gärna offerten efter dina önskemål.\n\nBackstage Wheels · backstagewheels.se`
+      confirmSubject: pick("confirmSubjectSv", "Vi har tagit emot din offertförfrågan – Backstage Wheels"),
+      followSubject: pick("followSubjectSv", "Har du frågor kring din offertförfrågan? – Backstage Wheels"),
+      confirm: pick("confirmSv", `Hej${name ? " " + name : ""}!\n\nTack för din offertförfrågan till Backstage Wheels! Vi har den nu och återkommer med prisförslag så snabbt vi kan (normalt inom 24 timmar).\n\nVill du ändra något? Svara bara på det här mejlet eller ring oss.\n\nRock on!\nBackstage Wheels · 10 m Hummer H2 "Legends of Rock"\nbackstagewheels.se`),
+      follow: pick("followSv", `Hej${name ? " " + name : ""}!\n\nVi skickade en offertbekräftelse till dig för några dagar sedan men har inte hört från dig ännu.\n\nÄr datumet fortfarande aktuellt? Vill du justera upplägget eller har du frågor om pris? Svara på det här mejlet – vi anpassar gärna offerten efter dina önskemål.\n\nBackstage Wheels · backstagewheels.se`)
     },
     en: {
-      confirmSubject: "We have received your quote request – Backstage Wheels",
-      followSubject: "Any questions about your quote request? – Backstage Wheels",
-      confirm: `Hi${name ? " " + name : ""}!\n\nThank you for your quote request to Backstage Wheels! We have it now and will get back to you with a price proposal as soon as we can (normally within 24 hours).\n\nWant to change anything? Just reply to this email or give us a call.\n\nRock on!\nBackstage Wheels · 10 m Hummer H2 "Legends of Rock"\nbackstagewheels.se`,
-      follow: `Hi${name ? " " + name : ""}!\n\nWe sent you a quote confirmation a few days ago but haven't heard back from you yet.\n\nIs your date still available? Would you like to adjust the setup or do you have questions about pricing? Just reply to this email – we're happy to tailor the offer.\n\nBackstage Wheels · backstagewheels.se`
+      confirmSubject: pick("confirmSubjectEn", "We have received your quote request – Backstage Wheels"),
+      followSubject: pick("followSubjectEn", "Any questions about your quote request? – Backstage Wheels"),
+      confirm: pick("confirmEn", `Hi${name ? " " + name : ""}!\n\nThank you for your quote request to Backstage Wheels! We have it now and will get back to you with a price proposal as soon as we can (normally within 24 hours).\n\nWant to change anything? Just reply to this email or give us a call.\n\nRock on!\nBackstage Wheels · 10 m Hummer H2 "Legends of Rock"\nbackstagewheels.se`),
+      follow: pick("followEn", `Hi${name ? " " + name : ""}!\n\nWe sent you a quote confirmation a few days ago but haven't heard back from you yet.\n\nIs your date still available? Would you like to adjust the setup or do you have questions about pricing? Just reply to this email – we're happy to tailor the offer.\n\nBackstage Wheels · backstagewheels.se`)
     },
     de: {
-      confirmSubject: "Wir haben Ihre Angebotsanfrage erhalten – Backstage Wheels",
-      followSubject: "Fragen zu Ihrer Angebotsanfrage? – Backstage Wheels",
-      confirm: `Hallo${name ? " " + name : ""}!\n\nDanke für Ihre Angebotsanfrage an Backstage Wheels! Wir haben sie erhalten und melden uns so schnell wie möglich mit einem Preisvorschlag (normalerweise innerhalb von 24 Stunden).\n\nMöchten Sie etwas ändern? Antworten Sie einfach auf diese E-Mail oder rufen Sie uns an.\n\nRock on!\nBackstage Wheels · 10 m Hummer H2 "Legends of Rock"\nbackstagewheels.se`,
-      follow: `Hallo${name ? " " + name : ""}!\n\nWir haben vor einigen Tagen eine Angebotsbestätigung an Sie gesendet, aber noch nichts von Ihnen gehört.\n\nIst Ihr Datum weiterhin aktuell? Möchten Sie das Setup anpassen oder haben Sie Fragen zum Preis? Antworten Sie einfach auf diese E-Mail – wir passen das Angebot gerne an.\n\nBackstage Wheels · backstagewheels.se`
+      confirmSubject: pick("confirmSubjectDe", "Wir haben Ihre Angebotsanfrage erhalten – Backstage Wheels"),
+      followSubject: pick("followSubjectDe", "Fragen zu Ihrer Angebotsanfrage? – Backstage Wheels"),
+      confirm: pick("confirmDe", `Hallo${name ? " " + name : ""}!\n\nDanke für Ihre Angebotsanfrage an Backstage Wheels! Wir haben sie erhalten und melden uns so schnell wie möglich mit einem Preisvorschlag (normalerweise innerhalb von 24 Stunden).\n\nMöchten Sie etwas ändern? Antworten Sie einfach auf diese E-Mail oder rufen Sie uns an.\n\nRock on!\nBackstage Wheels · 10 m Hummer H2 "Legends of Rock"\nbackstagewheels.se`),
+      follow: pick("followDe", `Hallo${name ? " " + name : ""}!\n\nWir haben vor einigen Tagen eine Angebotsbestätigung an Sie gesendet, aber noch nichts von Ihnen gehört.\n\nIst Ihr Datum weiterhin aktuell? Möchten Sie das Setup anpassen oder haben Sie Fragen zum Preis? Antworten Sie einfach auf diese E-Mail – wir passen das Angebot gerne an.\n\nBackstage Wheels · backstagewheels.se`)
     }
   };
   return T[lang_];
@@ -746,7 +772,7 @@ function sendQuoteConfirmation(q) {
   const fromEmail = String(cfg.contactEmail || "bokning@backstagewheels.se").trim();
   const to = String(q.epost || "").trim();
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(to)) return false;
-  const t = quoteEmailTemplates(q.sprak, String(q.namn || "").trim());
+  const t = quoteEmailTemplates(q.sprak, String(q.namn || "").trim(), cfg.emailTemplates);
   const body = `<div style="font-family:Arial,sans-serif;background:#090a0f;color:#f8fafc;padding:24px;">
     <div style="max-width:600px;margin:0 auto;background:#141722;border:1px solid #2e3448;border-radius:10px;padding:24px;line-height:1.7;white-space:pre-line;font-size:15px;">${escapeHtmlServer(t.confirm)}</div>
   </div>`;
@@ -758,7 +784,7 @@ function sendQuoteFollowUp(q) {
   const fromEmail = String(cfg.contactEmail || "bokning@backstagewheels.se").trim();
   const to = String(q.epost || "").trim();
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(to)) return false;
-  const t = quoteEmailTemplates(q.sprak, String(q.namn || "").trim());
+  const t = quoteEmailTemplates(q.sprak, String(q.namn || "").trim(), cfg.emailTemplates);
   const body = `<div style="font-family:Arial,sans-serif;background:#090a0f;color:#f8fafc;padding:24px;">
     <div style="max-width:600px;margin:0 auto;background:#141722;border:1px solid #2e3448;border-radius:10px;padding:24px;line-height:1.7;white-space:pre-line;font-size:15px;">${escapeHtmlServer(t.follow)}</div>
   </div>`;
@@ -2627,20 +2653,20 @@ const server = http.createServer(async (req, res) => {
           }
           const name = String(body.name || "").trim();
           const fromEmail = String(cfg.contactEmail || "bokning@backstagewheels.se").trim();
+          // #9: anpassad recensionsmall ({{namn}} & {{googleUrl}}) om admin satt en
+          const customReview = String((cfg.emailTemplates || {}).reviewRequestBody || "").trim();
+          const reviewText = customReview
+            ? customReview.replace(/\{\{namn\}\}/g, name).replace(/\{\{googleUrl\}\}/g, escapeHtmlServer(googleUrl))
+            : `Hej${name ? " " + name : ""}!\n\nTack för att ni körde med Backstage Wheels – vi hoppas ni fick en minnesvärd upplevelse ombord på Hummer H2!\n\nDet skulle betyda oerhört mycket för oss om du tog en minut och lämnade ett omdöme på Google:\n${googleUrl}\n\nVi ser fram emot att köra er igen – Backstage Wheels`;
           const html = `
             <div style="background:#090a0f;color:#f8fafc;font-family:Arial,sans-serif;padding:28px 16px;">
               <div style="max-width:600px;margin:0 auto;background:#141722;border:1px solid #2e3448;border-radius:10px;overflow:hidden;">
                 <div style="background:linear-gradient(135deg,#b91c1c,#f97316);padding:18px 24px;color:#fff;">
                   <strong style="font-size:20px;letter-spacing:1px;">BACKSTAGE WHEELS · TACK FÖR KÖRDEN!</strong>
                 </div>
-                <div style="padding:26px 24px;line-height:1.65;font-size:16px;color:#e2e8f0;">
-                  <p style="margin-top:0;">Hej${name ? " " + escapeHtmlServer(name) : ""}!</p>
-                  <p>Tack för att ni körde med Backstage Wheels – vi hoppas ni fick en minnesvärd upplevelse ombord på Hummer H2!</p>
-                  <p>Det skulle betyda oerhört mycket för oss om du tog en minut och lämnade ett omdöme på Google:</p>
-                  <p style="text-align:center;margin:26px 0;">
-                    <a href="${escapeHtmlServer(googleUrl)}" style="background:#f97316;color:#0b0c10;font-weight:800;padding:14px 28px;border-radius:8px;text-decoration:none;letter-spacing:1px;">⭐ LÄMNA OMDÖME PÅ GOOGLE</a>
-                  </p>
-                  <p style="color:#94a3b8;font-size:13px;">Vi ser fram emot att köra er igen – Backstage Wheels</p>
+                <div style="padding:26px 24px;line-height:1.65;font-size:16px;color:#e2e8f0;white-space:pre-line;">${escapeHtmlServer(reviewText)}</div>
+                <div style="padding:0 24px 26px;text-align:center;">
+                  <a href="${escapeHtmlServer(googleUrl)}" style="background:#f97316;color:#0b0c10;font-weight:800;padding:14px 28px;border-radius:8px;text-decoration:none;letter-spacing:1px;">⭐ LÄMNA OMDÖME PÅ GOOGLE</a>
                 </div>
               </div>
             </div>`;
@@ -2822,6 +2848,34 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // 8E. QR TILL EVENTAFFISCHEN (#6): pekar på offertformuläret med förifyllt eventnamn/datum
+  if (req.method === "GET" && pathname === "/api/poster-qr") {
+    const eventText = String(urlObj.searchParams.get("event") || "").trim().slice(0, 60);
+    const datum = String(urlObj.searchParams.get("datum") || "").trim().slice(0, 10);
+    const hashParams = new URLSearchParams();
+    if (eventText) hashParams.set("event", eventText);
+    if (datum) hashParams.set("datum", datum);
+    const qs = hashParams.toString();
+    const target = `${siteOrigin}/index.html#offert${qs ? "?" + qs : ""}`;
+    const hashName = crypto.createHash("md5").update(target).digest("hex").slice(0, 10);
+    const outPath = path.join(CACHE_DIR, `poster-qr-${hashName}.png`);
+    if (!fs.existsSync(outPath)) await generateQrPng(target, outPath);
+    if (fs.existsSync(outPath)) {
+      const stat = fs.statSync(outPath);
+      res.writeHead(200, {
+        "Content-Type": "image/png",
+        "Content-Length": stat.size,
+        "Content-Disposition": `attachment; filename="qr-affisch${eventText ? "-" + eventText.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 30) : ""}.png"`,
+        "Cache-Control": "no-cache",
+        "X-Poster-QR-Target": encodeURIComponent(target)
+      });
+      fs.createReadStream(outPath).pipe(res);
+    } else {
+      sendJson(res, 404, { ok: false, error: "QR kunde inte genereras (qrcode/npm & python saknas).", url: target });
+    }
+    return;
+  }
+
   // 8D. QR-KOD SOM PEKAR PÅ GÄSTFOTO-SIDAN (PNG, genereras med python-fallback)
   if (req.method === "GET" && pathname === "/api/gastfoto-qr") {
     const host = String(req.headers.host || "localhost").split(":")[0];
@@ -2834,7 +2888,7 @@ const server = http.createServer(async (req, res) => {
       if (fs.existsSync(targetPath)) currentTarget = fs.readFileSync(targetPath, "utf8").trim();
     } catch (_e) {}
     if (currentTarget !== target || !fs.existsSync(outPath)) {
-      if (generateQrPng(target, outPath)) {
+      if (await generateQrPng(target, outPath)) {
         try {
           fs.writeFileSync(targetPath, target, "utf8");
         } catch (_e) {}
