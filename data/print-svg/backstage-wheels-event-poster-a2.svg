@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1414" width="420mm" height="594mm">
+  <title>Backstage Wheels – Eventaffisch "TONIGHT" A2 (Redigerbar Vektor-SVG)</title>
+  <desc>Konsertaffisch i A2 för bröllop, bal, studentutskott och företagsevent: redigerbart eventnamn, datum, plats och värdtext. Skalbar vektor med separata lager för tryckeri och digitalskyltning.</desc>
+
+  <g id="lager-ram">
+    <rect x="40" y="40" width="920" height="1334" rx="20" fill="none" stroke="#B91C1C" stroke-width="14"/>
+    <rect x="66" y="66" width="868" height="1282" rx="10" fill="none" stroke="#F97316" stroke-width="4"/>
+  </g>
+
+  <g id="lager-presented-by">
+    <text x="500" y="150" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="32" font-weight="700" letter-spacing="12" fill="#F97316">BACKSTAGE WHEELS PRESENTAR</text>
+  </g>
+
+  <g id="lager-tonight">
+    <text x="500" y="300" text-anchor="middle" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="150" font-weight="800" letter-spacing="10" fill="#FACC15">TONIGHT:</text>
+  </g>
+
+  <!-- REDIGERA EVENTNAMNET PÅ NÄSTA RAD (t ex "MAGGANS 40-ÅRSFIRANDE") -->
+  <g id="lager-eventnamn">
+    <text x="500" y="450" text-anchor="middle" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="92" font-weight="800" letter-spacing="6" fill="#FFFFFF">LEGENDS TOUR</text>
+  </g>
+
+  <g id="lager-delare-blixtar">
+    <line x1="200" y1="520" x2="800" y2="520" stroke="#B91C1C" stroke-width="8"/>
+    <polygon points="500,492 476,532 494,532 470,570 522,518 502,518 524,492" fill="#FACC15"/>
+    <polygon points="330,496 314,526 328,526 312,556 350,518 336,518 352,496" fill="#F97316"/>
+    <polygon points="670,496 654,526 668,526 652,556 690,518 676,518 692,496" fill="#F97316"/>
+  </g>
+
+  <!-- REDIGERA DATUM & TID PÅ NÄSTA RAD -->
+  <g id="lager-datum-tid">
+    <text x="500" y="610" text-anchor="middle" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="56" font-weight="800" letter-spacing="4" fill="#FACC15">LÖRDAG 19 DECEMBER 2026 · KL 20:00</text>
+  </g>
+
+  <!-- REDIGERA PLATS/ADRESS PÅ NÄSTA RAD -->
+  <g id="lager-plats">
+    <text x="500" y="675" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700" letter-spacing="4" fill="#FFFFFF">UPPHÄMTNING: HÄR SKRIVER DU ADRESSEN</text>
+  </g>
+
+  <g id="lager-hummer-siluett">
+    <g fill="#FFFFFF">
+      <rect x="240" y="810" width="520" height="118" rx="20"/>
+      <rect x="270" y="778" width="150" height="48" rx="10"/>
+      <rect x="455" y="778" width="150" height="48" rx="10"/>
+      <rect x="240" y="770" width="520" height="26" rx="10"/>
+    </g>
+    <g fill="#0B0C10">
+      <rect x="288" y="822" width="88" height="46" rx="8"/>
+      <rect x="404" y="822" width="88" height="46" rx="8"/>
+      <rect x="520" y="822" width="88" height="46" rx="8"/>
+      <rect x="636" y="822" width="52" height="46" rx="8"/>
+    </g>
+    <g fill="#0B0C10">
+      <circle cx="335" cy="932" r="34"/>
+      <circle cx="665" cy="932" r="34"/>
+    </g>
+    <g fill="#F97316">
+      <rect x="240" y="892" width="34" height="14" rx="7"/>
+      <rect x="726" y="892" width="34" height="14" rx="7"/>
+    </g>
+    <polygon points="805,770 745,880 788,880 760,965 870,850 826,850 855,770" fill="#FACC15"/>
+    <polygon points="195,770 255,880 212,880 240,965 130,850 174,850 145,770" fill="#FACC15"/>
+  </g>
+
+  <g id="lager-funktioner">
+    <text x="500" y="1060" text-anchor="middle" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="44" font-weight="800" letter-spacing="6" fill="#F97316">10 M HUMMER H2 · VIP-BAR · UPP TILL 16 PASSAGERARE</text>
+    <text x="500" y="1125" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" letter-spacing="6" fill="#FFFFFF">CHAUFFÖR INGÅR · HÅRDROCK I HÖGTALARNA · RED MATTA-ENTRÉ</text>
+  </g>
+
+  <g id="lager-cta-band">
+    <rect x="160" y="1190" width="680" height="110" rx="16" fill="#B91C1C"/>
+    <text x="500" y="1245" text-anchor="middle" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="48" font-weight="800" letter-spacing="4" fill="#FFFFFF">BOKA DIN KVÄLL:</text>
+    <text x="500" y="1288" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" letter-spacing="6" fill="#FACC15">BACKSTAGEWHEELS.SE</text>
+  </g>
+
+  <g id="lager-botten">
+    <text x="500" y="1360" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="26" font-weight="700" letter-spacing="8" fill="#F97316">DALARNA · STOCKHOLM · UPPSALA · VÄSTERÅS · ÖREBRO · GÄVLE</text>
+  </g>
+</svg>
