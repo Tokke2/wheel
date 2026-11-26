@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1100" width="300mm" height="367mm">
+  <title>Backstage Wheels – "VIP Heavy" Hoodie Print (Redigerbar Vektor-SVG)</title>
+  <desc>Tryckoriginal för "VIP Heavy Hoodie": tungt staplad VIP-typografi med blixtar, vip-bar-motiv och passagerarinfo. Skalbar vektor med separata lager för screenprint, puff och DTG.</desc>
+
+  <g id="lager-vip-heavy-stapel">
+    <rect x="90" y="120" width="720" height="240" rx="24" fill="#B91C1C"/>
+    <text x="450" y="285" text-anchor="middle" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="170" font-weight="800" letter-spacing="14" fill="#FFFFFF">VIP</text>
+    <rect x="150" y="392" width="600" height="150" rx="20" fill="#0B0C10" stroke="#F97316" stroke-width="10"/>
+    <text x="450" y="510" text-anchor="middle" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="118" font-weight="800" letter-spacing="18" fill="#FACC15">HEAVY</text>
+  </g>
+
+  <g id="lager-blixtar-bas">
+    <polygon points="250,560 170,700 240,700 200,810 330,660 260,660" fill="#F97316"/>
+    <polygon points="650,560 570,700 640,700 600,810 730,660 660,660" fill="#F97316"/>
+  </g>
+
+  <g id="lager-vip-bar-motiv">
+    <rect x="170" y="840" width="560" height="90" rx="18" fill="none" stroke="#FFFFFF" stroke-width="8"/>
+    <circle cx="245" cy="885" r="24" fill="#FACC15"/>
+    <circle cx="330" cy="885" r="24" fill="#F97316"/>
+    <circle cx="415" cy="885" r="24" fill="#FACC15"/>
+    <text x="490" y="897" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="44" font-weight="800" letter-spacing="8" fill="#FFFFFF">VIP-BAR</text>
+  </g>
+
+  <g id="lager-info-rader">
+    <text x="450" y="995" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" letter-spacing="6" fill="#FFFFFF">10 M HUMMER H2 · UPP TILL 16 PASSAGERARE</text>
+    <text x="450" y="1045" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" letter-spacing="10" fill="#F97316">BACKSTAGEWHEELS.SE</text>
+  </g>
+</svg>

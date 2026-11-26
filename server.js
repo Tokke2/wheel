@@ -709,8 +709,59 @@ function smsConfig() {
     apiPassword: String(s.apiPassword || "").trim(),
     sender: String(s.sender || "BackstageW").replace(/[^A-Za-z0-9 ]/g, "").slice(0, 11) || "BackstageW",
     notifyNumber: String(s.notifyNumber || "").trim(),
-    hoursBefore: Number(s.hoursBefore || 24)
+    hoursBefore: Number(s.hoursBefore || 24),
+    telegramBotToken: String(s.telegramBotToken || "").trim(),
+    telegramChatId: String(s.telegramChatId || "").trim()
   };
+}
+
+// GRATIS ALTERNATIV TILL SMS (#4): Telegram-bot (obegränsat, ingen avgift)
+function sendTelegramMessage(text) {
+  const cfg = smsConfig();
+  if (!cfg.telegramBotToken || !cfg.telegramChatId) {
+    return Promise.resolve({ ok: false, error: "Telegram är inte konfigurerat (bot-token + chat-ID)." });
+  }
+  return new Promise((resolve) => {
+    try {
+      const postData = JSON.stringify({ chat_id: cfg.telegramChatId, text: String(text || "").slice(0, 4000) });
+      const req = https.request(
+        { hostname: "api.telegram.org", path: `/bot${cfg.telegramBotToken}/sendMessage`, method: "POST", timeout: 12000,
+          headers: { "Content-Type": "application/json", "Content-Length": Buffer.byteLength(postData) } },
+        (res) => {
+          let data = "";
+          res.setEncoding("utf8");
+          res.on("data", (c) => (data += c));
+          res.on("end", () => {
+            let ok = res.statusCode >= 200 && res.statusCode < 300;
+            let err = ok ? null : `HTTP ${res.statusCode}`;
+            try {
+              const j = JSON.parse(data);
+              if (j && j.ok === false) { ok = false; err = j.description || err; }
+            } catch (_e) {}
+            resolve({ ok, error: err, provider: "telegram" });
+          });
+        }
+      );
+      req.on("timeout", () => req.destroy(new Error("Timeout mot Telegram API")));
+      req.on("error", (err) => resolve({ ok: false, error: err.message }));
+      req.write(postData);
+      req.end();
+    } catch (e) {
+      resolve({ ok: false, error: e.message });
+    }
+  });
+}
+
+// Enhetlig avisering: SMS om konfigurerat, annars Telegram (gratis), annars tydligt fel.
+function sendAdminAlert(text) {
+  const cfg = smsConfig();
+  if (cfg.enabled && cfg.apiUser && cfg.apiPassword && cfg.notifyNumber) {
+    return sendSmsViaProvider(cfg.notifyNumber, text).then((r) => (r.ok ? r : cfg.telegramBotToken && cfg.telegramChatId ? sendTelegramMessage(text) : r));
+  }
+  if (cfg.telegramBotToken && cfg.telegramChatId) {
+    return sendTelegramMessage(text);
+  }
+  return Promise.resolve({ ok: false, error: "Ingen aviseringskanal är konfigurerad (SMS eller Telegram)." });
 }
 
 function sendSmsViaProvider(toNumber, message) {
@@ -756,7 +807,10 @@ function startSmsReminderLoop() {
   const runCheck = async () => {
     try {
       const sms = smsConfig();
-      if (!sms.enabled) return;
+      const hasChannel =
+        (sms.enabled && sms.apiUser && sms.apiPassword && sms.notifyNumber) ||
+        (sms.telegramBotToken && sms.telegramChatId);
+      if (!hasChannel) return;
       const items = loadJson(CALENDAR_FILE, []);
       if (!Array.isArray(items) || !items.length) return;
       const state = loadJson(SMS_STATE_FILE, { sent: {} });
@@ -772,13 +826,13 @@ function startSmsReminderLoop() {
         const key = `sms-${it.id || `${it.date}_${slotTime ? slotTime[1] : ""}_${String(it.publicTitle || it.adminTitle || "").slice(0, 40)}`}`;
         if (state.sent[key]) continue;
         const msg = `Påminnelse Backstage Wheels: bokning ${it.date}${slotTime ? " kl " + slotTime[1] : ""} – ${String(it.publicTitle || it.adminTitle || "Bokning").slice(0, 80)}`;
-        const result = await sendSmsViaProvider(sms.notifyNumber, msg);
+        const result = await sendAdminAlert(msg);
         if (result.ok) {
-          state.sent[key] = { sentAt: new Date().toISOString(), to: sms.notifyNumber };
+          state.sent[key] = { sentAt: new Date().toISOString(), channel: result.provider || "sms" };
           saveJson(SMS_STATE_FILE, state);
-          writeDebugLog("INFO", "SMS_REMINDER", `SMS-påminnelse skickad för ${it.date} ${it.time || ""}`);
+          writeDebugLog("INFO", "ALERT_REMINDER", `Påminnelse skickad via ${result.provider || "sms"} för ${it.date} ${slotTime ? slotTime[1] : ""}`);
         } else {
-          writeDebugLog("ERROR", "SMS_REMINDER", `Kunde inte skicka SMS-påminnelse: ${result.error || result.status || "?"}`);
+          writeDebugLog("ERROR", "ALERT_REMINDER", `Kunde inte skicka påminnelse: ${result.error || result.status || "?"}`);
           break; // Sluta nota API:t nar konfig saknas
         }
       }
@@ -2632,7 +2686,7 @@ const server = http.createServer(async (req, res) => {
           return;
         }
 
-        // 12) SMS: skicka test-SMS + starta om påminnelse-loopen
+        // 12) SMS/Telegram: skicka test + starta om påminnelse-loopen
         if (act === "send_test_sms") {
           const result = await sendSmsViaProvider(String(body.number || "").trim(), String(body.message || "Test-SMS från Backstage Wheels kontrollpanel 🚘"));
           if (result.ok) {
@@ -2640,6 +2694,23 @@ const server = http.createServer(async (req, res) => {
           } else {
             writeDebugLog("ERROR", "SMS_TEST", `Test-SMS misslyckades: ${result.error || result.status || "?"}`);
           }
+          sendJson(res, 200, { ok: result.ok, result }, true);
+          return;
+        }
+
+        if (act === "send_test_telegram") {
+          const result = await sendTelegramMessage(String(body.message || "✈️ Testmeddelande från Backstage Wheels kontrollpanel 🚘 – aviseringar fungerar!"));
+          if (result.ok) {
+            writeDebugLog("INFO", "TELEGRAM_TEST", "Telegram-testmeddelande skickat till konfigurerad chatt");
+          } else {
+            writeDebugLog("ERROR", "TELEGRAM_TEST", `Telegram-test misslyckades: ${result.error || "?"}`);
+          }
+          sendJson(res, 200, { ok: result.ok, result }, true);
+          return;
+        }
+
+        if (act === "send_test_alert") {
+          const result = await sendAdminAlert(String(body.message || "🔔 Testavisering från Backstage Wheels – kedjan fungerar!"));
           sendJson(res, 200, { ok: result.ok, result }, true);
           return;
         }

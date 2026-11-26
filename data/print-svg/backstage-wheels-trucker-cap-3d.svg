@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 480" width="120mm" height="82mm">
+  <title>Backstage Wheels – "3D-Broderad Trucker-Keps" Patch (Redigerbar Vektor-SVG)</title>
+  <desc>Tryck/brodyroriginal för trucker-kepsens frontpatch: rundad sköld med BW-monogram, blixt och tung 3D-puff-typografi. Kraftiga linjer och färger anpassade för 3D-puffbrodyr och skuren vinyl.</desc>
+
+  <g id="lager-patch-skold">
+    <path d="M 60 70 Q 60 30 110 30 L 590 30 Q 640 30 640 70 L 640 330 Q 640 450 350 450 Q 60 450 60 330 Z" fill="#0B0C10" stroke="#F97316" stroke-width="14"/>
+    <path d="M 92 92 Q 92 62 122 62 L 578 62 Q 608 62 608 92 L 608 320 Q 608 418 350 418 Q 92 418 92 320 Z" fill="none" stroke="#FACC15" stroke-width="7"/>
+  </g>
+
+  <g id="lager-bw-monogram">
+    <rect x="150" y="110" width="400" height="150" rx="26" fill="#B91C1C"/>
+    <text x="350" y="245" text-anchor="middle" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="130" font-weight="800" letter-spacing="10" fill="#FFFFFF">BW</text>
+    <polygon points="520,80 470,170 508,170 484,240 566,140 526,140" fill="#FACC15"/>
+  </g>
+
+  <g id="lager-puff-text">
+    <text x="350" y="345" text-anchor="middle" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="62" font-weight="800" letter-spacing="6" fill="#FFFFFF">BACKSTAGE</text>
+    <text x="350" y="405" text-anchor="middle" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="54" font-weight="800" letter-spacing="14" fill="#F97316">WHEELS</text>
+  </g>
+</svg>
