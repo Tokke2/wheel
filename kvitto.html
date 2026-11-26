@@ -174,29 +174,6 @@
         <div class="grand"><span>ATT BETALA</span><span id="kv-sum-total">0,00 kr</span></div>
       </div>
 
-      <div style="margin-top:24px;border:2px solid var(--ink);border-radius:10px;padding:14px 16px;display:flex;gap:18px;align-items:center;flex-wrap:wrap;">
-        <img
-          id="kv-swish-qr"
-          src="bilder/swish-qr.png"
-          alt="Swish-QR (lägg in din egen Swish-QR-bild som bilder/swish-qr.png)"
-          width="110"
-          height="110"
-          style="border-radius:8px;display:none;background:#fff;padding:6px;"
-          onerror="this.style.display='none';document.getElementById('kv-swish-noqr').style.display='block';"
-        />
-        <div id="kv-swish-noqr" style="display:none;max-width:230px;font-size:11px;color:var(--ink-soft);">
-          <strong>Tips:</strong> Lägg din Swish-QR (genereras i din bank/swish.nu) som filen
-          <code>bilder/swish-qr.png</code> — då visas den automatiskt här på alla kvitton.
-        </div>
-        <div style="flex:1;min-width:220px;">
-          <h3 style="margin:0 0 6px;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);">Betalning</h3>
-          <p style="margin:0;font-size:12.5px;line-height:1.6;" contenteditable="true" id="kv-payment">
-            Swish: ____________&nbsp;&nbsp;·&nbsp;&nbsp;Bankgiro: ____________&nbsp;&nbsp;·&nbsp;&nbsp;Faktura 10 dagar<br/>
-            Ange dokumentnummer som meddelande vid betalning. Kvitto/fakturan är underlag — justera belopp på raderna ovan vid behov.
-          </p>
-        </div>
-      </div>
-
       <p class="note" contenteditable="true" id="kv-note">
         Vänligen betala inom 10 dagar. Kvitto/fakturan är genererad av Backstage Wheels kontrollpanel med tryckskarp vektorlogotyp.
         Vid frågor, kontakta oss via bokning@backstagewheels.se. Tack för uppdraget!
