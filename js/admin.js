@@ -196,6 +196,8 @@
 
   function bindPasswordToggleButtons(container) {
     (container || document).querySelectorAll("[data-toggle-pw]").forEach((btn) => {
+      // TAB-SKIP: öga-knappen ska inte ligga i tabbordningen — Tab går direkt till nästa fält
+      btn.tabIndex = -1;
       btn.addEventListener("click", () => {
         const targetId = btn.getAttribute("data-toggle-pw");
         const inp = document.getElementById(targetId);
@@ -1643,6 +1645,15 @@
 
       const p1El = document.getElementById("adm-setup-p1");
       const p2El = document.getElementById("adm-setup-p2");
+      // Enter i lösenordsfältet hoppar till bekräftelsefältet (i stället för att skicka för tidigt)
+      if (p1El && p2El) {
+        p1El.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            p2El.focus();
+          }
+        });
+      }
       const chkLen = document.getElementById("chk-len");
       const chkMatch = document.getElementById("chk-match");
       const submitBtn = document.getElementById("adm-setup-submit-btn");
