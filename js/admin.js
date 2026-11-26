@@ -278,7 +278,7 @@
       title: "Sköld-emblem v2 \"Legends of Rock\" (Snittig & Rockig)",
       usage: "Huvudlogo/tryck: T-shirt, hoodie, keps, dekal, kvitto, affisch",
       dimensions: "300 × 330 mm (100% skalbar vektor)",
-      updatedAt: "2026-11-26 16:12",
+      updatedAt: "2026-11-26 16:15",
       svgContent: `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1100" width="300mm" height="330mm">
   <title>Backstage Wheels – Sköld-emblem v2 "Legends of Rock" (Redigerbar Vektor-SVG)</title>
@@ -329,7 +329,7 @@
       title: "Bröst- & Frontemblem (Sköld + Vingar + Blixt)",
       usage: "T-shirt bröst/mage, Hoodie front, Jackmärke",
       dimensions: "300 × 300 mm (100% skalbar vektor)",
-      updatedAt: "2026-11-26 16:12",
+      updatedAt: "2026-11-26 16:15",
       svgContent: `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" width="300mm" height="300mm">
   <title>Backstage Wheels – Bröst-/Fronttryck (Redigerbar Vektor-SVG)</title>
@@ -369,7 +369,7 @@
       title: "Stort Ryggtryck – 10M Limo & Turnéstäder",
       usage: "T-shirt helrygg, Zip-Hoodie rygg, Poster",
       dimensions: "320 × 373 mm (100% skalbar vektor)",
-      updatedAt: "2026-11-26 16:12",
+      updatedAt: "2026-11-26 16:15",
       svgContent: `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1400" width="320mm" height="373mm">
   <title>Backstage Wheels – Stort Ryggtryck T-shirt &amp; Hoodie (Redigerbar Vektor-SVG)</title>
@@ -423,7 +423,7 @@
       title: "Keps- & Brodyremblem (Kraftiga linjer)",
       usage: "Truckerkeps, Beanie-mössa, Skuren vinyldekal",
       dimensions: "140 × 73,5 mm (100% skalbar vektor)",
-      updatedAt: "2026-11-26 16:12",
+      updatedAt: "2026-11-26 16:15",
       svgContent: `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 420" width="140mm" height="73.5mm">
   <title>Backstage Wheels – Kepsbrodyr &amp; Vinylskärning (Ren Vektor-SVG)</title>
@@ -451,7 +451,7 @@
       title: "Baksätes-QR Skyltoriginal",
       usage: "Akrylskylt eller dekal vid baren i limousinen",
       dimensions: "140 × 180 mm (100% skalbar vektor)",
-      updatedAt: "2026-11-26 16:12",
+      updatedAt: "2026-11-26 16:15",
       svgContent: `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 900" width="140mm" height="180mm">
   <title>Backstage Wheels – Baksätes-QR Skylt / Dekal (Redigerbar Vektor-SVG)</title>
@@ -484,7 +484,7 @@
       title: "\"Legends Tour\" T-Shirt Print (Turnéaffisch-stil)",
       usage: "Legends Tour T-shirt front/mage, Poster, Rollup",
       dimensions: "300 × 383 mm (100% skalbar vektor)",
-      updatedAt: "2026-11-26 16:12",
+      updatedAt: "2026-11-26 16:15",
       svgContent: `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1150" width="300mm" height="383mm">
   <title>Backstage Wheels – "Legends Tour" T-Shirt Print (Redigerbar Vektor-SVG)</title>
@@ -547,7 +547,7 @@
       title: "\"VIP Heavy\" Hoodie Print (Staplad VIP-typografi)",
       usage: "VIP Heavy Hoodie front/rygg, Zip-hoodie, Pellon-transfer",
       dimensions: "300 × 367 mm (100% skalbar vektor)",
-      updatedAt: "2026-11-26 16:12",
+      updatedAt: "2026-11-26 16:15",
       svgContent: `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1100" width="300mm" height="367mm">
   <title>Backstage Wheels – "VIP Heavy" Hoodie Print (Redigerbar Vektor-SVG)</title>
@@ -584,7 +584,7 @@
       title: "\"Trucker-Keps\" 3D-Puff Patch (BW-monogram)",
       usage: "3D-Broderad Trucker-Keps frontpatch, beanie, dekal",
       dimensions: "120 × 82 mm (100% skalbar vektor)",
-      updatedAt: "2026-11-26 16:12",
+      updatedAt: "2026-11-26 16:15",
       svgContent: `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 480" width="120mm" height="82mm">
   <title>Backstage Wheels – "3D-Broderad Trucker-Keps" Patch (Redigerbar Vektor-SVG)</title>
@@ -612,7 +612,7 @@
       title: "Eventaffisch \"TONIGHT\" (A2-poster, redigerbart eventnamn & datum)",
       usage: "Entréaffisch: bröllop, bal, studentutskott, företagsevent — skriv ut A2/A3",
       dimensions: "420 × 594 mm (A2, 100% skalbar vektor)",
-      updatedAt: "2026-11-26 16:12",
+      updatedAt: "2026-11-26 16:15",
       svgContent: `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1414" width="420mm" height="594mm">
   <title>Backstage Wheels – Eventaffisch "TONIGHT" A2 (Redigerbar Vektor-SVG)</title>
@@ -684,18 +684,11 @@
   </g>
 
   <g id="lager-cta-band">
-    <rect x="360" y="1190" width="480" height="110" rx="16" fill="#B91C1C"/>
-    <text x="600" y="1245" text-anchor="middle" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="44" font-weight="800" letter-spacing="4" fill="#FFFFFF">BOKA DIN KVÄLL:</text>
-    <text x="600" y="1288" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" letter-spacing="6" fill="#FACC15">BACKSTAGEWHEELS.SE</text>
+    <rect x="160" y="1190" width="680" height="110" rx="16" fill="#B91C1C"/>
+    <text x="500" y="1245" text-anchor="middle" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="48" font-weight="800" letter-spacing="4" fill="#FFFFFF">BOKA DIN KVÄLL:</text>
+    <text x="500" y="1288" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" letter-spacing="6" fill="#FACC15">BACKSTAGEWHEELS.SE</text>
   </g>
 
-  <g id="lager-qr-yta">
-    <rect x="160" y="1190" width="160" height="160" rx="10" fill="#FFFFFF"/>
-    <rect x="170" y="1200" width="140" height="140" fill="none" stroke="#0B0C10" stroke-width="2" stroke-dasharray="6 4"/>
-    <text x="240" y="1258" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="700" fill="#0B0C10">PLACERA</text>
-    <text x="240" y="1280" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="700" fill="#0B0C10">QR HÄR</text>
-    <text x="240" y="1330" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#3b4252">(Skanna = förifylld offert)</text>
-  </g>
 
   <g id="lager-botten">
     <text x="500" y="1360" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="26" font-weight="700" letter-spacing="8" fill="#F97316">DALARNA · STOCKHOLM · UPPSALA · VÄSTERÅS · ÖREBRO · GÄVLE</text>
@@ -707,7 +700,7 @@
       title: "T-shirt Ryggmonogram \"BW + Blixt\" (skulder-till-skulder)",
       usage: "T-shirt storrygg, zip-hoodie rygg, tank top",
       dimensions: "320 × 409 mm (100% skalbar vektor)",
-      updatedAt: "2026-11-26 16:12",
+      updatedAt: "2026-11-26 16:15",
       svgContent: `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1150" width="320mm" height="409mm">
   <title>Backstage Wheels – T-shirt Ryggmonogram "BW + Blixt" (Redigerbar Vektor-SVG)</title>
@@ -751,7 +744,7 @@
       title: "T-shirt Bröstmini \"Blixt + BW\" (vänster bröst)",
       usage: "T-shirt vänsterbröst, skjorta, workwear, keps bak",
       dimensions: "90 × 90 mm (100% skalbar vektor)",
-      updatedAt: "2026-11-26 16:12",
+      updatedAt: "2026-11-26 16:15",
       svgContent: `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" width="90mm" height="90mm">
   <title>Backstage Wheels – T-shirt Bröstmini "Blixt + BW" (Redigerbar Vektor-SVG)</title>
@@ -777,7 +770,7 @@
       title: "Keps Sidobrodyr \"Blixt + BW\" (sida)",
       usage: "Keps sida, mössa, dekal på koppar/flaskor",
       dimensions: "60 × 38 mm (100% skalbar vektor)",
-      updatedAt: "2026-11-26 16:12",
+      updatedAt: "2026-11-26 16:15",
       svgContent: `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" width="60mm" height="38mm">
   <title>Backstage Wheels – Keps Sidobrodyr "Blixt + BW" (Redigerbar Vektor-SVG)</title>
@@ -798,7 +791,7 @@
       title: "Keps Front \"Band-remsa\" (alternativ front)",
       usage: "Keps front (skuren vinyl/puff), snapback, visor",
       dimensions: "110 × 57 mm (100% skalbar vektor)",
-      updatedAt: "2026-11-26 16:12",
+      updatedAt: "2026-11-26 16:15",
       svgContent: `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 240" width="110mm" height="57mm">
   <title>Backstage Wheels – Keps Front "Band-remsa" Alternativ (Redigerbar Vektor-SVG)</title>
@@ -2229,18 +2222,6 @@
           </label>
         </div>
 
-        <div class="bsw-form-card" style="margin-bottom:22px;background:#0d1017;">
-          <span class="bsw-kicker">🖼 QR TILL EVENTAFFISCHEN (#6) — PEKAR PÅ OFFERTFORMULÄRET MED FÖRIFYLLT EVENT</span>
-          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px;">
-            <input type="text" id="poster-qr-event" placeholder="Eventnamn, t ex Maggans 40-årsfirande" style="flex:1;min-width:220px;" />
-            <input type="date" id="poster-qr-datum" style="min-width:150px;" />
-            <button type="button" id="poster-qr-btn" class="bsw-btn bsw-btn-ghost">⬇ Ladda ner QR-PNG</button>
-          </div>
-          <small style="display:block;margin-top:8px;color:var(--text-muted);">
-            QR:n öppnar offertformuläret med eventnamnet & datumet förifyllda. Klistra in/överlägga PNG:n på
-            affischen (ytan "PLACERA QR HÄR" nere till vänster) innan utskrift — eller skriv ut separat och limma.
-          </small>
-        </div>
 
         ${
           activeSvg
@@ -4212,215 +4193,6 @@
           }
         });
       }
-    }
-
-    // --- QR TILL EVENTAFFISCHEN (#6) ---
-    const posterQrBtn = document.getElementById("poster-qr-btn");
-    if (posterQrBtn) {
-      posterQrBtn.addEventListener("click", async () => {
-        const eventText = (document.getElementById("poster-qr-event") || {}).value || "";
-        const datum = (document.getElementById("poster-qr-datum") || {}).value || "";
-        const params = new URLSearchParams();
-        if (eventText.trim()) params.set("event", eventText.trim());
-        if (datum) params.set("datum", datum);
-        posterQrBtn.disabled = true;
-        try {
-          const res = await fetch(`/api/poster-qr?${params.toString()}`);
-          if (res.ok) {
-            const blob = await res.blob();
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = "qr-affisch" + (eventText.trim() ? "-" + eventText.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 30) : "") + ".png";
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            setTimeout(() => URL.revokeObjectURL(url), 4000);
-            showToast("QR-bild nedladdad! Lägg den på affischen vid BOKA-bandet.");
-          } else {
-            const j = await res.json().catch(() => ({}));
-            showToast((j && j.url) ? "QR-tjänst saknas på servern — använd länken i stället: " + j.url : "Kunde inte generera QR.", true);
-          }
-        } catch (_e) {
-          showToast("Kunde inte generera QR.", true);
-        }
-        posterQrBtn.disabled = false;
-      });
-    }
-
-    // --- KVITTO/FAKTURA & RECENSIONSMETJL PER OFFERT ---
-    document.querySelectorAll("[data-quote-receipt]").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const q = state.quotes[Number(btn.getAttribute("data-quote-receipt"))];
-        if (!q) return;
-        const payload = {
-          kind: "FAKTURA",
-          company: `Backstage Wheels\n${state.settings.contactPhone || ""}\n${state.settings.contactEmail || ""}\nbackstagewheels.se`,
-          customer: `${q.namn || "-"}\n${q.epost || "-"}\n${q.telefon || "-"}`,
-          docmeta: `Nr: BSW-${String(q.receivedAt || Date.now()).replace(/[^0-9]/g, "").slice(-8) || "00000000"}\nDatum: ${new Date().toLocaleDateString("sv-SE")}\nOffert mottagen: ${q.receivedAt || "-"}`,
-          event: `Fordon / upplägg: ${q.bil || "-"} (${q.kortid || "-"})\nDatum & tid: ${q.datum || "-"} kl ${q.tid || "-"}\nSträcka: ${q.fran || "-"} → ${q.till || "-"}\nPassagerare: ${q.passagerare || "-"}`,
-          rows: [{ label: "Limousinekörning enligt offert (exkl. moms)", qty: 1, price: 0 }],
-          note: "Fyll i belopp på raden nedan (À-pris) – moms 25 % och summa beräknas automatiskt. Alla fält kan redigeras innan utskrift."
-        };
-        const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(payload)))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-        window.open("kvitto.html#d=" + b64, "_blank");
-      });
-    });
-    document.querySelectorAll("[data-quote-reviewmail]").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const q = state.quotes[Number(btn.getAttribute("data-quote-reviewmail"))];
-        if (!q || !q.epost) {
-          showToast("Offerten saknar e-postadress.", true);
-          return;
-        }
-        apiPost("send_review_request", { email: q.epost, name: q.namn }).then((r) => {
-          if (r && r.ok) showToast("Recensionsförfrågan mejlad till " + q.epost);
-          else showToast((r && r.error) || "Kunde inte skicka – kontrollera Google-länken.", true);
-        });
-      });
-    });
-
-    // --- KUNDOMDÖMEN ---
-    const revSettingsForm = document.getElementById("adm-reviews-settings-form");
-    if (revSettingsForm) {
-      revSettingsForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        state.settings.googleReviewUrl = document.getElementById("rev-google-url").value.trim();
-        const r = await apiPost("save_settings", { settings: state.settings });
-        if (r.ok) showToast("Google-länk sparad!");
-      });
-    }
-    const revAddForm = document.getElementById("adm-review-add-form");
-    if (revAddForm) {
-      revAddForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const list = Array.isArray(state.reviews) ? state.reviews : [];
-        list.unshift({
-          id: "rev-" + Date.now(),
-          name: document.getElementById("rev-new-name").value.trim(),
-          stars: Number(document.getElementById("rev-new-stars").value) || 5,
-          text: document.getElementById("rev-new-text").value.trim(),
-          date: document.getElementById("rev-new-date").value.trim(),
-          source: document.getElementById("rev-new-source").value,
-          status: "visible"
-        });
-        const r = await apiPost("save_reviews", { reviews: list });
-        if (r && r.ok) {
-          state.reviews = r.reviews || list;
-          showToast("Recension tillagd – syns nu på hemsidan!");
-          render();
-        } else {
-          showToast((r && r.error) || "Kunde inte spara recensionen.", true);
-        }
-      });
-    }
-    const revReqForm = document.getElementById("adm-review-request-form");
-    if (revReqForm) {
-      revReqForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const r = await apiPost("send_review_request", {
-          email: document.getElementById("rev-req-email").value.trim(),
-          name: document.getElementById("rev-req-name").value.trim()
-        });
-        if (r && r.ok) showToast("Recensionsförfrågan skickad! ✉");
-        else showToast((r && r.error) || "Kunde inte skicka.", true);
-      });
-    }
-    document.querySelectorAll("[data-review-toggle]").forEach((btn) => {
-      btn.addEventListener("click", async () => {
-        const i = Number(btn.getAttribute("data-review-toggle"));
-        if (!state.reviews[i]) return;
-        state.reviews[i].status = state.reviews[i].status === "hidden" ? "visible" : "hidden";
-        const r = await apiPost("save_reviews", { reviews: state.reviews });
-        if (r && r.ok) {
-          state.reviews = r.reviews || state.reviews;
-          render();
-        }
-      });
-    });
-    document.querySelectorAll("[data-review-del]").forEach((btn) => {
-      btn.addEventListener("click", async () => {
-        const i = Number(btn.getAttribute("data-review-del"));
-        if (!state.reviews[i]) return;
-        if (!confirm("Radera den här recensionen?")) return;
-        state.reviews.splice(i, 1);
-        const r = await apiPost("save_reviews", { reviews: state.reviews });
-        if (r && r.ok) {
-          state.reviews = r.reviews || state.reviews;
-          showToast("Recension raderad.");
-          render();
-        }
-      });
-    });
-
-    // --- GÄSTFOTO VIA QR ---
-    document.querySelectorAll("[data-gf-approve]").forEach((btn) => {
-      btn.addEventListener("click", async () => {
-        const r = await apiPost("gastfoto_moderate", { filename: btn.getAttribute("data-gf-approve"), modAction: "approve" });
-        if (r && r.ok) {
-          showToast("Fotot godkänt & publicerat i galleriet!");
-          await loadAllAdminData();
-          render();
-        } else showToast((r && r.error) || "Kunde inte godkänna fotot.", true);
-      });
-    });
-    document.querySelectorAll("[data-gf-reject]").forEach((btn) => {
-      btn.addEventListener("click", async () => {
-        const r = await apiPost("gastfoto_moderate", { filename: btn.getAttribute("data-gf-reject"), modAction: "reject" });
-        if (r && r.ok) {
-          showToast("Fotot avvisat & raderat.");
-          await loadAllAdminData();
-          render();
-        } else showToast((r && r.error) || "Kunde inte avvisa fotot.", true);
-      });
-    });
-    document.querySelectorAll("[data-gf-delete]").forEach((btn) => {
-      btn.addEventListener("click", async () => {
-        if (!confirm("Radera det godkända fotot från galleriet?")) return;
-        const r = await apiPost("gastfoto_moderate", { filename: btn.getAttribute("data-gf-delete"), modAction: "delete" });
-        if (r && r.ok) {
-          showToast("Fotot raderat.");
-          await loadAllAdminData();
-          render();
-        } else showToast((r && r.error) || "Kunde inte radera fotot.", true);
-      });
-    });
-    const gfCopyBtn = document.getElementById("gf-copy-link");
-    if (gfCopyBtn) {
-      gfCopyBtn.addEventListener("click", () => {
-        const url = location.origin + "/gastfoto";
-        if (navigator.clipboard) {
-          navigator.clipboard.writeText(url).then(() => showToast("Länken kopierad!"));
-        }
-      });
-    }
-
-    // --- BW BOT ---
-    const botEnableBtn = document.getElementById("bot-enable-btn");
-    if (botEnableBtn) {
-      botEnableBtn.addEventListener("click", async () => {
-        if (!("Notification" in window)) {
-          showToast("Webbläsaren saknar notis-stöd — boten visar ändå toasts inuti panelen.", true);
-          return;
-        }
-        const p = await Notification.requestPermission();
-        if (p === "granted") {
-          showToast("Notiser aktiverade – BW Bot beepar nu! 🔔");
-          botNotify("BW Bot är aktiv", "Du får notis när bokningar närmar sig.", "bot-activated");
-        } else if (p === "denied") {
-          showToast("Notiser blockerades i webbläsaren — toasts används i stället.", true);
-        } else {
-          showToast("Ingen ändring av notisbehörighet.");
-        }
-        updateBotCard();
-      });
-    }
-    const botTestBtn = document.getElementById("bot-test-btn");
-    if (botTestBtn) {
-      botTestBtn.addEventListener("click", () => {
-        botNotify("✅ BW Bot-test", "Om du ser detta fungerar din egen gratis-bot!", "bot-test");
-        botPoll();
-      });
     }
 
     // --- LÖSENORD & LOGG ---

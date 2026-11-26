@@ -2039,22 +2039,6 @@
       dateInput.min = today;
     }
 
-    // #6 FÖRIFYLLNANDE FRÅN EVENTAFFISCH-QR: #offert?event=...&datum=...
-    const hashMatch = /^#offert\?(.+)$/.exec(location.hash || "");
-    if (hashMatch) {
-      try {
-        const hp = new URLSearchParams(hashMatch[1]);
-        const preEvent = hp.get("event");
-        const preDatum = hp.get("datum");
-        if (preEvent) {
-          const msgEl = document.getElementById("offert-meddelande");
-          if (msgEl && !msgEl.value) msgEl.value = `Eventnamn: ${preEvent}`;
-        }
-        if (preDatum && dateInput) dateInput.value = preDatum;
-        history.replaceState(null, "", "#offert"); // städa hash efter förifyllnad
-      } catch (_e) {}
-    }
-
     if (!form) return;
 
     form.addEventListener("submit", async (e) => {

@@ -2848,34 +2848,6 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  // 8E. QR TILL EVENTAFFISCHEN (#6): pekar på offertformuläret med förifyllt eventnamn/datum
-  if (req.method === "GET" && pathname === "/api/poster-qr") {
-    const eventText = String(urlObj.searchParams.get("event") || "").trim().slice(0, 60);
-    const datum = String(urlObj.searchParams.get("datum") || "").trim().slice(0, 10);
-    const hashParams = new URLSearchParams();
-    if (eventText) hashParams.set("event", eventText);
-    if (datum) hashParams.set("datum", datum);
-    const qs = hashParams.toString();
-    const target = `${siteOrigin}/index.html#offert${qs ? "?" + qs : ""}`;
-    const hashName = crypto.createHash("md5").update(target).digest("hex").slice(0, 10);
-    const outPath = path.join(CACHE_DIR, `poster-qr-${hashName}.png`);
-    if (!fs.existsSync(outPath)) await generateQrPng(target, outPath);
-    if (fs.existsSync(outPath)) {
-      const stat = fs.statSync(outPath);
-      res.writeHead(200, {
-        "Content-Type": "image/png",
-        "Content-Length": stat.size,
-        "Content-Disposition": `attachment; filename="qr-affisch${eventText ? "-" + eventText.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 30) : ""}.png"`,
-        "Cache-Control": "no-cache",
-        "X-Poster-QR-Target": encodeURIComponent(target)
-      });
-      fs.createReadStream(outPath).pipe(res);
-    } else {
-      sendJson(res, 404, { ok: false, error: "QR kunde inte genereras (qrcode/npm & python saknas).", url: target });
-    }
-    return;
-  }
-
   // 8D. QR-KOD SOM PEKAR PÅ GÄSTFOTO-SIDAN (PNG, genereras med python-fallback)
   if (req.method === "GET" && pathname === "/api/gastfoto-qr") {
     const host = String(req.headers.host || "localhost").split(":")[0];
