@@ -1,0 +1,14 @@
+{
+  "appId": "se.backstagewheels.app",
+  "appName": "Backstage Wheels",
+  "webDir": "..",
+  "bundledWebRuntime": false,
+  "backgroundColor": "#07070a",
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 1200,
+      "backgroundColor": "#07070a",
+      "showSpinner": false
+    }
+  }
+}

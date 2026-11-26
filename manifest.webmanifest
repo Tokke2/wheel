@@ -1,0 +1,25 @@
+{
+  "name": "Backstage Wheels – Hummer Limousine",
+  "short_name": "Backstage",
+  "description": "Hyra Sveriges mäktigaste 10-meters Hummer H2 Limousine. Se lediga tider i kalendern, beställ merch och begär offert direkt!",
+  "lang": "sv-SE",
+  "start_url": "./#hem",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#070709",
+  "theme_color": "#070709",
+  "icons": [
+    {
+      "src": "bilder/app-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "bilder/app-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

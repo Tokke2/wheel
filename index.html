@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="sv" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Backstage Wheels | Sveriges mäktigaste hårdrocks-limousine</title>
+  <meta
+    name="description"
+    content="Backstage Wheels – Hyra Sveriges mäktigaste 10-meters Hummer H2 Limousine 'Legends of Rock' för upp till 16 personer. Från under 490 kr/pers vid full bil! Bröllop, bal, studentutskott, B2B, musikvideor, sponsorevent & Oktoberfest."
+  />
+  <meta name="theme-color" content="#070709" id="bsw-meta-theme-color" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" type="image/png" sizes="192x192" href="bilder/app-icon-192.png" />
+  <link rel="apple-touch-icon" href="bilder/apple-touch-icon.png" />
+
+  <!-- Direkt temainläsning utan blinkning (Mörkt / Ljust tema) -->
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem("bsw_theme");
+        var theme = saved === "light" || saved === "dark" ? saved : "dark";
+        document.documentElement.setAttribute("data-theme", theme);
+        var tc = document.getElementById("bsw-meta-theme-color");
+        if (tc) tc.setAttribute("content", theme === "light" ? "#f8fafc" : "#070709");
+      } catch (_e) {}
+    })();
+  </script>
+
+  <!-- Skarp, lättläst typografi från första layouten (Inter + Oswald) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@600;700;800&display=swap"
+    rel="stylesheet"
+  />
+
+  <link rel="stylesheet" href="css/style.css" />
+  <script type="application/ld+json" id="bsw-schema-jsonld"></script>
+</head>
+<body>
+  <!-- ======================================================================
+       TOPPNAVIGATION MED CENTRERADE, INRAMADE FLIKAR & TEMAVÄXLARE
+       ====================================================================== -->
+  <header class="bsw-header">
+    <div class="bsw-container bsw-header-top">
+      <a href="#hem" class="bsw-brand" data-tab-target="hem" aria-label="Backstage Wheels Startsida">
+        <img
+          src=""
+          alt="Backstage Wheels logotyp"
+          class="bsw-custom-logo"
+          data-brand-logo
+          hidden
+        />
+        <span class="bsw-brand-emblem" data-brand-emblem aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+          </svg>
+        </span>
+        <span class="bsw-brand-text" data-brand-text-wrap>
+          <span class="bsw-brand-name" data-cfg-brand-name>BACKSTAGE WHEELS</span>
+          <span class="bsw-brand-sub" data-cfg-brand-sub>LEGENDS OF ROCK · VIP LIMO</span>
+        </span>
+      </a>
+
+      <div class="bsw-header-controls">
+        <!-- Klickbar telefon direkt i toppen på större skärmar -->
+        <span class="bsw-header-phone-wrap bsw-hide-sm" data-cfg-phone></span>
+
+        <!-- Instagram -->
+        <a
+          href="https://www.instagram.com/backstagewheels/"
+          target="_blank"
+          rel="noopener"
+          class="bsw-ig-top"
+          data-cfg-ig
+          title="Följ @backstagewheels på Instagram"
+          aria-label="Instagram @backstagewheels"
+        >
+          <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+          </svg>
+        </a>
+
+        <!-- Växla Mörkt / Ljust tema -->
+        <button
+          type="button"
+          class="bsw-theme-btn"
+          id="bsw-theme-toggle"
+          aria-label="Växla mellan mörkt och ljust tema"
+          title="Byt mellan mörkt och ljust tema"
+        >
+          <span class="bsw-theme-icon" id="bsw-theme-icon" aria-hidden="true">☀️</span>
+          <span class="bsw-theme-label" id="bsw-theme-label">Ljust läge</span>
+        </button>
+
+        <!-- Mobilmeny-knapp -->
+        <button
+          type="button"
+          class="bsw-burger"
+          id="bsw-burger-btn"
+          aria-label="Öppna meny"
+          aria-expanded="false"
+          aria-controls="bsw-nav-menu"
+        >
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- CENTRERAD FLIKRAD MED TYDLIG RAM RUNT VARJE FLIK -->
+    <div class="bsw-tabs-row-wrap">
+      <div class="bsw-container">
+        <nav class="bsw-nav" id="bsw-nav-menu" role="tablist" aria-label="Huvudmeny">
+          <button type="button" role="tab" class="bsw-nav-link is-active" data-tab-link="hem" data-tab-target="hem" aria-selected="true">
+            Start
+          </button>
+          <button type="button" role="tab" class="bsw-nav-link" data-tab-link="bilar" data-tab-target="bilar" aria-selected="false">
+            Våra bilar &amp; Priser
+          </button>
+          <button type="button" role="tab" class="bsw-nav-link" data-tab-link="kalender" data-tab-target="kalender" aria-selected="false">
+            Kalender
+          </button>
+          <button type="button" role="tab" class="bsw-nav-link" id="bsw-tab-btn-inlagg" data-tab-link="inlagg" data-tab-target="inlagg" aria-selected="false">
+            <span>Inlägg</span>
+            <span class="bsw-new-post-pill" id="bsw-new-post-badge" hidden>NYTT</span>
+          </button>
+          <button type="button" role="tab" class="bsw-nav-link" data-tab-link="galleri" data-tab-target="galleri" aria-selected="false">
+            Bildgalleri
+          </button>
+          <button type="button" role="tab" class="bsw-nav-link" data-tab-link="merch" data-tab-target="merch" aria-selected="false">
+            <span>Merch</span>
+            <span class="bsw-soon-mini-tag" id="bsw-nav-merch-tag">SNART</span>
+          </button>
+          <button type="button" role="tab" class="bsw-nav-link" data-tab-link="kontakt" data-tab-target="kontakt" aria-selected="false">
+            Kontakt
+          </button>
+          <button type="button" role="tab" class="bsw-nav-link bsw-nav-cta" data-tab-link="offert" data-tab-target="offert" aria-selected="false">
+            Begär offert
+          </button>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- ====================================================================
+         FLIK 1: START (#hem) — FÖRSTA LAYOUTEN MED ALLA FÖRBÄTTRINGAR
+         ==================================================================== -->
+    <section id="tab-hem" class="bsw-tab-panel is-active" aria-labelledby="hero-heading">
+      <div class="bsw-hero">
+        <div class="bsw-container bsw-hero-grid">
+          <div class="bsw-hero-copy">
+            <span class="bsw-kicker">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+              </svg>
+              @BACKSTAGEWHEELS · SVERIGES MÄKTIGASTE LIMMO
+            </span>
+
+            <h1 id="hero-heading" class="bsw-hero-title">
+              10 METER REN <span class="text-fire">HÅRDROCK</span> &amp; <span class="text-ice">VIP-KÄNSLA</span> PÅ VÄGEN
+            </h1>
+
+            <p class="bsw-hero-lead">
+              Glöm vanliga tråkiga transporter. Med Backstage Wheels rullar ni in i ett tio meter långt
+              custom-konstverk för upp till 16 passagerare, fyllt med tung bas, upplyst VIP-bar och äkta
+              backstage-attityd – från <strong>under 490 kr per person</strong> när ni fyller bilen!
+            </p>
+
+            <div class="bsw-hero-actions">
+              <button type="button" class="bsw-btn bsw-btn-primary" data-tab-target="offert">
+                <span>Begär offert för körning</span>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4">
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                  <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+              </button>
+              <button type="button" class="bsw-btn bsw-btn-ghost" data-tab-target="kalender">
+                <span>Se lediga pass i kalendern</span>
+              </button>
+              <button type="button" class="bsw-btn bsw-btn-ghost" data-tab-target="bilar">
+                <span>Våra bilar &amp; priser</span>
+              </button>
+            </div>
+
+            <div class="bsw-hero-stats">
+              <div>
+                <span class="bsw-stat-num">10,0 M · 16 PERS</span>
+                <span class="bsw-stat-lbl">Hummer H2 Stretch Limo</span>
+              </div>
+              <div>
+                <span class="bsw-stat-num">FRÅN &lt;490 KR</span>
+                <span class="bsw-stat-lbl">Per person vid full bil (16 st)</span>
+              </div>
+              <div>
+                <span class="bsw-stat-num">100% ROCK</span>
+                <span class="bsw-stat-lbl">Motivlack av Dr H Custom</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Hero-bilder från första layouten (utan överlappande text som döljer motivet) -->
+          <div class="bsw-hero-visual">
+            <figure
+              class="bsw-hero-frame"
+              tabindex="0"
+              role="button"
+              aria-label="Öppna helbild på Backstage Wheels 10-meters Hummer i helskärm"
+              data-lightbox-src="bilder/bilar/hummer-legends-sida.jpg"
+              data-lightbox-thumb="bilder/bilar/hummer-legends-sida.jpg"
+              data-lightbox-caption="Backstage Wheels 10-meters Hummer H2 Limousine – Iron Maiden, Legends of Rock & AC/DC"
+              data-lightbox-group="hero-showcase"
+            >
+              <div class="bsw-hero-frame-imgwrap">
+                <img
+                  src="bilder/bilar/hummer-legends-sida.jpg"
+                  alt="Backstage Wheels 10 meter långa Hummer-limousine med hårdrockslack"
+                />
+              </div>
+              <figcaption class="bsw-hero-frame-caption">
+                <strong>LEGENDS OF ROCK · H2 LIMO</strong>
+                <span>Klicka för att visa i helskärm</span>
+              </figcaption>
+            </figure>
+
+            <div class="bsw-hero-duo">
+              <figure
+                class="bsw-hero-mini"
+                tabindex="0"
+                role="button"
+                aria-label="Öppna bild på Ozzy & Motörhead-sidan i helskärm"
+                data-lightbox-src="bilder/bilar/hummer-ozzy-motorhead-front.jpg"
+                data-lightbox-thumb="bilder/bilar/hummer-ozzy-motorhead-front.jpg"
+                data-lightbox-caption="Passagerarsida & front – Ozzy Osbourne 'Crazy Train' & Motörhead"
+                data-lightbox-group="hero-showcase"
+              >
+                <img
+                  src="bilder/bilar/hummer-ozzy-motorhead-front.jpg"
+                  alt="Ozzy Osbourne och Motörhead motivlack på Hummer Limo"
+                  loading="lazy"
+                />
+                <figcaption>Ozzy &amp; Motörhead – Sida &amp; Front</figcaption>
+              </figure>
+
+              <figure
+                class="bsw-hero-mini"
+                tabindex="0"
+                role="button"
+                aria-label="Öppna interiörbild på VIP-loungen i helskärm"
+                data-lightbox-src="bilder/bilar/hummer-interior-bar.jpg"
+                data-lightbox-thumb="bilder/bilar/hummer-interior-bar.jpg"
+                data-lightbox-caption="Backstage-loungen invändigt – skinnsoffor, LED-ljus, upplyst bar & dubbla baslådor"
+                data-lightbox-group="hero-showcase"
+              >
+                <img
+                  src="bilder/bilar/hummer-interior-bar.jpg"
+                  alt="VIP-interiör och bar i Backstage Wheels Hummer Limousine"
+                  loading="lazy"
+                />
+                <figcaption>VIP-Lounge, Bar &amp; Ljudsystem</figcaption>
+              </figure>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rullande festival- & event-ticker -->
+      <div class="bsw-ticker-wrap" aria-label="Festivaler och bilträffar">
+        <div class="bsw-ticker-track" id="bsw-tour-ticker"></div>
+      </div>
+
+      <!-- Tre pelare (från första layouten) -->
+      <div class="bsw-section">
+        <div class="bsw-container">
+          <div class="bsw-section-head">
+            <div>
+              <span class="bsw-kicker">HELA VÄGEN IN BACKSTAGE</span>
+              <h2 class="bsw-section-title">MER ÄN EN TRANSPORT – DET ÄR KVÄLLENS HUVUDNUMMER</h2>
+              <p class="bsw-section-sub">
+                Från artister, företag och musikvideor till studentutskottet, kompisgänget eller brudparet
+                som vill stjäla hela showen.
+              </p>
+            </div>
+          </div>
+
+          <div class="bsw-pillars-grid">
+            <article class="bsw-pillar-card">
+              <div class="bsw-pillar-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                  <path d="M2 17l10 5 10-5"></path>
+                  <path d="M2 12l10 5 10-5"></path>
+                </svg>
+              </div>
+              <h3>Rullande konstverk</h3>
+              <p>
+                Motivlackad av legendariske Håkan &rdquo;Dr H Custom&rdquo; Andersson med eldslågor, blixtar och
+                odödliga ikoner som Iron Maiden, AC/DC, Ozzy Osbourne och Motörhead. Känd från Elmia,
+                Vallåkraträffen, SVT och TikTok!
+              </p>
+            </article>
+
+            <article class="bsw-pillar-card">
+              <div class="bsw-pillar-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect>
+                  <circle cx="12" cy="14" r="4"></circle>
+                  <line x1="12" y1="6" x2="12.01" y2="6"></line>
+                </svg>
+              </div>
+              <h3>Bas som känns i bröstet</h3>
+              <p>
+                Koppla upp er egen spellista via Bluetooth och låt det tungt byggda ljudsystemet och LED-ljuset
+                förvandla kupén till en rullande rockklubb. Upplyst bar med glashållare &amp; kylutrymme ingår
+                (obs: vi bjuder/serverar ej alkoholhaltiga drycker).
+              </p>
+            </article>
+
+            <article class="bsw-pillar-card">
+              <div class="bsw-pillar-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+              </div>
+              <h3>Plats för upp till 16 personer</h3>
+              <p>
+                Samla hela gänget i samma bil! Limousinen rymmer upp till 16 passagerare – men behöver såklart
+                inte vara full. Oavsett om ni är 8, 12 eller 16 vänner lägger vi upp rutt och fotostopp efter er kväll.
+              </p>
+            </article>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================================================================
+           PUNKT 5: DELA-KOSTNADEN-PSYKOLOGI ("FRÅN UNDER 490 KR PER PERSON!")
+           ================================================================== -->
+      <div class="bsw-section bsw-section-alt">
+        <div class="bsw-container">
+          <div class="bsw-split-cost-box">
+            <div class="bsw-split-cost-copy">
+              <span class="bsw-kicker">DELA PÅ UPPLEVELSEN · UPP TILL 16 PLATSER</span>
+              <h2 class="bsw-section-title">ÅK SOM ROCKSTJÄRNOR – FRÅN UNDER 490 KR PER PERSON!</h2>
+              <p>
+                Många tror att en 10-meters Hummer Limousine bara är för stjärnor med obegränsad budget – men när ni
+                delar kostnaden i gänget blir det ofta billigare än en vanlig utekväll! Bilen rymmer <strong>upp till
+                16 passagerare</strong>: på en vardag (<strong>5 500 kr/h</strong>) blir det bara <strong>ca 344 kr
+                per person</strong> vid full bil, och på en fredag eller lördag (<strong>7 500 kr/h</strong>) landar
+                det på <strong>ca 469 kr per person</strong>!
+              </p>
+              <p class="bsw-split-honest-note">
+                <strong>Ärligt &amp; flexibelt:</strong> Bilen är förstås inte alltid fylld till sista plats. Testa
+                kalkylatorn intill för att se exakt vad det kostar per person om ni är exempelvis 8, 10, 12 eller 16 i
+                sällskapet!
+              </p>
+            </div>
+
+            <div class="bsw-split-calc-card" aria-label="Räkna ut pris per person">
+              <h3>Räkna ut ert pris per person</h3>
+              <div class="bsw-calc-row">
+                <label for="bsw-calc-rate">Välj upplägg:</label>
+                <select id="bsw-calc-rate">
+                  <option value="5500">Vardag (Mån–Tors) – 5 500 kr / timme</option>
+                  <option value="7500" selected>Helg (Fre–Sön) – 7 500 kr / timme</option>
+                  <option value="25000">Heldag (12 timmar) – 25 000 kr totalt</option>
+                </select>
+              </div>
+              <div class="bsw-calc-row">
+                <label for="bsw-calc-pax">
+                  Antal personer i bilen: <strong id="bsw-calc-pax-val">16 personer</strong> (max 16)
+                </label>
+                <input type="range" id="bsw-calc-pax" min="4" max="16" step="1" value="16" />
+                <div class="bsw-calc-quick-pax">
+                  <button type="button" data-set-pax="8">8 pers</button>
+                  <button type="button" data-set-pax="10">10 pers</button>
+                  <button type="button" data-set-pax="12">12 pers</button>
+                  <button type="button" data-set-pax="16" class="is-active">16 pers (Full bil)</button>
+                </div>
+              </div>
+              <div class="bsw-calc-result">
+                <span class="bsw-calc-res-lbl">Kostnad per person:</span>
+                <strong class="bsw-calc-res-num" id="bsw-calc-per-person">469 kr / person</strong>
+                <span class="bsw-calc-res-sub" id="bsw-calc-total-note">Totalt 7 500 kr delat på 16 personer</span>
+              </div>
+              <button type="button" class="bsw-btn bsw-btn-primary" id="bsw-calc-book-btn" style="width: 100%;">
+                Begär offert för detta sällskap
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================================================================
+           PUNKT 1: KVÄLLENS "3 PASS" MED NYA PRISERNA + ALLA PAKET & OKTOBERFEST
+           ================================================================== -->
+      <div class="bsw-section">
+        <div class="bsw-container">
+          <div class="bsw-section-head">
+            <div>
+              <span class="bsw-kicker">KVÄLLENS 3 PASS · SMIDIG BOKNING</span>
+              <h2 class="bsw-section-title">VÄLJ DET KVÄLLSPASS SOM PASSAR ER KVÄLL BÄST</h2>
+              <p class="bsw-section-sub">
+                På populära fredagar och lördagar delar vi upp kvällen i <strong>3 tydliga VIP-pass</strong> (Vardag
+                <strong>5 500 kr/h</strong> · Helg <strong>7 500 kr/h</strong>) så att ni enkelt kan säkra exakt den
+                del av kvällen ni vill glänsa på – eller boka heldag 12 h för <strong>25 000 kr</strong>!
+              </p>
+            </div>
+          </div>
+
+          <div class="bsw-passes-grid" id="bsw-evening-passes-grid"></div>
+
+          <!-- Paket & Specialresor (inkl. Sponsorevent & Oktoberfest!) -->
+          <div class="bsw-section-head" style="margin-top: 64px;">
+            <div>
+              <span class="bsw-kicker">TYDLIGA PRISER · SPONSOREVENT &amp; OKTOBERFEST</span>
+              <h2 class="bsw-section-title">PRISER, HELDAG, SPONSOREVENT &amp; OKTOBERFEST</h2>
+              <p class="bsw-section-sub">
+                Chaufför ingår alltid. Observera att Backstage Wheels ej bjuder på eller serverar alkoholhaltiga drycker.
+              </p>
+            </div>
+          </div>
+
+          <div class="bsw-packages-grid" id="bsw-home-packages-grid"></div>
+        </div>
+      </div>
+
+      <!-- ==================================================================
+           PUNKT 6: B2B, MUSIKVIDEOR & STUDENTUTSKOTT
+           ================================================================== -->
+      <div class="bsw-section bsw-section-alt">
+        <div class="bsw-container">
+          <div class="bsw-section-head">
+            <div>
+              <span class="bsw-kicker">UNIKT UTSEENDE SOM GER EFFEKT</span>
+              <h2 class="bsw-section-title">B2B-REKLAM, MUSIKVIDEOR &amp; STUDENTUTSKOTT</h2>
+              <p class="bsw-section-sub">
+                En 10 meter lång motivlackad Hummer H2 syns på hundratals meters håll och fotas av alla som passerar –
+                utnyttja kraften för ert varumärke, er produktion eller hela avgångsklassen!
+              </p>
+            </div>
+          </div>
+
+          <div class="bsw-pillars-grid" id="bsw-b2b-segments-grid"></div>
+        </div>
+      </div>
+
+      <!-- ==================================================================
+           5 STADSSPECIFIKA SEO-LANDNINGSSEKTIONER
+           ================================================================== -->
+      <div class="bsw-section" id="bsw-cities-seo-section">
+        <div class="bsw-container">
+          <div class="bsw-section-head">
+            <div>
+              <span class="bsw-kicker">LOKALA KÖRNINGAR &amp; HELA SVERIGE</span>
+              <h2 class="bsw-section-title">HYRA HUMMER LIMOUSINE – VÅRA 5 VIKTIGASTE OMRÅDEN</h2>
+              <p class="bsw-section-sub">
+                Vi utgår från Dalarna / Mellansverige och rullar över hela landet för bröllop, bal, konserter,
+                festivaler, sponsorevent och Oktoberfest. Välj er stad nedan för lokala upplägg!
+              </p>
+            </div>
+          </div>
+
+          <div class="bsw-city-tabs" id="bsw-city-tabs" role="tablist" aria-label="Välj stad eller region"></div>
+          <div class="bsw-cities-seo-stack" id="bsw-cities-seo-stack"></div>
+        </div>
+      </div>
+
+      <!-- VIP E-POSTPRENUMERATION -->
+      <div class="bsw-section bsw-section-alt">
+        <div class="bsw-container">
+          <div class="bsw-newsletter-box">
+            <div class="bsw-newsletter-copy">
+              <span class="bsw-kicker">FÅ NYA INLÄGG &amp; FESTIVALFÖRSLAG PÅ MEJL</span>
+              <h2>MISSA INGA NYA INLÄGG, MERCH-SLÄPP ELLER KAMPANJER!</h2>
+              <p>
+                Registrera din e-postadress så får du automatiskt våra nya inlägg, förhandsinfo när vår
+                Merch-shop öppnar samt skräddarsydda kampanjerbjudanden och festivalförslag.
+              </p>
+            </div>
+            <form class="bsw-newsletter-form" data-newsletter-form>
+              <input type="text" name="name" placeholder="Ditt namn (valfritt)" aria-label="Ditt namn" />
+              <input type="email" name="email" placeholder="Din e-postadress *" required aria-label="Din e-postadress" />
+              <button type="submit" class="bsw-btn bsw-btn-primary">
+                <span>Prenumerera kostnadsfritt</span>
+              </button>
+              <div class="bsw-newsletter-feedback" data-newsletter-msg hidden></div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Snabbvy av bildgalleriet på startsidan -->
+      <div class="bsw-section">
+        <div class="bsw-container">
+          <div class="bsw-section-head">
+            <div>
+              <span class="bsw-kicker">BILDER &amp; DETALJER I HELSKÄRM</span>
+              <h2 class="bsw-section-title">GLIMTAR FRÅN VÄGARNA &amp; BACKSTAGE</h2>
+            </div>
+            <button type="button" class="bsw-btn bsw-btn-ghost" data-tab-target="galleri">
+              <span>Öppna hela bildgalleriet</span>
+            </button>
+          </div>
+
+          <div class="bsw-home-strip-grid" id="bsw-home-gallery-strip"></div>
+
+          <!-- Vanliga frågor (FAQ) -->
+          <div style="margin-top: 64px;">
+            <span class="bsw-kicker">VANLIGA FRÅGOR</span>
+            <h2 class="bsw-section-title" style="margin-bottom: 24px;">BRA ATT VETA INFÖR BOKNING</h2>
+            <div class="bsw-faq-list" id="bsw-faq-list"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         FLIK 2: VÅRA BILAR & PRISER (#bilar)
+         ==================================================================== -->
+    <section id="tab-bilar" class="bsw-tab-panel" hidden aria-labelledby="bilar-heading">
+      <div class="bsw-section">
+        <div class="bsw-container">
+          <div class="bsw-section-head">
+            <div>
+              <span class="bsw-kicker">FLOTTAN · PRISER · 16 PLATSER</span>
+              <h1 id="bilar-heading" class="bsw-section-title">VÅRA BILAR &amp; PRISER</h1>
+              <p class="bsw-section-sub">
+                Klicka på valfri bild eller detaljfoto nedan för att granska lackeringen och interiören i
+                helskärm. Hittat rätt upplägg? Klicka på <em>Begär offert</em> direkt på kortet!
+              </p>
+            </div>
+          </div>
+
+          <!-- Prisöversikt inkl. Sponsorevent & Oktoberfest -->
+          <div class="bsw-packages-grid" id="bsw-bilar-packages-grid" style="margin-bottom: 52px;"></div>
+
+          <!-- Renderas dynamiskt från js/config.js / inställningar -->
+          <div class="bsw-fleet-stack" id="bsw-fleet-list"></div>
+
+          <div class="bsw-fleet-cta-banner">
+            <div>
+              <strong>Osäker på vilket kvällspass eller paket som passar bäst?</strong> Berätta hur många ni är (upp
+              till 16 i bilen) och var ni vill åka så tar vi fram ett skräddarsytt prisförslag direkt!
+            </div>
+            <button type="button" class="bsw-btn bsw-btn-primary" data-tab-target="offert">
+              <span>Fråga om tillgänglighet</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         FLIK 3: KALENDER (#kalender)
+         ==================================================================== -->
+    <section id="tab-kalender" class="bsw-tab-panel" hidden aria-labelledby="kalender-heading">
+      <div class="bsw-section">
+        <div class="bsw-container">
+          <div class="bsw-section-head">
+            <div>
+              <span class="bsw-kicker">LEDIGA TIDER · KVÄLLENS 3 PASS · FESTIVALER</span>
+              <h1 id="kalender-heading" class="bsw-section-title">BOKNINGSKALENDER</h1>
+              <p class="bsw-section-sub">
+                Klicka på ett datum för att se om alla 3 kvällspass är lediga eller om enstaka tider finns kvar.
+                Du kan gå vidare till prisförfrågan med valt datum med ett enda klick!
+              </p>
+            </div>
+          </div>
+
+          <div class="bsw-calendar-layout">
+            <div class="bsw-calendar-card">
+              <div class="bsw-cal-header">
+                <button type="button" class="bsw-btn bsw-btn-ghost" id="bsw-cal-prev" aria-label="Föregående månad">
+                  &larr; Föregående
+                </button>
+                <h2 id="bsw-cal-month-label">November 2026</h2>
+                <button type="button" class="bsw-btn bsw-btn-ghost" id="bsw-cal-next" aria-label="Nästa månad">
+                  Nästa &rarr;
+                </button>
+              </div>
+
+              <div class="bsw-cal-legend">
+                <span><i class="dot free"></i> Ledig (alla pass öppna)</span>
+                <span><i class="dot partial"></i> Delvis bokad – kvällspass finns kvar!</span>
+                <span><i class="dot event"></i> Festival / Specialresa</span>
+                <span><i class="dot booked"></i> Fullbokad</span>
+              </div>
+
+              <div class="bsw-cal-weekdays">
+                <span>Mån</span><span>Tis</span><span>Ons</span><span>Tor</span><span>Fre</span><span>Lör</span><span>Sön</span>
+              </div>
+              <div class="bsw-cal-days-grid" id="bsw-cal-days-grid"></div>
+            </div>
+
+            <aside class="bsw-cal-detail-card is-free" id="bsw-cal-selected-detail">
+              <span class="bsw-kicker">VALT DATUM</span>
+              <h3 id="bsw-cal-detail-date">Välj ett datum i kalendern</h3>
+              <p id="bsw-cal-detail-status">
+                Klicka på valfri dag i kalendern för att se status för kvällens pass och boka direkt.
+              </p>
+              <button type="button" class="bsw-btn bsw-btn-primary" id="bsw-cal-book-date-btn">
+                <span>Begär offert för valt datum</span>
+              </button>
+            </aside>
+          </div>
+
+          <div style="margin-top: 56px;">
+            <span class="bsw-kicker">TURNÉPLAN · MÄSSOR · OKTOBERFEST</span>
+            <h2 class="bsw-section-title" style="margin-bottom: 24px;">KOMMANDE EVENEMANG &amp; SPECIALRESOR</h2>
+            <div class="bsw-events-list" id="bsw-upcoming-events-list"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         FLIK 4: INLÄGG (#inlagg) — PULSERAR I GULD VID NYA INLÄGG!
+         ==================================================================== -->
+    <section id="tab-inlagg" class="bsw-tab-panel" hidden aria-labelledby="inlagg-heading">
+      <div class="bsw-section">
+        <div class="bsw-container">
+          <div class="bsw-section-head">
+            <div>
+              <span class="bsw-kicker">NYHETER · BILDER · VIDEOKLIPP</span>
+              <h1 id="inlagg-heading" class="bsw-section-title">SENASTE INLÄGGEN</h1>
+              <p class="bsw-section-sub">
+                Följ våra senaste körningar, festivaler, Oktoberfest-släpp och kampanjer. Klicka på valfri bild
+                eller video i inläggen för att öppna i helskärm!
+              </p>
+            </div>
+            <a
+              href="https://www.instagram.com/backstagewheels/"
+              target="_blank"
+              rel="noopener"
+              class="bsw-btn bsw-btn-ghost"
+              data-cfg-ig
+            >
+              <span>Följ <span data-cfg-ig-handle>@backstagewheels</span></span>
+            </a>
+          </div>
+
+          <div class="bsw-newsletter-box" style="margin-bottom: 40px;">
+            <div class="bsw-newsletter-copy">
+              <h3>Få nya inlägg automatiskt på mejl</h3>
+              <p>
+                Skriv in din e-post så skickas varje nytt inlägg, kampanjerbjudande och festivalförslag direkt till dig!
+              </p>
+            </div>
+            <form class="bsw-newsletter-form" data-newsletter-form>
+              <input type="text" name="name" placeholder="Ditt namn (valfritt)" aria-label="Ditt namn" />
+              <input type="email" name="email" placeholder="Din e-postadress *" required aria-label="Din e-postadress" />
+              <button type="submit" class="bsw-btn bsw-btn-primary">Prenumerera på inlägg</button>
+              <div class="bsw-newsletter-feedback" data-newsletter-msg hidden></div>
+            </form>
+          </div>
+
+          <div class="bsw-posts-grid" id="bsw-posts-grid"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         FLIK 5: BILDGALLERI (#galleri)
+         ==================================================================== -->
+    <section id="tab-galleri" class="bsw-tab-panel" hidden aria-labelledby="galleri-heading">
+      <div class="bsw-section">
+        <div class="bsw-container">
+          <div class="bsw-section-head">
+            <div>
+              <span class="bsw-kicker">ALBUM · EVENEMANGSMAPPAR · HELSKÄRM</span>
+              <h1 id="galleri-heading" class="bsw-section-title">BILDGALLERI &amp; VIDEOKLIPP</h1>
+              <p class="bsw-section-sub">
+                Bläddra bland evenemangsmappar eller filtrera alla bilder och videoklipp nedan. Klicka på valfritt
+                kort för knivskarp helskärmsvisning!
+              </p>
+            </div>
+            <button type="button" class="bsw-btn bsw-btn-ghost" id="bsw-refresh-gallery">
+              <span>Uppdatera galleri</span>
+            </button>
+          </div>
+
+          <div class="bsw-folder-tabs-row" id="bsw-folder-tabs" role="tablist" aria-label="Evenemangsmappar"></div>
+          <div class="bsw-folders-cards-grid" id="bsw-folders-cards-grid"></div>
+
+          <div class="bsw-gallery-toolbar">
+            <div class="bsw-ftp-status">
+              <span class="bsw-status-dot" aria-hidden="true"></span>
+              <span id="bsw-ftp-status-text">Läser in galleri...</span>
+            </div>
+            <span class="bsw-count-pill" id="bsw-gallery-count">0 objekt</span>
+          </div>
+
+          <div class="bsw-gallery-grid" id="bsw-gallery-grid"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         FLIK 6: MERCH (#merch) — KOMMER SNART: VISA DESIGN & KOLLA INTRESSE!
+         ==================================================================== -->
+    <section id="tab-merch" class="bsw-tab-panel" hidden aria-labelledby="merch-heading">
+      <div class="bsw-section">
+        <div class="bsw-container">
+          <!-- Kommer snart-banner -->
+          <div class="bsw-merch-soon-banner" id="bsw-merch-soon-banner">
+            <span class="bsw-soon-pill">🔥 MERCH-SHOP · KOMMER SNART!</span>
+            <h1 id="merch-heading" class="bsw-section-title">FÖRHANDSVISNING AV VÅR OFFICIELLA MERCH</h1>
+            <p>
+              Vi tar just nu fram Backstage Wheels första officiella klädkollektion! Se våra planerade plagg och
+              tryck nedan – <strong>markera vilka varor du gillar mest och anmäl ditt intresse</strong> så ser vi
+              vilka designs och storlekar vi ska trycka upp först (och du får förtur när shopen öppnar!).
+            </p>
+          </div>
+
+          <!-- Produktkort (fylls på & styrs från kontrollpanelen) -->
+          <div class="bsw-merch-grid" id="bsw-merch-grid"></div>
+
+          <!-- Intresseanmälan / Förhandsintresse (eller Beställning när shopen slås på live) -->
+          <div class="bsw-quote-layout" style="margin-top: 52px;" id="bsw-merch-interest-section">
+            <div class="bsw-form-card">
+              <span class="bsw-kicker" id="bsw-merch-form-kicker">INTRESSEANMÄLAN · INGEN KÖPPLIKT</span>
+              <h2 class="bsw-section-title" id="bsw-merch-form-title" style="font-size: 1.9rem; margin-bottom: 10px;">
+                VILKEN MERCH VILL DU SE FÖRST?
+              </h2>
+              <p style="color: var(--text-soft); margin: 0 0 22px;" id="bsw-merch-form-desc">
+                Välj plagg och storlek som du är nyfiken på och lämna din e-post, så meddelar vi dig direkt när
+                kollektionen släpps!
+              </p>
+
+              <form id="bsw-merch-interest-form">
+                <div class="bsw-form-grid">
+                  <div class="bsw-field">
+                    <label for="merch-item-select">Vilken design gillar du mest? <span class="req">*</span></label>
+                    <select id="merch-item-select" name="productId" required></select>
+                  </div>
+                  <div class="bsw-field">
+                    <label for="merch-size-select">Önskad storlek</label>
+                    <select id="merch-size-select" name="size">
+                      <option value="S">S</option>
+                      <option value="M">M</option>
+                      <option value="L" selected>L</option>
+                      <option value="XL">XL</option>
+                      <option value="XXL">XXL</option>
+                      <option value="One Size">One Size (Keps)</option>
+                    </select>
+                  </div>
+                  <div class="bsw-field">
+                    <label for="merch-cust-name">Ditt namn</label>
+                    <input type="text" id="merch-cust-name" name="customerName" placeholder="För- och efternamn" />
+                  </div>
+                  <div class="bsw-field">
+                    <label for="merch-cust-email">Din e-postadress (för lanseringssläpp) <span class="req">*</span></label>
+                    <input type="email" id="merch-cust-email" name="email" required placeholder="namn@exempel.se" />
+                  </div>
+                  <!-- Extra fält som bara visas om kontrollpanelen växlar shopen till skarp försäljning -->
+                  <div class="bsw-field" data-live-merch-only hidden>
+                    <label for="merch-qty">Antal</label>
+                    <input type="number" id="merch-qty" name="quantity" min="1" max="30" value="1" />
+                  </div>
+                  <div class="bsw-field" data-live-merch-only hidden>
+                    <label for="merch-cust-phone">Telefonnummer</label>
+                    <input type="tel" id="merch-cust-phone" name="phone" placeholder="070-123 45 67" />
+                  </div>
+                  <div class="bsw-field bsw-field-full" data-live-merch-only hidden>
+                    <label for="merch-cust-address">Leveransadress</label>
+                    <input type="text" id="merch-cust-address" name="address" placeholder="Gatuadress, Postnr & Ort" />
+                  </div>
+                  <div class="bsw-field bsw-field-full">
+                    <label for="merch-cust-msg">Önskemål på fler plagg, färger eller motiv (valfritt)</label>
+                    <textarea
+                      id="merch-cust-msg"
+                      name="comment"
+                      placeholder="T.ex. 'Vill gärna se linnen till Sweden Rock eller barnstorlekar!'"
+                    ></textarea>
+                  </div>
+                  <div class="bsw-field bsw-field-full">
+                    <label class="bsw-checkbox-row">
+                      <input type="checkbox" name="subscribeNewsletter" checked />
+                      <span>Skicka även nya inlägg, kampanjerbjudanden och festivalförslag till min e-post</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="bsw-form-submit-row">
+                  <span class="bsw-form-note" id="bsw-merch-form-note">
+                    Kostnadsfri intresseanmälan – hjälper oss trycka rätt plagg &amp; storlekar!
+                  </span>
+                  <button type="submit" class="bsw-btn bsw-btn-primary" id="bsw-merch-submit-btn">
+                    <span>Skicka intresseanmälan</span>
+                  </button>
+                </div>
+              </form>
+
+              <div id="bsw-merch-form-result" hidden style="margin-top: 18px;"></div>
+            </div>
+
+            <aside class="bsw-side-box">
+              <h3>Om Backstage Wheels Merch</h3>
+              <ul class="bsw-side-list">
+                <li>
+                  <strong>Äkta hårdrockskvalitet</strong>
+                  <span>Kraftiga plagg med slitstarka screentryck och 3D-brodyr framtagna från våra egna vektororiginal.</span>
+                </li>
+                <li>
+                  <strong>Du styr första släppet!</strong>
+                  <span>De plagg och storlekar som får flest intressemarkeringar här på sidan produceras i första upplagan.</span>
+                </li>
+                <li>
+                  <strong>Förtur via e-post</strong>
+                  <span>Alla som anmäler intresse får ett mejl så fort webshopen öppnar för beställning.</span>
+                </li>
+              </ul>
+            </aside>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         FLIK 7: KONTAKT (#kontakt)
+         ==================================================================== -->
+    <section id="tab-kontakt" class="bsw-tab-panel" hidden aria-labelledby="kontakt-heading">
+      <div class="bsw-section">
+        <div class="bsw-container">
+          <div class="bsw-section-head">
+            <div>
+              <span class="bsw-kicker">DIREKTKONTAKT · BOKNING &amp; FRÅGOR</span>
+              <h1 id="kontakt-heading" class="bsw-section-title">KONTAKTA BACKSTAGE WHEELS</h1>
+              <p class="bsw-section-sub" data-cfg-contact-intro>
+                Hör av er direkt via telefon, mejl eller Instagram för bokning av kvällspass, bröllop, bal,
+                studentutskott, musikvideo, sponsorevent eller Oktoberfest!
+              </p>
+            </div>
+          </div>
+
+          <div class="bsw-contact-grid">
+            <div class="bsw-contact-card">
+              <span class="bsw-contact-lbl">E-post (klicka för att mejla)</span>
+              <div class="bsw-contact-link-heading" data-cfg-email>
+                <a href="mailto:bokning@backstagewheels.se" class="bsw-contact-main-link">bokning@backstagewheels.se</a>
+              </div>
+              <p>För prisförfrågningar, företags-/sponsorevent, studentutskott och Oktoberfest-bokningar.</p>
+            </div>
+
+            <div class="bsw-contact-card">
+              <span class="bsw-contact-lbl">Telefon (klicka för att ringa)</span>
+              <div class="bsw-contact-link-heading" data-cfg-phone>
+                <a href="tel:0701234567" class="bsw-contact-main-link">070-123 45 67</a>
+              </div>
+              <p>Snabba besked om lediga kvällspass och upplägg i hela Sverige.</p>
+            </div>
+
+            <div class="bsw-contact-card">
+              <span class="bsw-contact-lbl">Hemmabas &amp; Körområde</span>
+              <strong data-cfg-region>Utgår från Dalarna / Mellansverige – kör i hela Sverige!</strong>
+              <p>Borlänge, Falun, Rättvik, Leksand, Stockholm, Uppsala, Västerås, Örebro, Gävle &amp; festivaler nationellt.</p>
+            </div>
+
+            <div class="bsw-contact-card">
+              <span class="bsw-contact-lbl">Sociala Medier</span>
+              <strong>
+                <a href="https://www.instagram.com/backstagewheels/" target="_blank" rel="noopener" data-cfg-ig class="bsw-contact-main-link">
+                  Instagram: <span data-cfg-ig-handle>@backstagewheels</span>
+                </a>
+              </strong>
+              <p>
+                <a href="https://www.facebook.com/drhcustoms" target="_blank" rel="noopener" data-cfg-fb class="bsw-inline-contact-link">
+                  <span data-cfg-fb-label>Facebook · Dr H Customs</span>
+                </a>
+              </p>
+            </div>
+          </div>
+
+          <div class="bsw-qr-banner">
+            <div class="bsw-qr-banner-copy">
+              <span class="bsw-kicker">SKANNA MED MOBILKAMERAN</span>
+              <h2>FÖLJ @BACKSTAGEWHEELS DIREKT VIA QR</h2>
+              <p>
+                Rikta mobilkameran mot QR-koden (samma kod som sitter som baksätes-QR inne i limousinen!) för att
+                öppna vår Instagram, tagga kvällens åk och följa nya turnéstopp.
+              </p>
+            </div>
+            <figure
+              class="bsw-qr-card"
+              tabindex="0"
+              role="button"
+              data-qr-trigger
+              data-lightbox-src="bilder/qr-instagram.png"
+              data-lightbox-thumb="bilder/qr-instagram.png"
+              data-lightbox-caption="Skanna QR-koden för att öppna @backstagewheels"
+            >
+              <img src="bilder/qr-instagram.png" alt="QR-kod till @backstagewheels" data-qr-img loading="lazy" />
+              <figcaption>Klicka för att förstora</figcaption>
+            </figure>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         FLIK 8: BEGÄR OFFERT (#offert) — FÖRSTA LAYOUTENS FORMULÄR + ALLA TILLVAL
+         ==================================================================== -->
+    <section id="tab-offert" class="bsw-tab-panel" hidden aria-labelledby="offert-heading">
+      <div class="bsw-section">
+        <div class="bsw-container">
+          <div class="bsw-section-head">
+            <div>
+              <span class="bsw-kicker">BOKA KÖRNING · PRISFÖRFRÅGAN</span>
+              <h1 id="offert-heading" class="bsw-section-title">EFTERFRÅGA OFFERT FÖR KÖRNING</h1>
+              <p class="bsw-section-sub">
+                Berätta när, var och hur ni vill åka så återkommer vi snabbt med skräddarsytt upplägg och pris!
+              </p>
+            </div>
+          </div>
+
+          <div class="bsw-quote-layout">
+            <div class="bsw-form-card">
+              <form id="bsw-quote-form">
+                <div class="bsw-form-grid">
+                  <div class="bsw-field">
+                    <label for="offert-bil">Välj bil / upplägg <span class="req">*</span></label>
+                    <select id="offert-bil" name="bil" required></select>
+                  </div>
+
+                  <div class="bsw-field">
+                    <label for="offert-event">Typ av körning / Event <span class="req">*</span></label>
+                    <select id="offert-event" name="eventTyp" required>
+                      <option value="Fest / Utgång / Kvällspass i limon">Fest / Utgång / Kvällspass i limon</option>
+                      <option value="Festival / Konsert / Artistkörning">Festival / Konsert / Artistkörning</option>
+                      <option value="Bröllop">Bröllop</option>
+                      <option value="Bal / Student / Studentutskott">Bal / Student / Studentutskott</option>
+                      <option value="Svensexa / Möhippa">Svensexa / Möhippa</option>
+                      <option value="Sponsorevent & Varumärkesdag (från 50 000 kr/dag)">Sponsorevent &amp; Varumärkesdag (från 50 000 kr/dag)</option>
+                      <option value="Företagsevent / Musikvideo / PR">Företagsevent / Musikvideo / PR</option>
+                      <option value="Oktoberfest – Resa till & från (20 000 kr/pers, min 16 st, 18+)">Oktoberfest – Resa till &amp; från (20 000 kr/pers, min 16 st, 18+)</option>
+                      <option value="Cruising / Bilträff / Utställning">Cruising / Bilträff / Utställning</option>
+                      <option value="Annat upplägg">Annat upplägg</option>
+                    </select>
+                  </div>
+
+                  <div class="bsw-field">
+                    <label for="offert-datum">Önskat datum <span class="req">*</span></label>
+                    <input type="date" id="offert-datum" name="datum" required />
+                  </div>
+
+                  <div class="bsw-field">
+                    <label for="offert-tid">Önskad starttid / Pass <span class="req">*</span></label>
+                    <input type="time" id="offert-tid" name="starttid" value="20:00" required />
+                  </div>
+
+                  <div class="bsw-field">
+                    <label for="offert-kortid">Önskat paket / Pass <span class="req">*</span></label>
+                    <select id="offert-kortid" name="kortid" required>
+                      <option value="Pass 1 – Förfest & Middagsentré (ca 17:30–19:30)">Pass 1 – Förfest &amp; Middagsentré (17:30–19:30)</option>
+                      <option value="Pass 2 – Prime Time Cruising & Entré (ca 20:00–22:30)" selected>Pass 2 – Prime Time Cruising &amp; Entré (20:00–22:30)</option>
+                      <option value="Pass 3 – Nattcruising & VIP-Hemresa (ca 23:00–01:30)">Pass 3 – Nattcruising &amp; VIP-Hemresa (23:00–01:30)</option>
+                      <option value="Vardagskörning – 5 500 kr / timme">Vardagskörning – 5 500 kr / timme</option>
+                      <option value="Helgkörning – 7 500 kr / timme">Helgkörning – 7 500 kr / timme</option>
+                      <option value="Heldag (12 timmar) – 25 000 kr">Heldag (12 timmar) – 25 000 kr</option>
+                      <option value="Sponsorevent – från 50 000 kr / dag + lunch, hotell & drivmedel">Sponsorevent – från 50 000 kr / dag + lunch, hotell &amp; drivmedel</option>
+                      <option value="Oktoberfest Tur & Retur – 20 000 kr/pers (minst 16 st, 18 år)">Oktoberfest Tur &amp; Retur – 20 000 kr/pers (minst 16 st, 18 år)</option>
+                    </select>
+                  </div>
+
+                  <div class="bsw-field">
+                    <label for="offert-passagerare">Antal passagerare (upp till 16 i bilen) <span class="req">*</span></label>
+                    <input
+                      type="number"
+                      id="offert-passagerare"
+                      name="passagerare"
+                      min="1"
+                      max="100"
+                      placeholder="t.ex. 12 (max 16 i limon, min 16 för Oktoberfest)"
+                      required
+                    />
+                  </div>
+
+                  <div class="bsw-field">
+                    <label for="offert-fran">Upphämtningsplats (Ort / Adress) <span class="req">*</span></label>
+                    <input
+                      type="text"
+                      id="offert-fran"
+                      name="fran"
+                      placeholder="t.ex. Borlänge / Falun / Rättvik / Stockholm..."
+                      required
+                    />
+                  </div>
+
+                  <div class="bsw-field">
+                    <label for="offert-till">Destination &amp; ev. delstopp <span class="req">*</span></label>
+                    <input
+                      type="text"
+                      id="offert-till"
+                      name="till"
+                      placeholder="t.ex. Dalhalla / Festivalområdet / Centrum"
+                      required
+                    />
+                  </div>
+
+                  <div class="bsw-field">
+                    <label for="offert-namn">Ditt namn / Företag / Studentutskott <span class="req">*</span></label>
+                    <input
+                      type="text"
+                      id="offert-namn"
+                      name="namn"
+                      placeholder="För- och efternamn eller företag"
+                      required
+                    />
+                  </div>
+
+                  <div class="bsw-field">
+                    <label for="offert-telefon">Telefonnummer <span class="req">*</span></label>
+                    <input
+                      type="tel"
+                      id="offert-telefon"
+                      name="telefon"
+                      placeholder="070-123 45 67"
+                      required
+                    />
+                  </div>
+
+                  <div class="bsw-field bsw-field-full">
+                    <label for="offert-epost">E-postadress <span class="req">*</span></label>
+                    <input
+                      type="email"
+                      id="offert-epost"
+                      name="epost"
+                      placeholder="namn@exempel.se"
+                      required
+                    />
+                  </div>
+
+                  <div class="bsw-field bsw-field-full">
+                    <label for="offert-meddelande">Övriga önskemål</label>
+                    <textarea
+                      id="offert-meddelande"
+                      name="meddelande"
+                      placeholder="Berätta gärna mer om upplägget – t.ex. fotostopp på vägen, musikvideoinspelning, företagsprofilering eller särskilda tider! (Obs: vi serverar/bjuder ej på alkoholhaltiga drycker)."
+                    ></textarea>
+                  </div>
+
+                  <div class="bsw-field bsw-field-full">
+                    <label class="bsw-checkbox-row">
+                      <input type="checkbox" name="subscribeNewsletter" checked />
+                      <span>Ja tack – skicka även nya inlägg, kampanjerbjudanden och festivalförslag till min e-post</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="bsw-form-submit-row">
+                  <span class="bsw-form-note">
+                    Kostnadsfri prisförfrågan – ej bindande förrän bokningen bekräftats.
+                  </span>
+                  <button type="submit" class="bsw-btn bsw-btn-primary">
+                    <span>Skicka offertförfrågan</span>
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4">
+                      <line x1="22" y1="2" x2="11" y2="13"></line>
+                      <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                  </button>
+                </div>
+              </form>
+
+              <div id="bsw-quote-result" hidden></div>
+            </div>
+
+            <!-- Sidokolumn från första layouten -->
+            <aside class="bsw-quote-side">
+              <figure
+                class="bsw-side-photo-card"
+                tabindex="0"
+                role="button"
+                aria-label="Öppna närbild på Iron Maiden-lacken i helskärm"
+                data-lightbox-src="bilder/bilar/hummer-iron-maiden-detalj.jpg"
+                data-lightbox-thumb="bilder/bilar/hummer-iron-maiden-detalj.jpg"
+                data-lightbox-caption="Detaljbild på Hårdrocks-Hummern – Håkan 'Dr H Custom' Anderssons airbrush"
+                data-lightbox-group="quote-side"
+              >
+                <img
+                  src="bilder/bilar/hummer-iron-maiden-detalj.jpg"
+                  alt="Iron Maiden airbrush på Backstage Wheels Hummer"
+                  loading="lazy"
+                />
+                <figcaption>
+                  <strong>Sveriges råaste entré</strong> – klicka på bilden för att granska detaljerna i helskärm.
+                </figcaption>
+              </figure>
+
+              <div class="bsw-side-box">
+                <h3>Snabbfakta &amp; Priser</h3>
+                <ul class="bsw-side-list">
+                  <li>
+                    <strong>Prislista (chaufför ingår alltid)</strong>
+                    <span>Vardag: 5 500 kr/h · Helg: 7 500 kr/h · Heldag (12 h): 25 000 kr. Från under 490 kr/pers vid full bil (16 pers)!</span>
+                  </li>
+                  <li>
+                    <strong>Sponsorevent &amp; Oktoberfest</strong>
+                    <span>Sponsorevent: från 50 000 kr/dag + lunch, hotell &amp; drivmedel.<br />Oktoberfest T&amp;R: 20 000 kr/person (minst 16 st, 18 år – lunch under färd ingår, ej på plats; boende/logi ingår ej).</span>
+                  </li>
+                  <li>
+                    <strong>Ingen alkoholservering</strong>
+                    <span>Vi bjuder ej på och serverar ej alkoholhaltiga drycker. Upplyst bar med kylutrymme och glashållare finns i kupén.</span>
+                  </li>
+                  <li>
+                    <strong>Direktkontakt</strong>
+                    <div class="bsw-sidebar-contact-list" data-cfg-sidebar-contacts>
+                      <a href="mailto:bokning@backstagewheels.se" class="bsw-inline-contact-pill">✉️ bokning@backstagewheels.se</a>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ======================================================================
+       MOBIL-EXKLUSIV PWA-BANNER (Visas ENDAST på mobil & ENDAST om appen saknas!)
+       ====================================================================== -->
+  <div class="bsw-mobile-pwa-banner" id="bsw-mobile-pwa-banner" hidden role="region" aria-label="Installera webbapp">
+    <div class="bsw-mobile-pwa-inner">
+      <img src="bilder/app-icon-192.png" alt="Backstage Wheels appikon" class="bsw-mobile-pwa-icon" />
+      <div class="bsw-mobile-pwa-text">
+        <strong>Lägg till Backstage Wheels som app</strong>
+        <span id="bsw-mobile-pwa-desc">Snabb åtkomst till kalender, priser &amp; bokning direkt på hemskärmen!</span>
+      </div>
+      <div class="bsw-mobile-pwa-actions">
+        <button type="button" class="bsw-btn bsw-btn-primary bsw-pwa-install-btn" id="bsw-mobile-pwa-install">
+          Installera
+        </button>
+        <button type="button" class="bsw-pwa-close-btn" id="bsw-mobile-pwa-dismiss" aria-label="Stäng">
+          &times;
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tillbaka upp-knapp -->
+  <button type="button" class="bsw-scroll-top-btn" id="bsw-scroll-top-btn" data-scroll-top aria-label="Tillbaka till toppen">
+    &uarr;
+  </button>
+
+  <!-- ======================================================================
+       SIDFOT (Från första layouten, med klickbara kontaktlänkar)
+       ====================================================================== -->
+  <footer class="bsw-footer">
+    <div class="bsw-container">
+      <div class="bsw-footer-grid">
+        <div>
+          <div class="bsw-brand" style="margin-bottom: 12px;">
+            <img src="" alt="Backstage Wheels logotyp" class="bsw-custom-logo" data-brand-logo hidden />
+            <span class="bsw-brand-emblem" data-brand-emblem aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+              </svg>
+            </span>
+            <span class="bsw-brand-text" data-brand-text-wrap>
+              <span class="bsw-brand-name" data-cfg-brand-name>BACKSTAGE WHEELS</span>
+              <span class="bsw-brand-sub" data-cfg-brand-sub>SVERIGES MÄKTIGASTE LIMMO</span>
+            </span>
+          </div>
+          <p class="bsw-footer-desc">
+            10 meter Hummer H2 Limousine för upp till 16 passagerare med unik hårdrockslack, brutal bas och
+            VIP-känsla hela vägen fram till röda mattan, balen, företagseventet eller festivalscenen.
+          </p>
+        </div>
+
+        <div>
+          <h4>Snabbnavigering</h4>
+          <ul class="bsw-footer-links">
+            <li><button type="button" data-tab-target="hem">Start &amp; Kvällens 3 Pass</button></li>
+            <li><button type="button" data-tab-target="bilar">Våra bilar &amp; Priser</button></li>
+            <li><button type="button" data-tab-target="kalender">Bokningskalender</button></li>
+            <li><button type="button" data-tab-target="inlagg">Senaste inläggen</button></li>
+            <li><button type="button" data-tab-target="galleri">Bildgalleri</button></li>
+            <li><button type="button" data-tab-target="merch">Merch (Kommer snart)</button></li>
+            <li><button type="button" data-tab-target="offert">Begär offert</button></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4>Kontakt &amp; Socialt</h4>
+          <ul class="bsw-footer-links">
+            <li>
+              <a href="https://www.instagram.com/backstagewheels/" target="_blank" rel="noopener" data-cfg-ig>
+                Instagram: <span data-cfg-ig-handle>@backstagewheels</span>
+              </a>
+            </li>
+            <li data-cfg-email data-footer-contact><a href="mailto:bokning@backstagewheels.se">✉️ bokning@backstagewheels.se</a></li>
+            <li data-cfg-phone data-footer-contact><a href="tel:0701234567">📞 070-123 45 67</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="bsw-footer-bottom">
+        <span data-copyright-text>&copy; 2025–2026 Backstage Wheels. Alla rättigheter förbehållna.</span>
+        <span data-creator-credit>Rock &rsquo;n&rsquo; Roll VIP Limousine Service · Sverige</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Konfiguration, Helskärmsvisare & Huvudlogik -->
+  <script src="js/config.js"></script>
+  <script src="js/lightbox.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

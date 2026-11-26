@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Allow: /bilder/
+Disallow: /data/
+Disallow: /api/
+
+Sitemap: https://backstagewheels.se/sitemap.xml

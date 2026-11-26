@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1400" width="320mm" height="373mm">
+  <title>Backstage Wheels – Stort Ryggtryck T-shirt &amp; Hoodie (Redigerbar Vektor-SVG)</title>
+  <desc>Vektoriserat ryggtryck med 10-meters limousin-silhuett, blixtar och redigerbara rubriker.</desc>
+
+  <!-- LAGER 1: DEKORBLIXTAR -->
+  <g id="lager-blixtar" fill="#F97316" stroke="#FACC15" stroke-width="6">
+    <polygon points="230,110 130,300 215,300 165,470 320,255 228,255"/>
+    <polygon points="970,110 870,300 955,300 905,470 1060,255 968,255"/>
+  </g>
+
+  <!-- LAGER 2: TOPPRUBRIK -->
+  <g id="lager-topprubrik">
+    <text x="600" y="215" text-anchor="middle" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="112" font-weight="800" letter-spacing="8" fill="#FFFFFF" stroke="#DC2626" stroke-width="4">BACKSTAGE</text>
+    <text x="600" y="335" text-anchor="middle" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="118" font-weight="800" letter-spacing="12" fill="#F97316">WHEELS</text>
+    <text x="600" y="405" text-anchor="middle" font-family="Oswald, Impact, sans-serif" font-size="40" font-weight="700" letter-spacing="10" fill="#38BDF8">10 METER REN HÅRDROCK PÅ VÄGEN</text>
+  </g>
+
+  <!-- LAGER 3: VEKTORSILHUETT 10M HUMMER H2 STRETCH LIMO -->
+  <g id="lager-limo-vektor" transform="translate(80, 490)">
+    <rect x="0" y="185" width="1040" height="12" rx="6" fill="#DC2626"/>
+    <!-- Kaross -->
+    <path d="M45,155 L45,95 L165,90 L225,35 L865,35 L915,85 L995,92 L995,155 Z" fill="#141722" stroke="#F8FAFC" stroke-width="10" stroke-linejoin="round"/>
+    <!-- Tonade VIP-rutor -->
+    <rect x="245" y="52" width="175" height="42" rx="4" fill="#38BDF8" opacity="0.85"/>
+    <rect x="438" y="52" width="195" height="42" rx="4" fill="#38BDF8" opacity="0.85"/>
+    <rect x="651" y="52" width="195" height="42" rx="4" fill="#38BDF8" opacity="0.85"/>
+    <!-- Eldlinje längs sidan -->
+    <path d="M110,122 Q320,96 540,122 T955,118" fill="none" stroke="#F97316" stroke-width="10"/>
+    <!-- Hjul -->
+    <circle cx="155" cy="160" r="44" fill="#0B0D13" stroke="#FACC15" stroke-width="10"/>
+    <circle cx="155" cy="160" r="18" fill="#F97316"/>
+    <circle cx="885" cy="160" r="44" fill="#0B0D13" stroke="#FACC15" stroke-width="10"/>
+    <circle cx="885" cy="160" r="18" fill="#F97316"/>
+  </g>
+
+  <!-- LAGER 4: TURNÉ / STÄDER / BUDKSAP (REDIGERBAR TEXT) -->
+  <g id="lager-turnetext">
+    <line x1="180" y1="760" x2="1020" y2="760" stroke="#F59E0B" stroke-width="6"/>
+    <text x="600" y="845" text-anchor="middle" font-family="Oswald, Impact, sans-serif" font-size="62" font-weight="700" letter-spacing="6" fill="#FACC15">LEGENDS OF ROCK EDITION</text>
+    <text x="600" y="930" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700" letter-spacing="5" fill="#F8FAFC">DALARNA · STOCKHOLM · UPPSALA · VÄSTERÅS · ÖREBRO · GÄVLE</text>
+    <text x="600" y="995" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="32" font-weight="700" letter-spacing="4" fill="#CBD5E1">FESTIVALER · VIP-ENTRÉ · BRÖLLOP · BAL · MUSIKVIDEOR</text>
+    <line x1="180" y1="1045" x2="1020" y2="1045" stroke="#F59E0B" stroke-width="6"/>
+    <text x="600" y="1145" text-anchor="middle" font-family="Oswald, Impact, sans-serif" font-size="54" font-weight="700" letter-spacing="8" fill="#F97316">@BACKSTAGEWHEELS</text>
+    <text x="600" y="1215" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" letter-spacing="6" fill="#94A3B8">BACKSTAGEWHEELS.SE</text>
+  </g>
+</svg>
