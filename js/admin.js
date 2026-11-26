@@ -2375,51 +2375,9 @@
               <input type="url" id="c-google-rev" value="${esc(s.googleReviewUrl || "")}" placeholder="https://g.page/r/.../review" />
             </div>
             <div class="bsw-field">
-              <label>SMS-notisnummer (påminnelser skickas hit)</label>
-              <input type="text" id="c-sms-number" value="${esc((s.smsSettings && s.smsSettings.notifyNumber) || "")}" placeholder="+46701234567" />
+              <label>🤖 BW Bot: påminnelse antal timmar före bokning</label>
+              <input type="number" id="c-rem-hours" min="1" max="72" value="${esc((s.reminderSettings && s.reminderSettings.hoursBefore) || (s.smsSettings && s.smsSettings.hoursBefore) || 24)}" />
             </div>
-          </div>
-
-          <div class="bsw-form-grid">
-            <div class="bsw-field">
-              <label>SMS-leverantör (46elks — användarnamn)</label>
-              <input type="text" id="c-sms-user" value="${esc((s.smsSettings && s.smsSettings.apiUser) || "")}" placeholder="46elks API-användarnamn" autocomplete="off" />
-            </div>
-            <div class="bsw-field">
-              <label>SMS-leverantör (46elks — API-nyckel)</label>
-              <input type="password" id="c-sms-pass" value="${esc((s.smsSettings && s.smsSettings.apiPassword) || "")}" placeholder="46elks API-nyckel" autocomplete="off" />
-            </div>
-          </div>
-
-          <div class="bsw-form-grid">
-            <div class="bsw-field">
-              <label>🆓 GRATIS alternativ: Telegram-bot-token (från @BotFather)</label>
-              <input type="password" id="c-tg-token" value="${esc((s.smsSettings && s.smsSettings.telegramBotToken) || "")}" placeholder="123456:ABC-DEF..." autocomplete="off" />
-            </div>
-            <div class="bsw-field">
-              <label>🆓 GRATIS alternativ: Telegram chat-ID (från @userinfobot)</label>
-              <input type="text" id="c-tg-chatid" value="${esc((s.smsSettings && s.smsSettings.telegramChatId) || "")}" placeholder="T ex 123456789" autocomplete="off" />
-            </div>
-          </div>
-
-          <div class="bsw-form-grid">
-            <div class="bsw-field">
-              <label>SMS-avsändarnamn (max 11 tecken)</label>
-              <input type="text" id="c-sms-sender" value="${esc((s.smsSettings && s.smsSettings.sender) || "BackstageW")}" maxlength="11" />
-            </div>
-            <div class="bsw-field">
-              <label>Påminnelse antal timmar före bokning</label>
-              <input type="number" id="c-sms-hours" min="1" max="72" value="${esc((s.smsSettings && s.smsSettings.hoursBefore) || 24)}" />
-            </div>
-          </div>
-
-          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-            <label style="display:flex;gap:8px;align-items:center;font-weight:600;">
-              <input type="checkbox" id="c-sms-enabled" ${(s.smsSettings && s.smsSettings.enabled) ? "checked" : ""} />
-              Aktivera SMS-påminnelser (annars används Telegram gratis — båda kan vara på, SMS prioriteras)
-            </label>
-            <button type="button" id="adm-sms-test-btn" class="bsw-icon-action-btn">📤 Skicka test-SMS</button>
-            <button type="button" id="adm-tg-test-btn" class="bsw-icon-action-btn">✈️ Testa Telegram (gratis)</button>
           </div>
 
           <div class="bsw-field">
@@ -2700,7 +2658,7 @@
           <button type="button" id="bot-test-btn" class="bsw-icon-action-btn">✅ Testa bot nu</button>
         </div>
         <small style="display:block;margin-top:8px;color:var(--text-muted);">
-          Boten är din standardkanal (gratis, innebyggd i panelen). SMS (46elks) och Telegram är valfria extra kanaler som når telefonen även när panelen är stängd.
+          Boten är din enda aviseringskanal (gratis, innebyggd i panelen — SMS &amp; Telegram-tjänster är borttagna). Panelen måste vara öppen för att boten ska bepermalink.
         </small>
       </div>
 
@@ -3677,45 +3635,12 @@
         state.settings.instagramUrl = document.getElementById("c-ig").value.trim();
         state.settings.logoUrl = document.getElementById("c-logo").value.trim();
         state.settings.googleReviewUrl = document.getElementById("c-google-rev").value.trim();
-        state.settings.smsSettings = {
-          enabled: document.getElementById("c-sms-enabled").checked,
-          provider: "46elks",
-          apiUser: document.getElementById("c-sms-user").value.trim(),
-          apiPassword: document.getElementById("c-sms-pass").value.trim(),
-          sender: document.getElementById("c-sms-sender").value.trim() || "BackstageW",
-          notifyNumber: document.getElementById("c-sms-number").value.trim(),
-          hoursBefore: Number(document.getElementById("c-sms-hours").value) || 24,
-          telegramBotToken: document.getElementById("c-tg-token").value.trim(),
-          telegramChatId: document.getElementById("c-tg-chatid").value.trim()
+        state.settings.reminderSettings = {
+          hoursBefore: Number(document.getElementById("c-rem-hours").value) || 24
         };
         const r = await apiPost("save_settings", { settings: state.settings });
-        if (r.ok) showToast("Kontaktuppgifter, SMS & logotyp sparade!");
+        if (r.ok) showToast("Kontaktuppgifter, påminnelsefönster & logotyp sparade!");
       });
-      const smsTestBtn = document.getElementById("adm-sms-test-btn");
-      if (smsTestBtn) {
-        smsTestBtn.addEventListener("click", async () => {
-          const number = document.getElementById("c-sms-number").value.trim();
-          if (!number) {
-            showToast("Fyll i SMS-notisnummer först.", true);
-            return;
-          }
-          smsTestBtn.disabled = true;
-          const r = await apiPost("send_test_sms", { number, message: "Test-SMS från Backstage Wheels kontrollpanel 🚘" });
-          smsTestBtn.disabled = false;
-          if (r && r.ok && r.result && r.result.ok) showToast("Test-SMS skickat! 📱");
-          else showToast("Test-SMS misslyckades: " + ((r && r.result && (r.result.error || r.result.status)) || "kontrollera API-nyckel"), true);
-        });
-      }
-      const tgTestBtn = document.getElementById("adm-tg-test-btn");
-      if (tgTestBtn) {
-        tgTestBtn.addEventListener("click", async () => {
-          tgTestBtn.disabled = true;
-          const r = await apiPost("send_test_telegram", { message: "✈️ Test från Backstage Wheels – gratis Telegram-avisering fungerar! 🚘" });
-          tgTestBtn.disabled = false;
-          if (r && r.ok && r.result && r.result.ok) showToast("Telegram-meddelande skickat! 🎉");
-          else showToast("Telegram misslyckades: " + ((r && r.result && r.result.error) || "fyll i bot-token & chat-ID, spara, försök igen"), true);
-        });
-      }
     }
 
     // --- KVITTO/FAKTURA & RECENSIONSMETJL PER OFFERT ---

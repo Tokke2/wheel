@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1100" width="300mm" height="330mm">
+  <title>Backstage Wheels – Sköld-emblem v2 "Legends of Rock" (Redigerbar Vektor-SVG)</title>
+  <desc>Snittig, rockig andra version av sköld-emblemet: vinklad sköld med skarpa vingfjädrar, tvillingblixtar, tung typografi och banderoll. Skalbar vektor med separata lager för tryckeri, screentryck, DTG och dekalskärning.</desc>
+
+  <g id="lager-kicker">
+    <text x="500" y="120" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" letter-spacing="10" fill="#FFFFFF">SVERIGES MÄKTIGASTE LIMMO</text>
+  </g>
+
+  <g id="lager-vingar">
+    <polygon points="195,230 55,170 150,290" fill="#B91C1C"/>
+    <polygon points="190,300 35,270 155,370" fill="#F97316"/>
+    <polygon points="185,370 55,400 160,450" fill="#FACC15"/>
+    <polygon points="180,440 90,520 165,520" fill="#B91C1C"/>
+    <polygon points="805,230 945,170 850,290" fill="#B91C1C"/>
+    <polygon points="810,300 965,270 845,370" fill="#F97316"/>
+    <polygon points="815,370 945,400 840,450" fill="#FACC15"/>
+    <polygon points="820,440 910,520 835,520" fill="#B91C1C"/>
+  </g>
+
+  <g id="lager-skold">
+    <polygon points="200,190 800,190 870,330 500,930 130,330" fill="#0B0C10" stroke="#B91C1C" stroke-width="18"/>
+    <polygon points="230,225 770,225 830,340 500,880 170,340" fill="none" stroke="#F97316" stroke-width="6"/>
+  </g>
+
+  <g id="lager-tvillingblixtar">
+    <polygon points="330,230 255,430 310,430 250,640 385,400 320,400 375,230" fill="#FACC15"/>
+    <polygon points="670,230 745,430 690,430 750,640 615,400 680,400 625,230" fill="#FACC15"/>
+  </g>
+
+  <g id="lager-typografi">
+    <text x="500" y="360" text-anchor="middle" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="105" font-weight="800" letter-spacing="6" fill="#FFFFFF">BACKSTAGE</text>
+    <text x="500" y="470" text-anchor="middle" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="105" font-weight="800" letter-spacing="14" fill="#F97316">WHEELS</text>
+  </g>
+
+  <g id="lager-banderoll">
+    <polygon points="180,690 820,690 790,805 210,805" fill="#B91C1C" stroke="#FACC15" stroke-width="6"/>
+    <text x="500" y="765" text-anchor="middle" font-family="Oswald, Impact, Arial Black, sans-serif" font-size="54" font-weight="800" letter-spacing="8" fill="#FFFFFF">LEGENDS OF ROCK</text>
+  </g>
+
+  <g id="lager-bottentext">
+    <text x="500" y="860" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="27" font-weight="700" letter-spacing="4" fill="#FACC15">VIP ROCK LIMO · 10 M HUMMER H2</text>
+  </g>
+</svg>

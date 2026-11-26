@@ -37,7 +37,6 @@ const REVIEWS_FILE = path.join(DATA_DIR, "reviews.json");
 const GASTFOTO_META_FILE = path.join(DATA_DIR, "gastfoto-meta.json");
 const GASTFOTO_PENDING_DIR = path.join(DATA_DIR, "gastfoto-pending");
 const GASTFOTO_RATE_FILE = path.join(DATA_DIR, "gastfoto-rate.json");
-const SMS_STATE_FILE = path.join(DATA_DIR, "sms-state.json");
 
 const MASTER_ADMIN_EMAIL = "rl@tadega.com";
 const PASSWORD_EXPIRY_DAYS = 20;
@@ -697,114 +696,20 @@ except Exception:
 }
 
 // ----------------------------------------------------------------------------
-// SMS-PÅMINNELSER (#4) — pluggbar leverantör (46elks), ramverk utan externa deps
+// PÅMINNELSEFÖNSTER (BW BOT) — BW Bot i panelen är enda aviseringskanalen
+// (SMS/Telegram-tjänster är borttagna: kostnadsfritt & utan externa beroenden)
 // ----------------------------------------------------------------------------
-function smsConfig() {
+function reminderConfig() {
   const cfg = loadJson(SETTINGS_FILE, {});
-  const s = cfg.smsSettings || {};
-  return {
-    enabled: s.enabled === true,
-    provider: String(s.provider || "46elks"),
-    apiUser: String(s.apiUser || "").trim(),
-    apiPassword: String(s.apiPassword || "").trim(),
-    sender: String(s.sender || "BackstageW").replace(/[^A-Za-z0-9 ]/g, "").slice(0, 11) || "BackstageW",
-    notifyNumber: String(s.notifyNumber || "").trim(),
-    hoursBefore: Number(s.hoursBefore || 24),
-    telegramBotToken: String(s.telegramBotToken || "").trim(),
-    telegramChatId: String(s.telegramChatId || "").trim()
-  };
+  const legacy = cfg.smsSettings || {};
+  const r = cfg.reminderSettings || {};
+  return { hoursBefore: Number(r.hoursBefore ?? legacy.hoursBefore ?? 24) };
 }
 
-// GRATIS ALTERNATIV TILL SMS (#4): Telegram-bot (obegränsat, ingen avgift)
-function sendTelegramMessage(text) {
-  const cfg = smsConfig();
-  if (!cfg.telegramBotToken || !cfg.telegramChatId) {
-    return Promise.resolve({ ok: false, error: "Telegram är inte konfigurerat (bot-token + chat-ID)." });
-  }
-  return new Promise((resolve) => {
-    try {
-      const postData = JSON.stringify({ chat_id: cfg.telegramChatId, text: String(text || "").slice(0, 4000) });
-      const req = https.request(
-        { hostname: "api.telegram.org", path: `/bot${cfg.telegramBotToken}/sendMessage`, method: "POST", timeout: 12000,
-          headers: { "Content-Type": "application/json", "Content-Length": Buffer.byteLength(postData) } },
-        (res) => {
-          let data = "";
-          res.setEncoding("utf8");
-          res.on("data", (c) => (data += c));
-          res.on("end", () => {
-            let ok = res.statusCode >= 200 && res.statusCode < 300;
-            let err = ok ? null : `HTTP ${res.statusCode}`;
-            try {
-              const j = JSON.parse(data);
-              if (j && j.ok === false) { ok = false; err = j.description || err; }
-            } catch (_e) {}
-            resolve({ ok, error: err, provider: "telegram" });
-          });
-        }
-      );
-      req.on("timeout", () => req.destroy(new Error("Timeout mot Telegram API")));
-      req.on("error", (err) => resolve({ ok: false, error: err.message }));
-      req.write(postData);
-      req.end();
-    } catch (e) {
-      resolve({ ok: false, error: e.message });
-    }
-  });
-}
-
-// Enhetlig avisering: SMS om konfigurerat, annars Telegram (gratis), annars tydligt fel.
-function sendAdminAlert(text) {
-  const cfg = smsConfig();
-  if (cfg.enabled && cfg.apiUser && cfg.apiPassword && cfg.notifyNumber) {
-    return sendSmsViaProvider(cfg.notifyNumber, text).then((r) => (r.ok ? r : cfg.telegramBotToken && cfg.telegramChatId ? sendTelegramMessage(text) : r));
-  }
-  if (cfg.telegramBotToken && cfg.telegramChatId) {
-    return sendTelegramMessage(text);
-  }
-  return Promise.resolve({ ok: false, error: "Ingen aviseringskanal är konfigurerad (SMS eller Telegram)." });
-}
-
-function sendSmsViaProvider(toNumber, message) {
-  const sms = smsConfig();
-  if (!sms.enabled) return { ok: false, error: "SMS-påminnelser är avstängda i inställningarna." };
-  const cleanTo = String(toNumber || "").replace(/[^+0-9]/g, "");
-  if (!/^\+?[0-9]{6,18}$/.test(cleanTo)) return { ok: false, error: "Ogiltigt telefonnummer." };
-  if (sms.provider === "46elks" && sms.apiUser && sms.apiPassword) {
-    return new Promise((resolve) => {
-      try {
-        const postData = new URLSearchParams({
-          from: sms.sender,
-          to: cleanTo,
-          message: String(message || "").slice(0, 480)
-        }).toString();
-        const auth = Buffer.from(`${sms.apiUser}:${sms.apiPassword}`).toString("base64");
-        const req = https.request(
-          { hostname: "api.46elks.com", path: "/a1/SMS", method: "POST", timeout: 12000,
-            headers: { "Authorization": `Basic ${auth}`, "Content-Type": "application/x-www-form-urlencoded", "Content-Length": Buffer.byteLength(postData) } },
-          (res) => {
-            let data = "";
-            res.setEncoding("utf8");
-            res.on("data", (c) => (data += c));
-            res.on("end", () => resolve({ ok: res.statusCode >= 200 && res.statusCode < 300, status: res.statusCode, provider: "46elks" }));
-          }
-        );
-        req.on("timeout", () => req.destroy(new Error("Timeout mot SMS-leverantör")));
-        req.on("error", (err) => resolve({ ok: false, error: err.message }));
-        req.write(postData);
-        req.end();
-      } catch (e) {
-        resolve({ ok: false, error: e.message });
-      }
-    });
-  }
-  return Promise.resolve({ ok: false, error: "Ingen SMS-leverantör är konfigurerad (fyll i API-nyckel i kontrollpanelen)." });
-}
-
-// Beräknar bokningar inom påminnelsefönstret (delas av SMS/Telegram-loopen och BW Bot-feeden)
+// Beräknar bokningar inom påminnelsefönstret (används av BW Bot-feeden)
 function getDueReminders(nowMs) {
   const now = Number.isFinite(nowMs) ? nowMs : Date.now();
-  const sms = smsConfig();
-  const windowMs = Math.max(1, sms.hoursBefore) * 3600 * 1000;
+  const windowMs = Math.max(1, reminderConfig().hoursBefore) * 3600 * 1000;
   const items = loadJson(CALENDAR_FILE, []);
   const out = [];
   for (const it of Array.isArray(items) ? items : []) {
@@ -825,40 +730,6 @@ function getDueReminders(nowMs) {
   }
   out.sort((a, b) => a.minutesUntil - b.minutesUntil);
   return out;
-}
-
-// Skannar kalendern varje timme och skickar SMS-påminnelser för kommande bokningar.
-let smsReminderTimer = null;
-function startSmsReminderLoop() {
-  if (smsReminderTimer) clearInterval(smsReminderTimer);
-  const runCheck = async () => {
-    try {
-      const sms = smsConfig();
-      const hasChannel =
-        (sms.enabled && sms.apiUser && sms.apiPassword && sms.notifyNumber) ||
-        (sms.telegramBotToken && sms.telegramChatId);
-      if (!hasChannel) return;
-      const state = loadJson(SMS_STATE_FILE, { sent: {} });
-      const now = Date.now();
-      for (const rem of getDueReminders(now)) {
-        if (state.sent[rem.key]) continue;
-        const msg = `Påminnelse Backstage Wheels: bokning ${rem.date} kl ${rem.time} – ${rem.title}`;
-        const result = await sendAdminAlert(msg);
-        if (result.ok) {
-          state.sent[rem.key] = { sentAt: new Date().toISOString(), channel: result.provider || "sms" };
-          saveJson(SMS_STATE_FILE, state);
-          writeDebugLog("INFO", "ALERT_REMINDER", `Påminnelse skickad via ${result.provider || "sms"} för ${rem.date} ${rem.time}`);
-        } else {
-          writeDebugLog("ERROR", "ALERT_REMINDER", `Kunde inte skicka påminnelse: ${result.error || result.status || "?"}`);
-          break; // Sluta nota API:t nar konfig saknas
-        }
-      }
-    } catch (e) {
-      writeDebugLog("ERROR", "ALERT_REMINDER", `Aviseringsloopfel: ${e.message}`);
-    }
-  };
-  smsReminderTimer = setInterval(runCheck, 60 * 60 * 1000);
-  setTimeout(runCheck, 20000);
 }
 
 // ----------------------------------------------------------------------------
@@ -2735,32 +2606,15 @@ const server = http.createServer(async (req, res) => {
           return;
         }
 
-        // 12) SMS/Telegram: skicka test + starta om påminnelse-loopen
-        if (act === "send_test_sms") {
-          const result = await sendSmsViaProvider(String(body.number || "").trim(), String(body.message || "Test-SMS från Backstage Wheels kontrollpanel 🚘"));
-          if (result.ok) {
-            writeDebugLog("INFO", "SMS_TEST", `Test-SMS skickat till ${body.number}`);
-          } else {
-            writeDebugLog("ERROR", "SMS_TEST", `Test-SMS misslyckades: ${result.error || result.status || "?"}`);
-          }
-          sendJson(res, 200, { ok: result.ok, result }, true);
-          return;
-        }
-
-        if (act === "send_test_telegram") {
-          const result = await sendTelegramMessage(String(body.message || "✈️ Testmeddelande från Backstage Wheels kontrollpanel 🚘 – aviseringar fungerar!"));
-          if (result.ok) {
-            writeDebugLog("INFO", "TELEGRAM_TEST", "Telegram-testmeddelande skickat till konfigurerad chatt");
-          } else {
-            writeDebugLog("ERROR", "TELEGRAM_TEST", `Telegram-test misslyckades: ${result.error || "?"}`);
-          }
-          sendJson(res, 200, { ok: result.ok, result }, true);
-          return;
-        }
-
+        // 12) BW Bot: enda aviseringskanalen (SMS/Telegram borttagna)
         if (act === "send_test_alert") {
-          const result = await sendAdminAlert(String(body.message || "🔔 Testavisering från Backstage Wheels – kedjan fungerar!"));
-          sendJson(res, 200, { ok: result.ok, result }, true);
+          // Bakåtkompatibel teståtgärd: bekräftar att BW Bot-feeden svarar för inloggad admin
+          const feed = {
+            dueReminders: getDueReminders(Date.now()),
+            serverTime: new Date().toISOString()
+          };
+          writeDebugLog("INFO", "BW_BOT_TEST", "BW Bot-feed testad från kontrollpanelen");
+          sendJson(res, 200, { ok: true, bot: "BW Bot", feed }, true);
           return;
         }
 
@@ -2954,7 +2808,6 @@ const server = http.createServer(async (req, res) => {
 
 ensureDirs();
 writeDebugLog("INFO", "BOOT", "Backstage Wheels säker server startad (AES-256 valv, Kalender-synk, Evenemangsmappar).");
-startSmsReminderLoop();
 
 server.listen(PORT, "0.0.0.0", () => {
   console.log(`Backstage Wheels server körs på http://0.0.0.0:${PORT}`);
