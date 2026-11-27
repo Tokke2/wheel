@@ -140,6 +140,8 @@
     reviews: [],
     gastfoto: { pending: [], approved: [], dailyUploadsToday: 0 },
     debugLogs: [],
+    fellog: [],
+    logArchives: [],
     health: {},
     icsSubscribeUrl: "/api/calendar.ics",
     logFilter: "ALL",
@@ -1548,6 +1550,8 @@
           state.reviews = Array.isArray(d.reviews) ? d.reviews : [];
           state.gastfoto = d.gastfoto && Array.isArray(d.gastfoto.pending) ? d.gastfoto : { pending: [], approved: [], dailyUploadsToday: 0 };
           state.debugLogs = Array.isArray(d.logs) ? d.logs : [];
+          state.fellog = Array.isArray(d.fellog) ? d.fellog : [];
+          state.logArchives = Array.isArray(d.logArchives) ? d.logArchives : [];
           state.health = d.health || {};
           if (d.icsSubscribeUrl) state.icsSubscribeUrl = d.icsSubscribeUrl;
         }
@@ -3189,9 +3193,37 @@
         </div>
       </div>
 
+      <div class="bsw-form-card" style="margin-bottom:28px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:6px;">
+          <h3 style="margin:0;font-family:var(--font-display);text-transform:uppercase;">🔴 Felloggen — alla aktiva fel (${(state.fellog || []).length})</h3>
+          <small style="color:var(--text-muted);">Arkiv: ${((state.logArchives || []).length)} fil(er) · gårdagens loggar arkiveras &amp; raderas efter 7 dagar · <button type="button" id="adm-run-retention-btn" class="bsw-icon-action-btn" style="padding:2px 8px;">Kör nu</button></small>
+        </div>
+        <p style="margin:0 0 12px;color:var(--text-soft);font-size:0.9rem;">
+          Ett fel ligger här tills det är åtgärdat — markera det då åtgärdat så försvinner det ur felloggen (händelsen loggas i apploggen).
+        </p>
+        ${
+          !(state.fellog || []).length
+            ? `<p style="padding:14px;margin:0;color:#86efac;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.3);border-radius:8px;">✅ Inga aktiva fel — allt fungerar!</p>`
+            : (state.fellog || [])
+                .map(
+                  (f) => `
+              <div style="padding:12px 14px;margin-bottom:10px;background:#171012;border:1px solid rgba(220,38,38,0.45);border-left:4px solid #dc2626;border-radius:8px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center;">
+                <div style="flex:1;min-width:220px;">
+                  <span class="bsw-log-badge lvl-${String(f.level || "err").toLowerCase().slice(0, 3)}">${esc(f.level)}</span>
+                  <strong>${esc(f.category)}</strong>
+                  <span style="color:var(--text-soft);"> ${esc(f.message)}</span>
+                  <small style="display:block;color:var(--text-muted);margin-top:4px;">Först: ${esc(f.firstSeenTimeSv || "")} · Senast: ${esc(f.lastSeenTimeSv || "")} · ${esc(f.count || 1)} förekomst(er)</small>
+                </div>
+                <button type="button" class="bsw-btn bsw-btn-ghost" data-resolve-error="${esc(f.key)}">✓ Markera åtgärdad</button>
+              </div>`
+                )
+                .join("")
+        }
+      </div>
+
       <div class="bsw-form-card">
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
-          <h3 style="margin:0;font-family:var(--font-display);text-transform:uppercase;">Skyddad System- &amp; Felsökningslogg (${filteredLogs.length} / ${state.debugLogs.length})</h3>
+          <h3 style="margin:0;font-family:var(--font-display);text-transform:uppercase;">Skyddad Applogg (${filteredLogs.length} / ${state.debugLogs.length})</h3>
           <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
             <select id="adm-log-filter" style="padding:7px 10px;min-height:36px;">
               <option value="ALL" ${state.logFilter === "ALL" ? "selected" : ""}>Alla nivåer</option>
@@ -4235,6 +4267,28 @@
       clearLogsBtn.addEventListener("click", async () => {
         await apiPost("clear_logs");
         state.debugLogs = [];
+        state.fellog = [];
+        render();
+      });
+    }
+    document.querySelectorAll("[data-resolve-error]").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const r = await apiPost("resolve_error", { key: btn.getAttribute("data-resolve-error") });
+        if (r && r.ok) {
+          showToast("Fel markerat åtgärdat — borttaget ur felloggen.");
+          await loadAllAdminData();
+          render();
+        } else {
+          showToast("Kunde inte markera felet åtgärdat.", true);
+        }
+      });
+    });
+    const logRetentionBtn = document.getElementById("adm-run-retention-btn");
+    if (logRetentionBtn) {
+      logRetentionBtn.addEventListener("click", async () => {
+        await apiPost("run_log_retention");
+        showToast("Arkivering & 7-dagarsrensning körd.");
+        await loadAllAdminData();
         render();
       });
     }

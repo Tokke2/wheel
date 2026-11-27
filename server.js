@@ -39,7 +39,6 @@ const SUBSCRIBERS_FILE = path.join(DATA_DIR, "subscribers.json");
 const CAMPAIGNS_FILE = path.join(DATA_DIR, "campaigns.json");
 const CALENDAR_FILE = path.join(DATA_DIR, "calendar.json");
 const FOLDERS_META_FILE = path.join(DATA_DIR, "gallery-folders.json");
-const DEBUG_LOG_FILE = path.join(DATA_DIR, "debug-logs.json");
 const QUOTES_FILE = path.join(DATA_DIR, "offert-logg.json");
 const REVIEWS_FILE = path.join(DATA_DIR, "reviews.json");
 const GASTFOTO_META_FILE = path.join(DATA_DIR, "gastfoto-meta.json");
@@ -112,15 +111,81 @@ function saveJson(file, obj) {
   fs.writeFileSync(file, JSON.stringify(obj, null, 2), "utf8");
 }
 
-function formatSvDate(ms) {
-  return new Date(ms).toLocaleString("sv-SE", { timeZone: "Europe/Stockholm" });
+// ----------------------------------------------------------------------------
+// LOGGMOTOR (R10): fellog (aktiva fel) + applog + dagligt arkiv (raderas efter 7 dagar)
+// In-memory buffert + debounced flush (R12: undvik rewrite-per-händelse)
+// ----------------------------------------------------------------------------
+const LOG_DIR = path.join(DATA_DIR, "logs");
+const FELLOG_FILE = path.join(LOG_DIR, "fellog.json");
+const APPLOG_FILE = path.join(LOG_DIR, "applog.json");
+const LOG_ARCHIVE_DIR = path.join(LOG_DIR, "arkiv");
+const APPLOG_MAX = 1000;
+const FELLOG_MAX = 200;
+
+const logMemory = { fellog: null, applog: null, flushTimer: null };
+
+function logLoadState() {
+  if (logMemory.applog === null) logMemory.applog = loadJson(APPLOG_FILE, []);
+  if (logMemory.fellog === null) logMemory.fellog = loadJson(FELLOG_FILE, []);
+}
+
+function logScheduleFlush() {
+  if (logMemory.flushTimer) return;
+  logMemory.flushTimer = setTimeout(() => {
+    logMemory.flushTimer = null;
+    try {
+      saveJson(APPLOG_FILE, logMemory.applog || []);
+      saveJson(FELLOG_FILE, logMemory.fellog || []);
+    } catch (_e) {}
+  }, 1500);
+}
+
+function logDayKey(ms) {
+  return new Date(ms).toLocaleDateString("sv-SE", { timeZone: "Europe/Stockholm" }).replaceAll("-", "-");
+}
+
+// Flyttar gårdagens loggposter till arkivfil & raderar arkiv äldre än 7 dagar (R10)
+function runLogRetention() {
+  try {
+    ensureDirs();
+    fs.mkdirSync(LOG_ARCHIVE_DIR, { recursive: true });
+    logLoadState();
+    const now = new Date();
+    const yesterdayKey = new Date(now.getTime() - 24 * 3600 * 1000)
+      .toLocaleDateString("sv-SE", { timeZone: "Europe/Stockholm" })
+      .replace(/\./g, "-");
+    const isYesterday = (timeSv) => String(timeSv || "").startsWith(yesterdayKey.replace(/\./g, "."));
+
+    for (const [key, file] of [["applog", APPLOG_FILE], ["fellog", FELLOG_FILE]]) {
+      const list = logMemory[key] || [];
+      const old = list.filter((l) => isYesterday(l.timeSv));
+      if (!old.length) continue;
+      const archiveFile = path.join(LOG_ARCHIVE_DIR, `${yesterdayKey.replace(/\./g, "-")}-${key}.json`);
+      const archive = loadJson(archiveFile, []);
+      const merged = old.concat(archive);
+      if (merged.length > 5000) merged.length = 5000;
+      saveJson(archiveFile, merged);
+      logMemory[key] = list.filter((l) => !isYesterday(l.timeSv));
+      saveJson(file, logMemory[key]);
+    }
+
+    // Radera arkivfiler äldre än 7 dagar
+    const cutoff = Date.now() - 7 * 24 * 3600 * 1000;
+    for (const f of fs.readdirSync(LOG_ARCHIVE_DIR)) {
+      const m = /^(\d{4}-\d{2}-\d{2})-/.exec(f);
+      if (!m) continue;
+      if (Date.parse(m[1] + "T23:59:59") < cutoff) {
+        fs.unlinkSync(path.join(LOG_ARCHIVE_DIR, f));
+      }
+    }
+  } catch (_e) {}
 }
 
 function writeDebugLog(level, category, message, details = null) {
   try {
     ensureDirs();
-    const logs = loadJson(DEBUG_LOG_FILE, []);
-    logs.unshift({
+    logLoadState();
+    const entry = {
       id: crypto.randomBytes(6).toString("hex"),
       ts: new Date().toISOString(),
       timeSv: formatSvDate(Date.now()),
@@ -128,11 +193,67 @@ function writeDebugLog(level, category, message, details = null) {
       category: String(category || "SYSTEM").toUpperCase(),
       message: String(message || "").slice(0, 500),
       details: details || null
-    });
-    if (logs.length > 400) logs.length = 400;
-    saveJson(DEBUG_LOG_FILE, logs);
+    };
+    (logMemory.applog || (logMemory.applog = [])).unshift(entry);
+    if (logMemory.applog.length > APPLOG_MAX) logMemory.applog.length = APPLOG_MAX;
+
+    // FELLOG: alla aktiva fel (ERROR/SECURITY) — dedupe på kategori+meddelande, räknare
+    const lvl = entry.level;
+    if (lvl === "ERROR" || lvl === "SECURITY") {
+      const felKey = crypto.createHash("md5").update(`${lvl}|${entry.category}|${entry.message}`).digest("hex").slice(0, 12);
+      const fellog = logMemory.fellog || (logMemory.fellog = []);
+      const existing = fellog.find((f) => f.key === felKey);
+      if (existing) {
+        existing.count += 1;
+        existing.lastSeenTs = entry.ts;
+        existing.lastSeenTimeSv = entry.timeSv;
+      } else {
+        fellog.unshift({
+          key: felKey,
+          id: entry.id,
+          level: lvl,
+          category: entry.category,
+          message: entry.message,
+          details: entry.details,
+          count: 1,
+          firstSeenTs: entry.ts,
+          firstSeenTimeSv: entry.timeSv,
+          lastSeenTs: entry.ts,
+          lastSeenTimeSv: entry.timeSv
+        });
+        if (fellog.length > FELLOG_MAX) fellog.length = FELLOG_MAX;
+      }
+    }
+    logScheduleFlush();
   } catch (_e) {}
 }
+
+// Adminåtgärd: fel markeras åtgärdat → tas bort ur felloggen (R10), händelsen loggas i apploggen
+function resolveErrorByKey(key) {
+  logLoadState();
+  const fellog = logMemory.fellog || [];
+  const idx = fellog.findIndex((f) => f.key === key);
+  if (idx < 0) return false;
+  const f = fellog[idx];
+  fellog.splice(idx, 1);
+  (logMemory.applog || (logMemory.applog = [])).unshift({
+    id: crypto.randomBytes(6).toString("hex"),
+    ts: new Date().toISOString(),
+    timeSv: formatSvDate(Date.now()),
+    level: "INFO",
+    category: "ERROR_RESOLVED",
+    message: `Fel markerat åtgärdat: [${f.category}] ${f.message} (${f.count} förekomster)`,
+    details: null
+  });
+  if (logMemory.applog.length > APPLOG_MAX) logMemory.applog.length = APPLOG_MAX;
+  logScheduleFlush();
+  return true;
+}
+
+function formatSvDate(ms) {
+  return new Date(ms).toLocaleString("sv-SE", { timeZone: "Europe/Stockholm" });
+}
+
 
 // ----------------------------------------------------------------------------
 // AES-256-GCM KRYPTERAT VALV FÖR SOCIALA MEDIER & GOOGLE KALENDER
@@ -1881,7 +2002,16 @@ const server = http.createServer(async (req, res) => {
               return Object.values(rates).filter((r) => r.day === day).reduce((acc, r) => acc + (r.count || 0), 0);
             })()
           },
-          logs: loadJson(DEBUG_LOG_FILE, []),
+          logs: (logLoadState(), logMemory.applog || []),
+          fellog: (logLoadState(), logMemory.fellog || []),
+          logArchives: (() => {
+            try {
+              if (fs.existsSync(LOG_ARCHIVE_DIR)) {
+                return fs.readdirSync(LOG_ARCHIVE_DIR).filter((f) => f.endsWith(".json")).sort().reverse();
+              }
+            } catch (_e) {}
+            return [];
+          })(),
           health: collectSystemHealth(),
           icsSubscribeUrl: `${siteOrigin}/api/calendar.ics`
         },
@@ -2611,8 +2741,25 @@ const server = http.createServer(async (req, res) => {
         }
 
         if (act === "clear_logs") {
-          saveJson(DEBUG_LOG_FILE, []);
-          writeDebugLog("SECURITY", "LOGS_CLEARED", "Felsökningsloggen rensades av inloggad Admin");
+          logLoadState();
+          logMemory.applog = [];
+          logMemory.fellog = [];
+          logScheduleFlush();
+          writeDebugLog("SECURITY", "LOGS_CLEARED", "Felloggen & apploggen rensades av inloggad Admin");
+          sendJson(res, 200, { ok: true }, true);
+          return;
+        }
+
+        // R10: markera fel som åtgärdat → försvinner ur felloggen
+        if (act === "resolve_error") {
+          const ok = resolveErrorByKey(String(body.key || ""));
+          sendJson(res, 200, { ok }, true);
+          return;
+        }
+
+        // R10: kör arkivering/rensning manuellt
+        if (act === "run_log_retention") {
+          runLogRetention();
           sendJson(res, 200, { ok: true }, true);
           return;
         }
@@ -2924,6 +3071,8 @@ const server = http.createServer(async (req, res) => {
 });
 
 ensureDirs();
+runLogRetention(); // R10: arkivera gårdagens loggar & radera arkiv > 7 dagar vid start + varje timme
+setInterval(runLogRetention, 60 * 60 * 1000);
 writeDebugLog("INFO", "BOOT", "Backstage Wheels säker server startad (AES-256 valv, Kalender-synk, Evenemangsmappar).");
 startFollowUpLoop();
 

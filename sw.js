@@ -2,7 +2,7 @@
  * BACKSTAGE WHEELS — LÄTTVIKTIG PWA SERVICE WORKER (sw.js)
  */
 
-const CACHE_NAME = "backstage-wheels-pwa-v25";
+const CACHE_NAME = "backstage-wheels-pwa-v26";
 const CORE_ASSETS = [
   "./",
   "./index.html",
