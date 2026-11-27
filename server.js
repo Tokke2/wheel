@@ -737,13 +737,35 @@ print(json.dumps({"items": out, "savedPercent": saved_pct}))
 
   let items = [];
   let savedPercent = 0;
+  let pilOk = false;
   try {
     const raw = execFileSync("python3", ["-c", pyScript], { timeout: 30000 }).toString("utf8");
     const parsed = JSON.parse(raw);
     items = parsed.items || [];
     savedPercent = parsed.savedPercent || 0;
+    pilOk = true;
   } catch (err) {
-    writeDebugLog("ERROR", "GALLERY_SCAN", "Fel vid skanning av mappar", { error: err.message });
+    writeDebugLog("WARN", "GALLERY_SCAN", "WebP-optimering (python3 + PIL) otillgänglig — galleriet skannas utan optimering i stället", { error: String(err.message || err).slice(0, 200) });
+  }
+  if (!pilOk) {
+    // FALLBACK utan PIL: skanna filerna direkt (full originalkvalitet, webbläsaren skalar)
+    for (const t of allFileTasks) {
+      let sizeKb = 0;
+      try {
+        sizeKb = Math.round(fs.statSync(t.absPath).size / 1024);
+      } catch (_e) {}
+      const isVid = VIDEO_EXT_REGEX.test(t.filename);
+      items.push({
+        filename: t.filename,
+        src: t.relPath,
+        full: t.relPath,
+        thumb: t.relPath,
+        type: isVid ? "video" : "image",
+        folderSlug: t.folderSlug,
+        folderName: t.folderName,
+        sizeKb
+      });
+    }
   }
 
   // Bygg sammanställning av mappar med omslagsbild & antal objekt
