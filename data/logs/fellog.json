@@ -8,10 +8,10 @@
     "details": {
       "ip": "127.0.0.1"
     },
-    "count": 1,
+    "count": 2,
     "firstSeenTs": "2026-11-27T12:56:37.752Z",
     "firstSeenTimeSv": "2026-11-27 13:56:37",
-    "lastSeenTs": "2026-11-27T12:56:37.752Z",
-    "lastSeenTimeSv": "2026-11-27 13:56:37"
+    "lastSeenTs": "2026-11-27T13:13:32.728Z",
+    "lastSeenTimeSv": "2026-11-27 14:13:32"
   }
 ]

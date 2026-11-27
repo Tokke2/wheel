@@ -1045,6 +1045,10 @@
       };
     }
     if (!Array.isArray(cur.quotes)) cur.quotes = [];
+    if (!Array.isArray(cur.reviews)) cur.reviews = [];
+    if (!cur.gastfoto || !Array.isArray(cur.gastfoto.pending)) {
+      cur.gastfoto = { pending: [], approved: [], dailyUploadsToday: 0 };
+    }
     if (!Array.isArray(cur.logs)) {
       cur.logs = [
         {
@@ -3460,7 +3464,45 @@
     } · Visade händelser: ${BOT_STATE.shownCount}`;
   }
 
+  // SÄKERHETSNÄT: ser till att alla state-fält panelen renderar alltid finns
+  // (oavsett backend/demo-läge) - förhindrar "Cannot read properties of undefined"
+  function hardenState() {
+    const arr = (v) => (Array.isArray(v) ? v : []);
+    const obj = (v) => (v && typeof v === "object" ? v : {});
+    state.posts = arr(state.posts);
+    state.postDraftMedia = arr(state.postDraftMedia);
+    state.merch = arr(state.merch);
+    state.merchInterests = arr(state.merchInterests);
+    state.merchInterestCounts = obj(state.merchInterestCounts);
+    state.printSvgs = arr(state.printSvgs);
+    state.merchOrders = arr(state.merchOrders);
+    state.subscribers = arr(state.subscribers);
+    state.campaigns = arr(state.campaigns);
+    state.calendar = arr(state.calendar);
+    state.folders = arr(state.folders);
+    state.galleryImages = arr(state.galleryImages);
+    state.quotes = arr(state.quotes);
+    state.reviews = arr(state.reviews);
+    state.debugLogs = arr(state.debugLogs);
+    state.fellog = arr(state.fellog);
+    state.logArchives = arr(state.logArchives);
+    state.mailLog = arr(state.mailLog);
+    state.vault = obj(state.vault);
+    if (!state.gastfoto || typeof state.gastfoto !== "object") state.gastfoto = {};
+    state.gastfoto.pending = arr(state.gastfoto.pending);
+    state.gastfoto.approved = arr(state.gastfoto.approved);
+    if (!state.passwordStatus || typeof state.passwordStatus !== "object") {
+      state.passwordStatus = { initialized: false, expired: false, daysLeft: EXPIRY_DAYS };
+    }
+    if (!state.settings || typeof state.settings !== "object") {
+      state.settings = JSON.parse(JSON.stringify(window.BACKSTAGE_DEFAULT_SETTINGS || {}));
+    }
+    if (!Array.isArray(state.settings.cars)) state.settings.cars = [];
+    if (!Array.isArray(state.settings.bookingPackages)) state.settings.bookingPackages = [];
+  }
+
   function render() {
+    hardenState();
     const root = document.getElementById("bsw-admin-root");
     if (!root) return;
 
