@@ -1,0 +1,3 @@
+# Körningsdata (JSON-lagring, sessionshash, valvnyckel) får ALDRIG nås via webben.
+# PHP-backend (api/*.php) läser/skriver via filsystemet och påverkas ej.
+Require all denied

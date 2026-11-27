@@ -20,3 +20,4 @@ data/sms-state.json
 data/gastfoto-pending/
 bilder/galleri/_cache/
 bilder/galleri/gastfoton/
+*.zip

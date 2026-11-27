@@ -1,0 +1,38 @@
+# ============================================================================
+# BACKSTAGE WHEELS — Apache-konfiguration för webbhotell
+# ============================================================================
+Options -Indexes
+
+# Gömda sidor utan .html (som Node-servern gör): /bw-admin, /gastfoto, /kvitto, /status
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule ^bw-admin/?$ bw-admin.html [L]
+  RewriteRule ^kontrollpanel/?$ bw-admin.html [L]
+  RewriteRule ^gastfoto/?$ gastfoto.html [L]
+  RewriteRule ^kvitto/?$ kvitto.html [L]
+  RewriteRule ^status/?$ status.html [L]
+</IfModule>
+
+# /api/* hanteras av PHP-backend (admin.php m.fl. anropas direkt med filnamn av klienten)
+
+# Säkerhetsrubriker
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# Cacha statiska resurser (bilder/CSS/JS) en vecka
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType image/webp "access plus 7 days"
+  ExpiresByType image/png "access plus 7 days"
+  ExpiresByType image/jpeg "access plus 7 days"
+  ExpiresByType text/css "access plus 7 days"
+  ExpiresByType application/javascript "access plus 7 days"
+</IfModule>
+
+# Skydda känsliga filer från direkt HTTP-åtkomst
+<FilesMatch "(\.(json|key|enc|md|log)$|server\.js$|package(-lock)?\.json$)">
+  Require all denied
+</FilesMatch>
