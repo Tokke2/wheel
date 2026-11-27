@@ -9,14 +9,21 @@ const https = require("https");
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
-const { execFileSync, spawn } = require("child_process");
+const { spawn } = require("child_process");
 
-// QR-generator: npm-paketet "qrcode" först (robust), python-fallback därefter (#6, #21)
+// QR-generator & mediaoptimering: 100% ren JavaScript/Node (inga externa processer, ingen python)
 let npmQr = null;
 try {
   npmQr = require("qrcode");
 } catch (_e) {
   npmQr = null;
+}
+let sharpLib = null;
+try {
+  sharpLib = require("sharp");
+  sharpLib.cache(false); // minimalt minnesavtryck (R11)
+} catch (_e) {
+  sharpLib = null; // reserv: originalfiler skickas oförändrade
 }
 
 const PORT = process.env.PORT || 3000;
@@ -472,31 +479,15 @@ function verifySameOrigin(req) {
 // ----------------------------------------------------------------------------
 // BILDOPTIMERING & VIDEOPOSTER
 // ----------------------------------------------------------------------------
-function optimizeUploadedMediaInPlace(savedPath) {
+async function optimizeUploadedMediaInPlace(savedPath) {
   const ext = path.extname(savedPath).toLowerCase();
   const statBefore = fs.existsSync(savedPath) ? fs.statSync(savedPath).size : 0;
 
   if (VIDEO_EXT_REGEX.test(ext)) {
-    const posterPath = savedPath.replace(/\.[^.]+$/, "-poster.webp");
-    const pyVideo = `
-import subprocess, os
-try:
-    import imageio_ffmpeg
-    ff = imageio_ffmpeg.get_ffmpeg_exe()
-    subprocess.run([ff, "-y", "-ss", "00:00:00.8", "-i", ${JSON.stringify(savedPath)}, "-frames:v", "1", "-vf", "scale='min(960,iw)':-2", ${JSON.stringify(posterPath)}], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    print("OK")
-except Exception:
-    print("SKIP")
-`;
-    let posterCreated = false;
-    try {
-      const out = execFileSync("python3", ["-c", pyVideo], { timeout: 15000 }).toString().trim();
-      posterCreated = out === "OK" && fs.existsSync(posterPath);
-    } catch (_e) {}
-
+    // Video: inga externa verktyg behövs — webbläsaren visar första bildrutan själv
     return {
       finalPath: savedPath,
-      posterPath: posterCreated ? posterPath : null,
+      posterPath: null,
       beforeKb: Math.round(statBefore / 1024),
       afterKb: Math.round(statBefore / 1024),
       savedPercent: 0,
@@ -515,38 +506,28 @@ except Exception:
   }
 
   const webpTarget = savedPath.replace(/\.[^.]+$/, ".webp");
-  const pyOpt = `
-import os
-from PIL import Image, ImageOps
-
-src = ${JSON.stringify(savedPath)}
-dst = ${JSON.stringify(webpTarget)}
-
-with Image.open(src) as im:
-    im = ImageOps.exif_transpose(im)
-    has_alpha = im.mode in ("RGBA", "LA") or (im.mode == "P" and "transparency" in im.info)
-    im = im.convert("RGBA" if has_alpha else "RGB")
-    im.thumbnail((1920, 1920), Image.Resampling.LANCZOS)
-    im.save(dst, "WEBP", quality=86, method=6)
-
-if os.path.abspath(src) != os.path.abspath(dst) and os.path.exists(src):
-    os.remove(src)
-print(f"{im.size[0]}x{im.size[1]}")
-`;
   try {
-    const dims = execFileSync("python3", ["-c", pyOpt], { timeout: 20000 }).toString().trim();
+    if (!sharpLib) throw new Error("sharp saknas");
+    const info = await sharpLib(savedPath)
+      .rotate() // EXIF-autoorientering
+      .resize(1920, 1920, { fit: "inside", withoutEnlargement: true })
+      .webp({ quality: 86, effort: 4 })
+      .toFile(webpTarget);
+    if (path.resolve(webpTarget) !== path.resolve(savedPath) && fs.existsSync(savedPath)) {
+      fs.unlinkSync(savedPath); // originalet raderas först när omkodningen lyckats
+    }
     const statAfter = fs.existsSync(webpTarget) ? fs.statSync(webpTarget).size : statBefore;
     const savedPct = statBefore > 0 ? Math.max(0, Math.round((1 - statAfter / statBefore) * 100)) : 0;
     return {
       finalPath: webpTarget,
-      dims,
+      dims: `${info.width || 0}x${info.height || 0}`,
       beforeKb: Math.max(1, Math.round(statBefore / 1024)),
       afterKb: Math.max(1, Math.round(statAfter / 1024)),
       savedPercent: savedPct,
       type: "image"
     };
   } catch (err) {
-    writeDebugLog("WARN", "OPTIMIZER", `Kunde inte omkoda ${path.basename(savedPath)}`, { error: err.message });
+    writeDebugLog("WARN", "OPTIMIZER", `Kunde inte omkoda ${path.basename(savedPath)} — originalet behålls`, { error: String((err && err.message) || err).slice(0, 200) });
     return {
       finalPath: savedPath,
       beforeKb: Math.round(statBefore / 1024),
@@ -579,7 +560,7 @@ function prettifyName(raw) {
     .replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-function buildGalleryAndFoldersCache() {
+async function buildGalleryAndFoldersCache() {
   ensureDirs();
   const folderMetaList = loadJson(FOLDERS_META_FILE, []);
   const folderMetaMap = new Map(folderMetaList.map((f) => [f.slug, f]));
@@ -636,137 +617,90 @@ function buildGalleryAndFoldersCache() {
       });
     });
 
-  const pyScript = `
-import os, json, subprocess, hashlib
-from PIL import Image, ImageOps
-
-tasks = ${JSON.stringify(allFileTasks)}
-cache_dir = ${JSON.stringify(CACHE_DIR)}
-
-ffmpeg_exe = None
-try:
-    import imageio_ffmpeg
-    ffmpeg_exe = imageio_ffmpeg.get_ffmpeg_exe()
-except Exception:
-    ffmpeg_exe = None
-
-out = []
-total_orig = 0
-total_opt = 0
-
-for t in tasks:
-    src_path = t["absPath"]
-    fname = t["filename"]
-    if not os.path.exists(src_path):
-        continue
-    ext = os.path.splitext(fname)[1].lower()
-    orig_bytes = os.path.getsize(src_path)
-    uid = hashlib.md5(t["relPath"].encode("utf-8")).hexdigest()[:10]
-
-    if ext in (".mp4", ".webm", ".mov", ".m4v", ".ogv"):
-        poster_rel = "bilder/bilar/hummer-legends-sida.jpg"
-        poster_cache = os.path.join(cache_dir, f"vidposter_{uid}.webp")
-        if not os.path.exists(poster_cache) and ffmpeg_exe:
-            try:
-                subprocess.run([ffmpeg_exe, "-y", "-ss", "00:00:00.8", "-i", src_path, "-frames:v", "1", "-vf", "scale='min(800,iw)':-2", poster_cache], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            except Exception:
-                pass
-        if os.path.exists(poster_cache):
-            poster_rel = f"bilder/galleri/_cache/vidposter_{uid}.webp"
-        out.append({
-            "filename": fname,
-            "src": t["relPath"],
-            "full": t["relPath"],
-            "thumb": poster_rel,
-            "type": "video",
-            "folderSlug": t["folderSlug"],
-            "folderName": t["folderName"],
-            "sizeKb": round(orig_bytes / 1024)
-        })
-        continue
-
-    thumb_name = f"thumb_{uid}.webp"
-    full_name = f"full_{uid}.webp"
-    thumb_path = os.path.join(cache_dir, thumb_name)
-    full_path = os.path.join(cache_dir, full_name)
-    src_mtime = os.path.getmtime(src_path)
-
-    try:
-        with Image.open(src_path) as im:
-            im = ImageOps.exif_transpose(im).convert("RGB")
-            w, h = im.size
-            if not os.path.exists(full_path) or os.path.getmtime(full_path) < src_mtime:
-                im_full = im.copy()
-                im_full.thumbnail((1920, 1920), Image.Resampling.LANCZOS)
-                im_full.save(full_path, "WEBP", quality=86, method=6)
-            if not os.path.exists(thumb_path) or os.path.getmtime(thumb_path) < src_mtime:
-                im_thumb = im.copy()
-                im_thumb.thumbnail((680, 680), Image.Resampling.LANCZOS)
-                im_thumb.save(thumb_path, "WEBP", quality=82, method=6)
-
-        opt_bytes = os.path.getsize(full_path)
-        total_orig += orig_bytes
-        total_opt += opt_bytes
-        out.append({
-            "filename": fname,
-            "src": t["relPath"],
-            "full": f"bilder/galleri/_cache/{full_name}",
-            "thumb": f"bilder/galleri/_cache/{thumb_name}",
-            "type": "image",
-            "folderSlug": t["folderSlug"],
-            "folderName": t["folderName"],
-            "width": w,
-            "height": h,
-            "sizeKb": round(opt_bytes / 1024)
-        })
-    except Exception:
-        out.append({
-            "filename": fname,
-            "src": t["relPath"],
-            "full": t["relPath"],
-            "thumb": t["relPath"],
-            "type": "image",
-            "folderSlug": t["folderSlug"],
-            "folderName": t["folderName"],
-            "sizeKb": round(orig_bytes / 1024)
-        })
-
-saved_pct = round((1 - total_opt / total_orig) * 100) if total_orig > 0 and total_opt < total_orig else 0
-print(json.dumps({"items": out, "savedPercent": saved_pct}))
-`;
-
-  let items = [];
-  let savedPercent = 0;
-  let pilOk = false;
-  try {
-    const raw = execFileSync("python3", ["-c", pyScript], { timeout: 30000 }).toString("utf8");
-    const parsed = JSON.parse(raw);
-    items = parsed.items || [];
-    savedPercent = parsed.savedPercent || 0;
-    pilOk = true;
-  } catch (err) {
-    writeDebugLog("WARN", "GALLERY_SCAN", "WebP-optimering (python3 + PIL) otillgänglig — galleriet skannas utan optimering i stället", { error: String(err.message || err).slice(0, 200) });
+  const items = [];
+  let totalOrig = 0;
+  let totalOpt = 0;
+  if (!sharpLib) {
+    writeDebugLog("WARN", "GALLERY_SCAN", "sharp (JS-bildoptimering) saknas — galleriet skannas med originalfiler");
   }
-  if (!pilOk) {
-    // FALLBACK utan PIL: skanna filerna direkt (full originalkvalitet, webbläsaren skalar)
-    for (const t of allFileTasks) {
-      let sizeKb = 0;
-      try {
-        sizeKb = Math.round(fs.statSync(t.absPath).size / 1024);
-      } catch (_e) {}
-      const isVid = VIDEO_EXT_REGEX.test(t.filename);
+  for (const t of allFileTasks) {
+    const srcPath = t.absPath;
+    if (!fs.existsSync(srcPath)) continue;
+    let origBytes = 0;
+    try {
+      origBytes = fs.statSync(srcPath).size;
+    } catch (_e) {}
+    const ext = path.extname(t.filename).toLowerCase();
+    const uid = crypto.createHash("md5").update(t.relPath).digest("hex").slice(0, 10);
+
+    if (VIDEO_EXT_REGEX.test(ext)) {
+      // Video: webbläsaren renderar klippet direkt (ingen ffmpeg/python behövs)
       items.push({
         filename: t.filename,
         src: t.relPath,
         full: t.relPath,
         thumb: t.relPath,
-        type: isVid ? "video" : "image",
+        type: "video",
         folderSlug: t.folderSlug,
         folderName: t.folderName,
-        sizeKb
+        sizeKb: Math.round(origBytes / 1024)
+      });
+      continue;
+    }
+
+    const thumbPath = path.join(CACHE_DIR, `thumb_${uid}.webp`);
+    const fullPath = path.join(CACHE_DIR, `full_${uid}.webp`);
+    let srcMtime = 0;
+    try {
+      srcMtime = fs.statSync(srcPath).mtimeMs;
+    } catch (_e) {}
+    let needFull = true;
+    let needThumb = true;
+    try {
+      needFull = !fs.existsSync(fullPath) || fs.statSync(fullPath).mtimeMs < srcMtime;
+      needThumb = !fs.existsSync(thumbPath) || fs.statSync(thumbPath).mtimeMs < srcMtime;
+    } catch (_e) {}
+
+    try {
+      if (!sharpLib) throw new Error("sharp saknas");
+      if (needFull) {
+        await sharpLib(srcPath).rotate().resize(1920, 1920, { fit: "inside", withoutEnlargement: true }).webp({ quality: 86, effort: 4 }).toFile(fullPath);
+      }
+      if (needThumb) {
+        await sharpLib(srcPath).rotate().resize(680, 680, { fit: "inside", withoutEnlargement: true }).webp({ quality: 82, effort: 4 }).toFile(thumbPath);
+      }
+      const meta = await sharpLib(fullPath).metadata();
+      const optBytes = fs.statSync(fullPath).size;
+      totalOrig += origBytes;
+      totalOpt += optBytes;
+      items.push({
+        filename: t.filename,
+        src: t.relPath,
+        full: `bilder/galleri/_cache/full_${uid}.webp`,
+        thumb: `bilder/galleri/_cache/thumb_${uid}.webp`,
+        type: "image",
+        folderSlug: t.folderSlug,
+        folderName: t.folderName,
+        width: meta.width || 0,
+        height: meta.height || 0,
+        sizeKb: Math.round(optBytes / 1024)
+      });
+    } catch (_e) {
+      // Per-fil-reserv: skicka originalet (full kvalitet, webbläsaren skalar)
+      items.push({
+        filename: t.filename,
+        src: t.relPath,
+        full: t.relPath,
+        thumb: t.relPath,
+        type: "image",
+        folderSlug: t.folderSlug,
+        folderName: t.folderName,
+        sizeKb: Math.round(origBytes / 1024)
       });
     }
   }
+
+  const savedPercent = totalOrig > 0 && totalOpt < totalOrig ? Math.round((1 - totalOpt / totalOrig) * 100) : 0;
 
   // Bygg sammanställning av mappar med omslagsbild & antal objekt
   const foldersSummary = orderedSlugs.map((slug) => {
@@ -800,30 +734,23 @@ print(json.dumps({"items": out, "savedPercent": saved_pct}))
 // ----------------------------------------------------------------------------
 // QR-KOD GENERATOR
 // ----------------------------------------------------------------------------
-function regenerateInstagramQr(igUrl) {
-  if (!igUrl) return false;
+async function regenerateInstagramQr(igUrl) {
+  if (!igUrl || !npmQr || typeof npmQr.toFile !== "function") return false;
   const qrPath = path.join(ROOT, "bilder", "qr-instagram.png");
-  const py = `
-try:
-    import qrcode
-    from PIL import Image
-    qr = qrcode.QRCode(version=2, error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=12, border=2)
-    qr.add_data(${JSON.stringify(igUrl)})
-    qr.make(fit=True)
-    img = qr.make_image(fill_color="#f97316", back_color="#0e0f14").convert("RGB")
-    img.save(${JSON.stringify(qrPath)}, "PNG", optimize=True)
-    print("OK")
-except Exception:
-    print("SKIP")
-`;
   try {
-    return execFileSync("python3", ["-c", py], { timeout: 10000 }).toString().trim() === "OK";
+    await npmQr.toFile(qrPath, String(igUrl), {
+      errorCorrectionLevel: "H",
+      margin: 2,
+      scale: 12,
+      color: { dark: "#f97316", light: "#0e0f14" }
+    });
+    return fs.existsSync(qrPath);
   } catch (_e) {
     return false;
   }
 }
 
-// Genererar en QR-PNG på godtycklig URL (samma python-fallback som Instagram-QR:n).
+// Genererar en QR-PNG på godtycklig URL (100% JavaScript via npm-paketet qrcode).
 async function generateQrPng(targetUrl, outPath) {
   if (!targetUrl || !outPath) return false;
   fs.mkdirSync(path.dirname(outPath), { recursive: true });
@@ -839,24 +766,7 @@ async function generateQrPng(targetUrl, outPath) {
       return fs.existsSync(outPath);
     } catch (_e) {}
   }
-  // 2) python-fallback (qrcode + PIL)
-  const py = `
-try:
-    import qrcode
-    qr = qrcode.QRCode(version=3, error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=12, border=2)
-    qr.add_data(${JSON.stringify(String(targetUrl))})
-    qr.make(fit=True)
-    img = qr.make_image(fill_color="#0b0c10", back_color="#ffffff").convert("RGB")
-    img.save(${JSON.stringify(outPath)}, "PNG", optimize=True)
-    print("OK")
-except Exception:
-    print("SKIP")
-`;
-  try {
-    return execFileSync("python3", ["-c", py], { timeout: 10000 }).toString().trim() === "OK";
-  } catch (_e) {
-    return false;
-  }
+  return false;
 }
 
 // ----------------------------------------------------------------------------
@@ -1397,7 +1307,7 @@ function parseMultipart(buffer, boundary) {
   return parts;
 }
 
-function collectSystemHealth() {
+async function collectSystemHealth() {
   ensureDirs();
   let totalBytes = 0;
   let fileCount = 0;
@@ -1414,7 +1324,7 @@ function collectSystemHealth() {
     }
   };
   walk(path.join(ROOT, "bilder"));
-  const gal = buildGalleryAndFoldersCache();
+  const gal = await buildGalleryAndFoldersCache();
   return {
     nodeVersion: process.version,
     uptimeSec: Math.round(process.uptime()),
@@ -1682,7 +1592,7 @@ const server = http.createServer(async (req, res) => {
 
   // 4. GALLERI & EVENEMANGSMAPPAR API
   if (req.method === "GET" && pathname === "/api/gallery") {
-    const gal = buildGalleryAndFoldersCache();
+    const gal = await buildGalleryAndFoldersCache();
     sendJson(res, 200, {
       mode: "server-auto",
       count: gal.items.length,
@@ -1967,7 +1877,7 @@ const server = http.createServer(async (req, res) => {
         sendJson(res, 401, { ok: false, error: "Ej inloggad i Admin." }, true);
         return;
       }
-      const gal = buildGalleryAndFoldersCache();
+      const gal = await buildGalleryAndFoldersCache();
       const gcalItems = await getGoogleCalendarItems(false);
       const interests = loadJson(MERCH_INTEREST_FILE, []);
       const merchInterestCounts = {};
@@ -2034,7 +1944,7 @@ const server = http.createServer(async (req, res) => {
             } catch (_e) {}
             return [];
           })(),
-          health: collectSystemHealth(),
+          health: await collectSystemHealth(),
           icsSubscribeUrl: `${siteOrigin}/api/calendar.ics`
         },
         true
@@ -2109,7 +2019,7 @@ const server = http.createServer(async (req, res) => {
       }
       const chunks = [];
       req.on("data", (c) => chunks.push(c));
-      req.on("end", () => {
+      req.on("end", async () => {
         const buffer = Buffer.concat(chunks);
         const parts = parseMultipart(buffer, boundaryMatch[1]);
         const tokenPart = parts.find((p) => p.name === "token");
@@ -2151,7 +2061,7 @@ const server = http.createServer(async (req, res) => {
         const rawDest = path.join(absDir, safeName);
         fs.writeFileSync(rawDest, filePart.data);
 
-        const opt = optimizeUploadedMediaInPlace(rawDest);
+        const opt = await optimizeUploadedMediaInPlace(rawDest);
         const relFinal = path.relative(ROOT, opt.finalPath).replace(/\\/g, "/");
         const relPoster = opt.posterPath ? path.relative(ROOT, opt.posterPath).replace(/\\/g, "/") : null;
 
@@ -2625,7 +2535,7 @@ const server = http.createServer(async (req, res) => {
           saveJson(FOLDERS_META_FILE, meta);
 
           writeDebugLog("MEDIA", "FOLDER_CREATED", `Skapade evenemangsmapp: ${name} (${slug})`);
-          const gal = buildGalleryAndFoldersCache();
+          const gal = await buildGalleryAndFoldersCache();
           sendJson(res, 200, { ok: true, folder: entry, folders: gal.folders, images: gal.items }, true);
           return;
         }
@@ -2640,7 +2550,7 @@ const server = http.createServer(async (req, res) => {
               fs.rmdirSync(dir);
             }
           }
-          const gal = buildGalleryAndFoldersCache();
+          const gal = await buildGalleryAndFoldersCache();
           sendJson(res, 200, { ok: true, folders: gal.folders, images: gal.items }, true);
           return;
         }
@@ -2652,7 +2562,7 @@ const server = http.createServer(async (req, res) => {
             fs.unlinkSync(abs);
             writeDebugLog("MEDIA", "FILE_DELETED", `Raderade gallerifil: ${rel}`);
           }
-          const gal = buildGalleryAndFoldersCache();
+          const gal = await buildGalleryAndFoldersCache();
           sendJson(res, 200, { ok: true, folders: gal.folders, images: gal.items }, true);
           return;
         }
@@ -2885,7 +2795,7 @@ const server = http.createServer(async (req, res) => {
             return;
           }
           saveJson(GASTFOTO_META_FILE, meta);
-          const gal = buildGalleryAndFoldersCache();
+          const gal = await buildGalleryAndFoldersCache();
           sendJson(res, 200, { ok: true, meta: meta[idx] || null, folders: gal.folders, images: gal.items }, true);
           return;
         }
@@ -3017,7 +2927,7 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  // 8D. QR-KOD SOM PEKAR PÅ GÄSTFOTO-SIDAN (PNG, genereras med python-fallback)
+  // 8D. QR-KOD SOM PEKAR PÅ GÄSTFOTO-SIDAN (PNG, 100% JavaScript)
   if (req.method === "GET" && pathname === "/api/gastfoto-qr") {
     const host = String(req.headers.host || "localhost").split(":")[0];
     const proto = String(req.headers["x-forwarded-proto"] || "http");
@@ -3040,7 +2950,7 @@ const server = http.createServer(async (req, res) => {
       res.writeHead(200, { "Content-Type": "image/png", "Content-Length": stat.size, "Cache-Control": "no-cache" });
       fs.createReadStream(outPath).pipe(res);
     } else {
-      sendJson(res, 404, { ok: false, error: "QR kunde inte genereras (python3 + qrcode saknas). Använd länken som text.", url: target });
+      sendJson(res, 404, { ok: false, error: "QR kunde inte genereras (npm-paketet qrcode saknas). Använd länken som text.", url: target });
     }
     return;
   }
@@ -3099,5 +3009,6 @@ writeDebugLog("INFO", "BOOT", "Backstage Wheels säker server startad (AES-256 v
 startFollowUpLoop();
 
 server.listen(PORT, "0.0.0.0", () => {
-  console.log(`Backstage Wheels server körs på http://0.0.0.0:${PORT}`);
+  buildGalleryAndFoldersCache().catch(() => {}); // förvärm galleri-cache (100% JS)
+  console.log(`Backstage Wheels server körs på http://0.0.0.0:${PORT} — mediaoptimering: ${sharpLib ? "sharp (ren JS)" : "reservläge, originalfiler skickas oförändrade"}`);
 });
