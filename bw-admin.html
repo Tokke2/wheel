@@ -4,6 +4,19 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="robots" content="noindex, nofollow, noarchive" />
+  <script>
+    // GitHub Pages-skydd: extensloess URL (t.ex. /wheel/bw-admin) bryter relativa sokvagar ->
+    // omdirigera till filnamnet med .html sa skript och CSS laddas alltid ratt.
+    (function () {
+      try {
+        var p = location.pathname;
+        if (!/\.(html?|php|webmanifest|png|jpg|svg|webp|mp4|webm|json|css|js|ico|xml|txt)$/i.test(p) && !/\/$/.test(p)) {
+          location.replace(p.replace(/\/([^\/]+)$/, "/$1.html") + location.search + location.hash);
+        }
+      } catch (_e) {}
+    })();
+  </script>
+
   <title>Backstage Wheels — Kontrollpanel</title>
   <link rel="icon" type="image/png" sizes="192x192" href="bilder/app-icon-192.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />

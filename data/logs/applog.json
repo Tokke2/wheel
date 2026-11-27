@@ -1,1 +1,11 @@
-[]
+[
+  {
+    "id": "4ef436d5e0e5",
+    "ts": "2026-11-27T12:56:27.954Z",
+    "timeSv": "2026-11-27 13:56:27",
+    "level": "INFO",
+    "category": "BOOT",
+    "message": "Backstage Wheels säker server startad (AES-256 valv, Kalender-synk, Evenemangsmappar).",
+    "details": null
+  }
+]

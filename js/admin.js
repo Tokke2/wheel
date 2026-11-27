@@ -1389,10 +1389,19 @@
       try {
         const headers = { "X-Requested-With": "BSW-Admin" };
         if (state.token) headers["X-Admin-Token"] = state.token;
-        const res = await fetch(`${ep}?action=status`, {
-          headers,
-          cache: "no-store"
-        });
+        // Tidsgräns 3 s: panelen hamnar aldrig i "Ansluter säkert..." i evighetet
+        const ctrl = typeof AbortController === "function" ? new AbortController() : null;
+        const timer = ctrl ? setTimeout(() => ctrl.abort(), 3000) : null;
+        let res;
+        try {
+          res = await fetch(`${ep}?action=status`, {
+            headers,
+            cache: "no-store",
+            signal: ctrl ? ctrl.signal : undefined
+          });
+        } finally {
+          if (timer) clearTimeout(timer);
+        }
         if (!res.ok) continue;
         const ct = res.headers.get("content-type") || "";
         if (!ct.includes("application/json")) continue;
@@ -4422,7 +4431,21 @@
       await detectBackend();
       await loadAllAdminData();
     } catch (_e) {}
-    render();
+    try {
+      render();
+    } catch (renderErr) {
+      // Rendera ett nödläge i stället för att fastna på "Ansluter säkert..."-kortet
+      const root = document.getElementById("bsw-admin-root");
+      if (root) {
+        root.innerHTML = `<div class="bsw-admin-auth-card" style="text-align:center;">
+          <span class="bsw-kicker">BACKSTAGE WHEELS · KONTROLLPANEL</span>
+          <h2 style="margin:8px 0;">Panelen kunde inte starta</h2>
+          <p style="color:#94a3b8;margin:0 0 12px;">Ett visningsfel uppstod. Ladda om sidan (Ctrl+F5) eller rensa webbläsarcachen och försök igen.</p>
+          <button type="button" onclick="location.reload()" style="padding:10px 20px;background:#f97316;color:#fff;border:none;border-radius:6px;font-weight:bold;cursor:pointer;">🔄 Ladda om</button>
+          <p style="color:#64748b;font-size:12px;margin-top:14px;">${String((renderErr && renderErr.message) || renderErr).slice(0, 160)}</p>
+        </div>`;
+      }
+    }
   }
 
   if (document.readyState === "loading") {
