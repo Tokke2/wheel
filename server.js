@@ -1433,7 +1433,7 @@ function sendSingleEmail(toEmail, subject, htmlBody, fromEmail) {
   return tryAsyncSendmail(msg);
 }
 
-function upsertSubscriberRecord({ email, name, source, interests }) {
+function upsertSubscriberRecord({ email, name, source, interests, preconfirmed }) {
   const cleanEmail = String(email || "").trim().toLowerCase();
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(cleanEmail)) {
     return { ok: false, error: "Ange en giltig e-postadress." };
@@ -1442,6 +1442,7 @@ function upsertSubscriberRecord({ email, name, source, interests }) {
   const existing = list.find((s) => String(s.email || "").toLowerCase() === cleanEmail);
   if (existing) {
     existing.active = true;
+    if (existing.confirmed === undefined) existing.confirmed = true; // äldre prenumeranter räknas som bekräftade
     if (name) existing.name = String(name).trim();
     if (interests) existing.interests = String(interests).trim();
     existing.updatedAt = formatSvDate(Date.now());
@@ -1455,6 +1456,9 @@ function upsertSubscriberRecord({ email, name, source, interests }) {
     source: source || "Hemsidan",
     interests: String(interests || "Nya inlägg, kampanjer & festivalförslag").trim(),
     active: true,
+    confirmed: preconfirmed === true,
+    confirmedAt: preconfirmed === true ? formatSvDate(Date.now()) : null,
+    confirmToken: preconfirmed === true ? null : crypto.randomBytes(18).toString("hex"),
     unsubscribeToken: crypto.randomBytes(18).toString("hex"),
     createdAt: formatSvDate(Date.now())
   };
@@ -1466,7 +1470,7 @@ function upsertSubscriberRecord({ email, name, source, interests }) {
 function broadcastEmailToSubscribers({ kind, subject, title, text, offerPrice, mediaUrl, ctaLabel, ctaHash, siteOrigin }) {
   const cfg = loadJson(SETTINGS_FILE, {});
   const fromEmail = String(cfg.contactEmail || "bokning@backstagewheels.se").trim();
-  const subscribers = loadJson(SUBSCRIBERS_FILE, []).filter((s) => s && s.active !== false && s.email);
+  const subscribers = loadJson(SUBSCRIBERS_FILE, []).filter((s) => s && s.active !== false && s.email && s.confirmed !== false); // dubbel opt-in: endast bekräftade (#2)
 
   let sentCount = 0;
   const fullMediaUrl =
@@ -1731,6 +1735,25 @@ const server = http.createServer(async (req, res) => {
   if (pathname === "/api/subscribe") {
     const action = urlObj.searchParams.get("action") || "";
 
+    if (req.method === "GET" && action === "confirm") {
+      const token = String(urlObj.searchParams.get("token") || "").trim();
+      const subs = loadJson(SUBSCRIBERS_FILE, []);
+      const found = subs.find((s) => s.confirmToken && s.confirmToken === token);
+      let confirmed = false;
+      if (found) {
+        found.confirmed = true;
+        found.confirmedAt = formatSvDate(Date.now());
+        found.confirmToken = null;
+        saveJson(SUBSCRIBERS_FILE, subs);
+        writeDebugLog("INFO", "SUBSCRIBER", `E-post bekräftad (dubbel opt-in): ${found.email}`);
+        confirmed = true;
+      }
+      setSecurityHeaders(res, true);
+      res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+      res.end(`<!DOCTYPE html><html lang="sv"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${confirmed ? "Bekräftad" : "Ogiltig länk"} – Backstage Wheels</title></head><body style="background:#090a0f;color:#f8fafc;font-family:sans-serif;display:grid;place-items:center;min-height:100vh;margin:0;padding:20px;"><div style="max-width:480px;background:#151720;border:1px solid #282c3d;padding:32px;border-radius:12px;text-align:center;">${confirmed ? `<h1 style="margin:0 0 12px;font-size:24px;">E-posten är bekräftad ✓</h1><p style="color:#cbd5e1;line-height:1.6;">Tack! Du får nu våra nya inlägg, kampanjerbjudanden och festivalförslag till din inkorg.</p>` : `<h1 style="margin:0 0 12px;font-size:24px;">Ogiltig länk</h1><p style="color:#cbd5e1;line-height:1.6;">Bekräftelselänken är fel eller redan använd. Anmäl dig gärna igen på hemsidan.</p>`}<a href="/" style="display:inline-block;margin-top:16px;padding:12px 22px;background:#f97316;color:#fff;text-decoration:none;border-radius:6px;font-weight:bold;">Tillbaka till hemsidan</a></div></body></html>`);
+      return;
+    }
+
     if (req.method === "GET" && action === "unsubscribe") {
       const token = String(urlObj.searchParams.get("token") || "").trim();
       const subs = loadJson(SUBSCRIBERS_FILE, []);
@@ -1762,18 +1785,20 @@ const server = http.createServer(async (req, res) => {
             sendJson(res, 400, result);
             return;
           }
-          if (!result.alreadyExisted) {
+          if (result.subscriber.confirmed === false) {
+            // DUBBEL OPT-IN (#2): bekräftelselänk skickas innan utskick får göras
             const cfg = loadJson(SETTINGS_FILE, {});
             const fromEmail = String(cfg.contactEmail || "bokning@backstagewheels.se").trim();
-            const unsubUrl = `${siteOrigin}/api/subscribe?action=unsubscribe&token=${encodeURIComponent(result.subscriber.unsubscribeToken)}`;
+            const confirmUrl = `${siteOrigin}/api/subscribe?action=confirm&token=${encodeURIComponent(result.subscriber.confirmToken || "")}`;
+            const unsubUrl = `${siteOrigin}/api/subscribe?action=unsubscribe&token=${encodeURIComponent(result.subscriber.unsubscribeToken || "")}`;
             sendSingleEmail(
               result.subscriber.email,
-              "Välkommen till Backstage Wheels VIP-utskick!",
-              `<div style="background:#090a0f;color:#f8fafc;font-family:Arial,sans-serif;padding:24px;"><div style="max-width:560px;margin:0 auto;background:#141722;border:1px solid #2e3448;border-radius:10px;padding:24px;"><h2 style="margin-top:0;color:#fff;">Välkommen till Backstage Wheels! 🤘</h2><p style="color:#cbd5e1;line-height:1.6;">Du får nu våra nya inlägg, exklusiva kampanjerbjudanden och festivalförslag direkt till din e-post.</p><p style="font-size:12px;color:#94a3b8;margin-top:24px;"><a href="${escapeHtmlServer(unsubUrl)}" style="color:#fbbf24;">Avregistrera dig när som helst här</a></p></div></div>`,
+              "Bekräfta din anmälan till Backstage Wheels VIP-utskick",
+              `<div style="background:#090a0f;color:#f8fafc;font-family:Arial,sans-serif;padding:24px;"><div style="max-width:560px;margin:0 auto;background:#141722;border:1px solid #2e3448;border-radius:10px;padding:24px;"><h2 style="margin-top:0;color:#fff;">Bekräfta din anmälan 🤘</h2><p style="color:#cbd5e1;line-height:1.6;">Tack för din anmälan! Klicka på knappen nedan för att bekräfta din e-postadress. Därefter får du nya inlägg, exklusiva kampanjerbjudanden och festivalförslag. Får du inte mejlet? Kontrollera skräpposten.</p><p style="margin:20px 0;"><a href="${escapeHtmlServer(confirmUrl)}" style="display:inline-block;padding:12px 22px;background:#f97316;color:#fff;text-decoration:none;border-radius:6px;font-weight:bold;">✓ Bekräfta min anmälan</a></p><p style="font-size:12px;color:#94a3b8;margin-top:24px;"><a href="${escapeHtmlServer(unsubUrl)}" style="color:#fbbf24;">Avregistrera dig när som helst här</a></p></div></div>`,
               fromEmail
             );
           }
-          writeDebugLog("INFO", "SUBSCRIBER", `Ny e-postprenumerant registrerad: ${result.subscriber.email}`);
+          writeDebugLog("INFO", "SUBSCRIBER", `E-postprenumerant: ${result.subscriber.email} (${result.subscriber.confirmed === false ? "väntar på bekräftelse" : "bekräftad"})`);
           sendJson(res, 200, { ok: true, alreadyExisted: result.alreadyExisted });
         } catch (_e) {
           sendJson(res, 400, { ok: false, error: "Kunde inte spara anmälan." });
@@ -2443,7 +2468,8 @@ const server = http.createServer(async (req, res) => {
             email: body.email,
             name: body.name,
             source: "Manuellt tillagd i Admin",
-            interests: body.interests || "Nya inlägg, kampanjer & festivalförslag"
+            interests: body.interests || "Nya inlägg, kampanjer & festivalförslag",
+            preconfirmed: true // administratören känner kunden: ingen extra opt-in behövs
           });
           if (!r.ok) {
             sendJson(res, 400, r, true);
@@ -2467,13 +2493,13 @@ const server = http.createServer(async (req, res) => {
           let added = 0;
           quotes.forEach((q) => {
             if (q.epost) {
-              const r = upsertSubscriberRecord({ email: q.epost, name: q.namn || "", source: "Offertkund" });
+              const r = upsertSubscriberRecord({ email: q.epost, name: q.namn || "", source: "Offertkund", preconfirmed: true });
               if (r.ok && !r.alreadyExisted) added += 1;
             }
           });
           orders.forEach((o) => {
             if (o.email) {
-              const r = upsertSubscriberRecord({ email: o.email, name: o.customerName || "", source: "Merch-kund" });
+              const r = upsertSubscriberRecord({ email: o.email, name: o.customerName || "", source: "Merch-kund", preconfirmed: true });
               if (r.ok && !r.alreadyExisted) added += 1;
             }
           });
@@ -2831,10 +2857,12 @@ const server = http.createServer(async (req, res) => {
         existing.unshift({ receivedAt: formatSvDate(Date.now()), recipient, ...data });
         saveJson(QUOTES_FILE, existing);
         if (data.subscribeNewsletter && data.epost) {
+          // Kunden kryssade i nyhetsbrev på formuläret => räknas som bekräftad (preconfirmed)
           upsertSubscriberRecord({
             email: data.epost,
             name: data.namn || "",
-            source: "Offertförfrågan"
+            source: "Offertförfrågan",
+            preconfirmed: true
           });
         }
         // Bekräftelse till kunden på valt språk (sv/en/de) (#10)

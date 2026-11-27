@@ -152,3 +152,4 @@ Varje kodförändring ska omedelbart publiceras via **GitHub Pages** (bygg från
 |---|---|
 | 2026-11-26 | Samtliga hårda regler och kvalitetsregler (R1–R12, K1–K6, REQ-K4) insamlade från användarens chatt och kodifierade i denna fil. |
 | 2026-11-26 | Användarbeslut: **endast GitHub Pages** som distribution — samtliga GitHub Releases borttagna; R3/REQ-K4 skrivits om till Pages-krav. |
+| 2026-11-26 | 100% JavaScript: all python/PIL/ffmpeg borttagen (sharp + npm-qrcode). Nytt: mörkt/ljust läge i panelen (#1, följer systemet), nyhetsbrev med dubbel opt-in + bekräftelsesida (#2), återkommande bokningar "⧉ +1 år" (#6), tillgänglighetsläge WCAG på web + panel (#9), snabbguide i panelen med ?-hjälp på fält (#10). |

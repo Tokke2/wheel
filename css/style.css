@@ -3701,3 +3701,65 @@ html[data-theme="dark"] .bsw-cal-cell.is-booked .cal-day-tag {
   filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.7));
   pointer-events: none;
 }
+
+/* ==========================================================================
+   TILLGÄNGLIGHETSLÄGE (#9) — html.a11y: större text, högre kontrast, tydlig fokus
+   ========================================================================== */
+html.a11y {
+  font-size: 1.14rem;
+}
+html.a11y[data-theme="dark"] {
+  --text-soft: #f1f5fb;
+  --text-muted: #cad7ea;
+  --border-steel: #4b5675;
+}
+html.a11y[data-theme="light"] {
+  --text-soft: #0b1220;
+  --text-muted: #334155;
+  --border-steel: #64748b;
+}
+html.a11y :is(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 3px solid var(--accent-gold, #fbbf24);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+.bsw-field label[title]::after {
+  content: " ?";
+  display: inline-block;
+  margin-left: 6px;
+  width: 16px;
+  height: 16px;
+  line-height: 16px;
+  text-align: center;
+  border-radius: 50%;
+  background: rgba(251, 191, 36, 0.18);
+  color: var(--accent-gold, #fbbf24);
+  font-weight: 700;
+  font-size: 11px;
+  cursor: help;
+}
+.bsw-skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 10000;
+  background: #f97316;
+  color: #ffffff;
+  padding: 10px 16px;
+  border-radius: 0 0 8px 0;
+  font-weight: 700;
+  text-decoration: none;
+}
+.bsw-skip-link:focus {
+  left: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

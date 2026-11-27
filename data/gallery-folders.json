@@ -1,5 +1,11 @@
 [
   {
+    "slug": "gastfoton",
+    "name": "Gästfoton via QR",
+    "date": "Löpande",
+    "description": "Modererade foton som gäster laddat upp via QR-koden i limousinen."
+  },
+  {
     "slug": "sweden-rock-festivaler",
     "name": "Sweden Rock & Festivaler",
     "date": "Sommaren 2026",

@@ -130,6 +130,31 @@
     }
   }
 
+  // -------------------------------------------------------------------------
+  // 1B. TILLGÄNGLIGHETSLÄGE (#9): större text, högre kontrast, tydlig fokus (WCAG)
+  // -------------------------------------------------------------------------
+  function initAccessibilityToggle() {
+    const a11yBtn = document.getElementById("bsw-a11y-toggle");
+    const apply = (on) => {
+      document.documentElement.classList.toggle("a11y", on);
+      if (a11yBtn) a11yBtn.setAttribute("aria-pressed", on ? "true" : "false");
+    };
+    let on = false;
+    try {
+      on = localStorage.getItem("bsw_a11y") === "1";
+    } catch (_e) {}
+    apply(on);
+    if (a11yBtn) {
+      a11yBtn.addEventListener("click", () => {
+        on = !on;
+        apply(on);
+        try {
+          localStorage.setItem("bsw_a11y", on ? "1" : "0");
+        } catch (_e) {}
+      });
+    }
+  }
+
   // --------------------------------------------------------------------------
   // 2. LADDA PUBLIKA INSTÄLLNINGAR, INLÄGG, MERCH & INTRESSE FRÅN SERVERN
   // --------------------------------------------------------------------------
@@ -2425,6 +2450,7 @@
 
   document.addEventListener("DOMContentLoaded", async () => {
     initThemeToggle();
+    initAccessibilityToggle();
     initOwnerShortcut();
     await loadLiveSettingsAndPosts();
     applyBrandingAndContacts();

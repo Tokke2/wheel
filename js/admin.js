@@ -24,6 +24,64 @@
 
   let memoryTokenFallback = "";
 
+  // ---- TEMA & TILLGÄNGLIGHET (#1, #9): appliceras före första renderingen ----
+  try {
+    const savedTheme = localStorage.getItem("bsw_admin_theme");
+    const sysTheme = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", savedTheme || sysTheme);
+  } catch (_e) {}
+  try {
+    if (localStorage.getItem("bsw_a11y") === "1") document.documentElement.classList.add("a11y");
+  } catch (_e) {}
+
+  // ---- SNABBGUIDE (#10): steg-för-steg första gången + "?-knapp" i topbaren ----
+  const GUIDE_SEEN_KEY = "bsw_admin_guide_seen_v2";
+  const GUIDE_STEPS = [
+    { icon: "🔐", title: "Säkerhet & lösenord", text: "Under Säkerhet & Loggar byter du lösenord (20-dagars regel) och ser felloggen med alla aktiva fel - klicka 'Markera åtgärdad' när felet är fixat." },
+    { icon: "📅", title: "Kalender & bokningar", text: "Lägg in bokningar, delvis lediga kvällar och evenemang. Knappen '⧉ +1 år' duplicerar en bokning direkt till nästa år (återkommande bokningar). Google-kalender synkas via .ics-länken." },
+    { icon: "🖼️", title: "Bilduppladdning & galleri", text: "Alla uppladdade bilder optimeras automatiskt till snabba WebP-filer. Skapa evenemangsmappar, radera filer och godkänn gästfoton från QR-koden." },
+    { icon: "📰", title: "Inlägg & utskick", text: "Publicera inlägg som auto-delas till hemsidan, sociala medier och e-postprenumeranter. Nyhetsbrevet använder dubbel opt-in: nya anmälningar måste klicka bekräftelselänken i mejlet först." },
+    { icon: "🛒", title: "Merch & tryckoriginal", text: "Merch-varor med kundintresse-röstning. Alla vektor-SVG tryckoriginal kan redigeras och skrivas ut i 300 DPI för tryckeriet." },
+    { icon: "🚗", title: "Bilar & priser", text: "Ändra priser, paketkort och punktvillkor - uppdateras direkt på hemsidan." },
+    { icon: "🤖", title: "BW Bot & kontakt", text: "BW Bot påminner dig om kommande körningar, nya offerter och gästfoton. Kontaktuppgifter, logotyp och QR hanteras under kontaktfliken." },
+    { icon: "❓", title: "Hjälp & tillgänglighet", text: "Fält med '?-ikon' har förklaring vid pekning. '👁 Tillgänglighet' ger större text och högre kontrast, '🌙/☀️' växlar mörkt/ljust läge." }
+  ];
+
+  function openAdminGuide(manual) {
+    if (document.getElementById("adm-guide-overlay")) return;
+    let step = 0;
+    const overlay = document.createElement("div");
+    overlay.id = "adm-guide-overlay";
+    overlay.setAttribute("role", "dialog");
+    overlay.setAttribute("aria-modal", "true");
+    overlay.setAttribute("aria-label", "Snabbguide till kontrollpanelen");
+    const draw = () => {
+      const st = GUIDE_STEPS[step];
+      overlay.innerHTML = `<div style="position:fixed;inset:0;background:rgba(0,0,0,.62);z-index:99999;display:grid;place-items:center;padding:20px;">
+        <div style="max-width:470px;width:100%;background:var(--panel, #12141d);border:1px solid var(--border-steel, #282c3d);border-radius:14px;padding:26px;box-shadow:0 20px 60px rgba(0,0,0,.5);">
+          <span class="bsw-kicker">SNABBGUIDE · ${step + 1}/${GUIDE_STEPS.length}</span>
+          <h3 style="margin:6px 0 10px;font-size:1.3rem;font-family:var(--font-display);">${st.icon} ${esc(st.title)}</h3>
+          <p style="color:var(--text-muted);line-height:1.6;margin:0 0 18px;">${esc(st.text)}</p>
+          <div style="display:flex;justify-content:space-between;gap:10px;">
+            <button id="adm-guide-skip" class="bsw-btn bsw-btn-ghost">${manual ? "Stäng" : "Hoppa över"}</button>
+            <button id="adm-guide-next" class="bsw-btn bsw-btn-primary">${step === GUIDE_STEPS.length - 1 ? "✓ Klar - börja använda panelen" : "Nästa →"}</button>
+          </div>
+        </div>
+      </div>`;
+      document.getElementById("adm-guide-skip").onclick = closeGuide;
+      document.getElementById("adm-guide-next").onclick = () => {
+        if (step === GUIDE_STEPS.length - 1) closeGuide();
+        else { step += 1; draw(); }
+      };
+    };
+    const closeGuide = () => {
+      overlay.remove();
+      try { localStorage.setItem(GUIDE_SEEN_KEY, "1"); } catch (_e) {}
+    };
+    document.body.appendChild(overlay);
+    draw();
+  }
+
   function safeGetToken() {
     try {
       const s = window.sessionStorage && sessionStorage.getItem(TOKEN_STORAGE_KEY);
@@ -1120,7 +1178,7 @@
         media: Array.isArray(p.media) ? p.media : []
       };
       db.posts.unshift(entry);
-      const activeCount = db.subscribers.filter((s) => s.active !== false).length;
+      const activeCount = db.subscribers.filter((s) => s.active !== false && s.confirmed !== false).length;
       db.campaigns.unshift({
         id: "camp-" + Date.now(),
         kind: "new_post",
@@ -1207,6 +1265,7 @@
           email: em,
           name: payload.name || "",
           active: true,
+          confirmed: true,
           source: "Kontrollpanelen",
           createdAt: nowSv()
         });
@@ -1226,7 +1285,7 @@
       [...db.quotes.map((q) => ({ email: q.epost, name: q.namn })), ...db.merchInterests.map((i) => ({ email: i.email, name: i.customerName }))].forEach((c) => {
         const em = String(c.email || "").trim().toLowerCase();
         if (em.includes("@") && !db.subscribers.some((s) => s.email === em)) {
-          db.subscribers.unshift({ id: "sub-" + Date.now() + added, email: em, name: c.name || "", active: true, source: "Import", createdAt: nowSv() });
+          db.subscribers.unshift({ id: "sub-" + Date.now() + added, email: em, name: c.name || "", active: true, confirmed: true, source: "Import", createdAt: nowSv() });
           added += 1;
         }
       });
@@ -1913,7 +1972,7 @@
   // MODUL 1: INLÄGGSHANTERING + INFOGA BILDER & VIDEO DIREKT I INLÄGGET
   // --------------------------------------------------------------------------
   function renderPostsTab() {
-    const activeSubsCount = state.subscribers.filter((s) => s.active !== false).length;
+    const activeSubsCount = state.subscribers.filter((s) => s.active !== false && s.confirmed !== false).length;
     const editingPost = state.editingPostId ? state.posts.find((p) => p.id === state.editingPostId) : null;
 
     const draftMediaHtml = state.postDraftMedia.length
@@ -2050,7 +2109,7 @@
   // MODUL 2: E-POSTPRENUMERANTER, KAMPANJER & FESTIVALFÖRSLAG
   // --------------------------------------------------------------------------
   function renderNewsletterTab() {
-    const activeSubs = state.subscribers.filter((s) => s.active !== false);
+    const activeSubs = state.subscribers.filter((s) => s.active !== false && s.confirmed !== false);
     return `
       <div class="bsw-form-card" style="margin-bottom:28px;">
         <span class="bsw-kicker">MERFÖRSÄLJNING · UTSKICK TILL KUNDER</span>
@@ -2153,7 +2212,7 @@
                     <div>
                       <strong><a href="mailto:${esc(s.email)}" class="bsw-inline-contact-link">${esc(s.email)}</a></strong>
                       ${s.name ? ` · <span>${esc(s.name)}</span>` : ""}
-                      <small style="display:block;color:var(--text-muted);">${s.active === false ? "❌ Avregistrerad" : "✅ Aktiv"} · Källa: ${esc(s.source || "Hemsidan")} · ${esc(s.createdAt || "")}</small>
+                      <small style="display:block;color:var(--text-muted);">${s.active === false ? "❌ Avregistrerad" : s.confirmed === false ? "⏳ Väntar på bekräftelse (dubbel opt-in)" : "✅ Aktiv & bekräftad"} · Källa: ${esc(s.source || "Hemsidan")} · ${esc(s.createdAt || "")}</small>
                     </div>
                     <button type="button" class="bsw-icon-action-btn" data-del-sub="${esc(s.id || s.email)}" style="color:#fca5a5;">Ta bort</button>
                   </div>`
@@ -2563,7 +2622,7 @@
         <h2 style="margin:0 0 12px;font-family:var(--font-display);text-transform:uppercase;">Lägg in Bokning, Delvis Ledig Kväll eller Evenemang</h2>
         <form id="adm-cal-add-form" class="bsw-form-grid">
           <div class="bsw-field">
-            <label>Startdatum *</label>
+            <label title="Dagen bokningen/eventet startar. Använd Slutdatum för flerdagarsevenemang.">Startdatum *</label>
             <input type="date" id="cal-date" required />
           </div>
           <div class="bsw-field">
@@ -2571,14 +2630,14 @@
             <input type="date" id="cal-end" />
           </div>
           <div class="bsw-field">
-            <label>Typ</label>
+            <label title="Kundbokning = passage som upptar kalendern. Publikt Evenemang visas med rubrik & beskrivning på hemsidans kalender.">Typ</label>
             <select id="cal-kind">
               <option value="booking">Kundbokning / Pass</option>
               <option value="event">Publikt Evenemang / Festival</option>
             </select>
           </div>
           <div class="bsw-field">
-            <label>Tillgänglighet i kalendern</label>
+            <label title="Guld = delvis bokad (pass kvar!), Röd = fullbokad hela kvällen, Grön = öppen/bokningsbar.">Tillgänglighet i kalendern</label>
             <select id="cal-avail">
               <option value="partial">Guld: Delvis bokad (Pass kvar!)</option>
               <option value="booked">Röd: Fullbokad hela kvällen</option>
@@ -2586,11 +2645,11 @@
             </select>
           </div>
           <div class="bsw-field">
-            <label>Publik rubrik *</label>
+            <label title="Visas för besökare i kalendern på hemsidan. Utnytja status: 'Pass 1 BOKAT - Pass 2 & 3 LEDIGA!'.">Publik rubrik *</label>
             <input type="text" id="cal-title" required placeholder="T.ex. Pass 1 bokat – Pass 2 &amp; Pass 3 LEDIGA!" />
           </div>
           <div class="bsw-field">
-            <label>Tider &amp; Ort</label>
+            <label title="Tider och status, t.ex. 'Från kl. 20:00 LEDIG'. Ort visas bredvid, t.ex. Falun.">Tider &amp; Ort</label>
             <div style="display:flex;gap:8px;">
               <input type="text" id="cal-slot" placeholder="T.ex. Från kl. 20:00 LEDIG" style="flex:1;" />
               <input type="text" id="cal-loc" placeholder="Ort, t.ex. Falun" style="flex:1;" />
@@ -2629,8 +2688,11 @@
                 <small style="display:block;color:var(--accent-gold);">${esc(c.timeSlot || "")} ${c.location ? "· " + esc(c.location) : ""}</small>
                 ${c.description ? `<small style="display:block;color:var(--text-muted);">${esc(c.description)}</small>` : ""}
               </div>
-              <button type="button" class="bsw-icon-action-btn" data-link-cal="${idx}">🔗 Kundlänk</button>
-              <button type="button" class="bsw-icon-action-btn" data-del-cal="${idx}" style="color:#fca5a5;">🗑️ Ta bort</button>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <button type="button" class="bsw-icon-action-btn" data-dup-cal="${idx}" title="Återkommande bokning: duplicera posten till samma datum nästa år">⧉ +1 år</button>
+                <button type="button" class="bsw-icon-action-btn" data-link-cal="${idx}">🔗 Kundlänk</button>
+                <button type="button" class="bsw-icon-action-btn" data-del-cal="${idx}" style="color:#fca5a5;">🗑️ Ta bort</button>
+              </div>
             </div>`
             )
             .join("")}
@@ -3389,7 +3451,7 @@
       return;
     }
 
-    const activeSubsCount = state.subscribers.filter((s) => s.active !== false).length;
+    const activeSubsCount = state.subscribers.filter((s) => s.active !== false && s.confirmed !== false).length;
     const totalMerchVotes = Object.values(state.merchInterestCounts || {}).reduce((acc, n) => acc + Number(n || 0), 0);
 
     const menuItems = [
@@ -3427,6 +3489,9 @@
         </div>
         <div class="bsw-wp-adminbar-right">
           <span class="bsw-wp-expiry-pill">🔑 ${esc(state.passwordStatus.daysLeft)} dagar kvar på lösenord</span>
+          <button type="button" id="adm-a11y-btn" class="bsw-wp-logout-btn" aria-pressed="${document.documentElement.classList.contains("a11y") ? "true" : "false"}" title="Tillgänglighetsläge: större text, högre kontrast, tydlig fokusmarkering (WCAG)">👁 Tillgänglighet</button>
+          <button type="button" id="adm-theme-btn" class="bsw-wp-logout-btn" title="Växla mellan mörkt och ljust läge (följer systeminställningen från start)">${document.documentElement.getAttribute("data-theme") === "light" ? "☀️ Ljust" : "🌙 Mörkt"}</button>
+          <button type="button" id="adm-guide-btn" class="bsw-wp-logout-btn" title="Snabbguide: steg-för-steg genom panelen">❓ Guide</button>
           <button type="button" id="adm-logout-btn" class="bsw-wp-logout-btn">Logga ut</button>
         </div>
       </header>
@@ -3522,6 +3587,38 @@
         render();
       });
     }
+
+    // --- TEMA (#1): mörkt/ljust, följer systemet tills användaren väljer ---
+    const themeBtn = document.getElementById("adm-theme-btn");
+    if (themeBtn) {
+      themeBtn.addEventListener("click", () => {
+        const next = document.documentElement.getAttribute("data-theme") === "light" ? "dark" : "light";
+        document.documentElement.setAttribute("data-theme", next);
+        try { localStorage.setItem("bsw_admin_theme", next); } catch (_e) {}
+        themeBtn.textContent = next === "light" ? "☀️ Ljust" : "🌙 Mörkt";
+        showToast(next === "light" ? "Ljust läge aktiverat." : "Mörkt läge aktiverat.");
+      });
+    }
+
+    // --- TILLGÄNGLIGHETSLÄGE (#9): större text, högre kontrast, tydlig fokus ---
+    const a11yBtn = document.getElementById("adm-a11y-btn");
+    if (a11yBtn) {
+      a11yBtn.addEventListener("click", () => {
+        const on = document.documentElement.classList.toggle("a11y");
+        try { localStorage.setItem("bsw_a11y", on ? "1" : "0"); } catch (_e) {}
+        a11yBtn.setAttribute("aria-pressed", on ? "true" : "false");
+        showToast(on ? "Tillgänglighetsläge: större text & högre kontrast." : "Tillgänglighetsläget avstängt.");
+      });
+    }
+
+    // --- SNABBGUIDE (#10): öppnas manuellt via '? Guide' + automatiskt första gången ---
+    const guideBtn = document.getElementById("adm-guide-btn");
+    if (guideBtn) {
+      guideBtn.addEventListener("click", () => openAdminGuide(true));
+    }
+    try {
+      if (!localStorage.getItem(GUIDE_SEEN_KEY)) openAdminGuide(false);
+    } catch (_e) {}
 
     // --- INLÄGG & INFOGA BILDER/VIDEO ---
     const postUploadInp = document.getElementById("adm-post-media-upload");
@@ -4062,6 +4159,32 @@
         await apiPost("save_calendar_list", { calendar: state.calendar });
         showToast("Kalenderpost borttagen.");
         render();
+      });
+    });
+
+    // --- ÅTERKOMMANDE BOKNINGAR (#6): duplicera posten till nästa år ---
+    const shiftYear = (d) => {
+      if (!d || !/^\d{4}-\d{2}-\d{2}$/.test(d)) return d;
+      const dt = new Date(d + "T12:00:00");
+      dt.setFullYear(dt.getFullYear() + 1);
+      return dt.toISOString().slice(0, 10);
+    };
+    document.querySelectorAll("[data-dup-cal]").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const dupIdx = Number(btn.getAttribute("data-dup-cal"));
+        const src = state.calendar[dupIdx];
+        if (!src) return;
+        const clone = JSON.parse(JSON.stringify(src));
+        clone.date = shiftYear(src.date);
+        if (clone.endDate) clone.endDate = shiftYear(src.endDate);
+        clone.id = "cal-" + Date.now() + "-" + Math.floor(Math.random() * 10000);
+        if (clone.adminTitle) clone.adminTitle = `${clone.adminTitle} (kopia ${String(clone.date).slice(0, 4)})`;
+        state.calendar.splice(dupIdx + 1, 0, clone);
+        const r = await apiPost("save_calendar_list", { calendar: state.calendar });
+        if (r.ok) {
+          showToast(`Återkommande bokning skapad: ${clone.date} ✓`);
+          render();
+        }
       });
     });
 
