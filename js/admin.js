@@ -1664,10 +1664,18 @@
         </div>
       </div>`;
 
+    const demoNotice = state.localPreviewMode
+      ? `<div style="background:rgba(56,189,248,0.12);border:1px solid #38bdf8;border-radius:8px;padding:10px 14px;margin:0 0 14px;font-size:0.9rem;color:var(--text-soft);">
+          <strong>ℹ️ Förhandsgranskningsläge (GitHub Pages):</strong> denna panel sparar ändringar <strong>endast i din webbläsare</strong> — de påverkar inte den publika sajten.
+          Kör panelen mot din Node-server (VPS) eller webbhotellets PHP-backend för att styra hemsidan på riktigt.
+        </div>`
+      : "";
+
     if (needSetup) {
       root.innerHTML = `
         ${topNavHtml}
         <div class="bsw-admin-auth-card">
+          ${demoNotice}
           <span class="bsw-kicker">FÖRSTA INLOGGNING · SKAPA LÖSENORD</span>
           <h1 style="margin:6px 0 10px;font-family:var(--font-display);text-transform:uppercase;">
             Välj ditt lösenord till Kontrollpanelen
@@ -1915,6 +1923,7 @@
       ${topNavHtml}
       <div class="bsw-admin-auth-card">
         <span class="bsw-kicker">GÖMD KONTROLLPANEL · BACKSTAGE WHEELS</span>
+        ${demoNotice}
         <h1 style="margin:6px 0 10px;font-family:var(--font-display);text-transform:uppercase;">Logga in</h1>
         <p style="color:var(--text-soft);margin-bottom:18px;">
           Här styr du inlägg, bilder &amp; videor, merch, vektor-SVG för tryck, utskick/kampanjer, kalender, bilar och priser.

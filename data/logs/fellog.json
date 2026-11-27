@@ -1,1 +1,17 @@
-[]
+[
+  {
+    "key": "c63e8bce9674",
+    "id": "8823f2cc27e1",
+    "level": "SECURITY",
+    "category": "ADMIN_LOGIN",
+    "message": "Inloggad i gömda Adminpanelen",
+    "details": {
+      "ip": "127.0.0.1"
+    },
+    "count": 1,
+    "firstSeenTs": "2026-11-27T12:56:37.752Z",
+    "firstSeenTimeSv": "2026-11-27 13:56:37",
+    "lastSeenTs": "2026-11-27T12:56:37.752Z",
+    "lastSeenTimeSv": "2026-11-27 13:56:37"
+  }
+]

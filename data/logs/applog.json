@@ -1,5 +1,16 @@
 [
   {
+    "id": "8823f2cc27e1",
+    "ts": "2026-11-27T12:56:37.752Z",
+    "timeSv": "2026-11-27 13:56:37",
+    "level": "SECURITY",
+    "category": "ADMIN_LOGIN",
+    "message": "Inloggad i gömda Adminpanelen",
+    "details": {
+      "ip": "127.0.0.1"
+    }
+  },
+  {
     "id": "4ef436d5e0e5",
     "ts": "2026-11-27T12:56:27.954Z",
     "timeSv": "2026-11-27 13:56:27",
